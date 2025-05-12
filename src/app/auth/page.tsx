@@ -63,7 +63,7 @@ export default function AuthPage() {
             src="/logo.svg"
             alt="EzCare Connect Logo"
             width={180} 
-            height={45}
+            height={63} // Adjusted height based on typical logo aspect ratio
             priority
           />
       </Link>

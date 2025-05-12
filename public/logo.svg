@@ -1,34 +1,18 @@
-<svg width="180" height="45" viewBox="0 0 180 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-<style>
-    .logo-path {
-        stroke: #1A73E8; /* Medical Blue for light mode */
-    }
-    .logo-text-ezcare {
-        font-family: 'Poppins', Arial, sans-serif;
-        fill: #1A73E8; /* Medical Blue for light mode */
-        font-size: 24px;
-        font-weight: 600;
-    }
-    .logo-text-connect {
-        font-family: 'Poppins', Arial, sans-serif;
-        fill: #20C997; /* Medical Teal for light mode */
-        font-size: 24px;
-        font-weight: 500;
-    }
+<svg width="200" height="70" viewBox="0 0 200 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .ez-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #3A4D8F; }
+    .c-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #FFFFFF; }
+    .are-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #C5CAE9; }
+    .plus-text { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #3A4D8F; }
+    .tagline-text { font-family: Arial, sans-serif; font-size: 12px; fill: #3A4D8F; }
+  </style>
 
-    @media (prefers-color-scheme: dark) {
-        .logo-path {
-            stroke: #ADCFFB; /* Lighter Medical Blue for dark mode (e.g., hsl(211, 86%, 83%)) */
-        }
-        .logo-text-ezcare {
-            fill: #ADCFFB; /* Lighter Medical Blue for dark mode */
-        }
-        .logo-text-connect {
-            fill: #66D9C1; /* Lighter Medical Teal for dark mode (e.g., hsl(165, 62%, 62%)) */
-        }
-    }
-</style>
-<path class="logo-path" d="M10.7391 33.2826C10.7391 33.2826 14.3478 32.1087 14.3478 28.913C14.3478 25.7174 10.7391 24.5435 10.7391 24.5435M10.7391 33.2826C10.7391 33.2826 7.13043 32.1087 7.13043 28.913C7.13043 25.7174 10.7391 24.5435 10.7391 24.5435M10.7391 33.2826V37.1956M10.7391 24.5435V20.6304C10.7391 20.6304 13.0435 19.087 13.0435 17.3913C13.0435 15.6956 10.7391 14.1522 10.7391 14.1522C10.7391 14.1522 8.43478 15.6956 8.43478 17.3913C8.43478 19.087 10.7391 20.6304 10.7391 20.6304M17.3913 28.913L10.7391 37.1956M10.7391 37.1956L4.08696 28.913M22.3913 17.3913C22.3913 12.0802 18.0367 7.80435 12.6087 7.80435C7.1807 7.80435 2.82609 12.0802 2.82609 17.3913C2.82609 22.7024 7.1807 26.9783 12.6087 26.9783C14.711 26.9783 16.6413 26.2904 18.193 25.1331" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="35" y="30" class="logo-text-ezcare">EzCare</text>
-<text x="118" y="30" class="logo-text-connect">Connect</text>
+  <text x="10" y="40" class="ez-text">EZ</text>
+  
+  <text x="60" y="40" class="c-text">C</text>
+  <text x="69" y="33" class="plus-text">+</text>
+  
+  <text x="85" y="40" class="are-text">ARE</text>
+  
+  <text x="60" y="58" class="tagline-text">care simplified</text>
 </svg>

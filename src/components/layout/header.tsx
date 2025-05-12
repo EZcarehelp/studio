@@ -64,7 +64,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             src="/logo.svg"
             alt="EzCare Connect Logo"
             width={130} 
-            height={35}
+            height={45} // Adjusted height based on typical logo aspect ratio
             priority
           />
         </Link>
