@@ -48,7 +48,7 @@ export default function AiSymptomCheckerPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-8">
-      <Card className="shadow-xl">
+      <Card className="shadow-xl rounded-lg">
         <CardHeader>
           <CardTitle className="text-2xl text-gradient">AI Symptom Checker</CardTitle>
           <CardDescription>
@@ -69,7 +69,7 @@ export default function AiSymptomCheckerPage() {
                       <Textarea
                         id="symptoms"
                         placeholder="e.g., I have a persistent cough, mild fever, and headache for the past 3 days..."
-                        className="min-h-[150px] text-base"
+                        className="min-h-[150px] text-base rounded-md"
                         {...field}
                       />
                     </FormControl>
@@ -77,7 +77,7 @@ export default function AiSymptomCheckerPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
+              <Button type="submit" className="w-full btn-premium rounded-md" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -93,7 +93,7 @@ export default function AiSymptomCheckerPage() {
       </Card>
 
       {error && (
-        <Card className="mt-6 border-destructive bg-destructive/10">
+        <Card className="mt-6 border-destructive bg-destructive/10 rounded-lg">
           <CardHeader className="flex flex-row items-center gap-2">
              <AlertTriangle className="h-6 w-6 text-destructive" />
             <CardTitle className="text-destructive">Error</CardTitle>
@@ -105,17 +105,21 @@ export default function AiSymptomCheckerPage() {
       )}
 
       {analysisResult && (
-        <Card className="mt-6 shadow-lg">
+        <Card className="mt-6 shadow-lg rounded-lg">
           <CardHeader>
             <CardTitle className="text-xl">Symptom Analysis Result</CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none dark:prose-invert 
-            prose-headings:text-foreground prose-a:text-primary hover:prose-a:text-secondary
-            prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal">
+            prose-headings:font-semibold prose-headings:text-foreground 
+            prose-p:text-foreground/90
+            prose-a:text-primary hover:prose-a:text-secondary
+            prose-strong:text-foreground 
+            prose-ul:list-disc prose-ol:list-decimal prose-li:my-1
+            prose-blockquote:border-l-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground">
             <ReactMarkdown
               components={{
                 // Open links in new tab
-                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" />
               }}
             >{analysisResult.analysis}</ReactMarkdown>
           </CardContent>

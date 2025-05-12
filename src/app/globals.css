@@ -28,6 +28,10 @@ body {
 
     --accent: 217 91% 95%; /* Light Blue #E8F0FE */
     --accent-foreground: 211 82% 52%; /* Medical Blue for text/icons on accent */
+    
+    --success: 145 58% 65%; /* Soft Green #A5D6A7 for success messages */
+    --success-foreground: 145 50% 30%;
+
 
     --destructive: 0 84% 60%; /* Red */
     --destructive-foreground: 0 0% 98%;
@@ -76,6 +80,9 @@ body {
     --accent: 217 80% 30%; /* Darker shade of Light Blue for dark mode accent */
     --accent-foreground: 0 0% 98%;
 
+    --success: 145 58% 55%; /* Darker Soft Green for dark mode */
+    --success-foreground: 145 50% 85%;
+
     --destructive: 0 70% 50%; /* Slightly adjusted Red */
     --destructive-foreground: 0 0% 98%;
 
@@ -110,8 +117,8 @@ body {
   h2 { @apply text-xl; } /* Large */
   h3 { @apply text-lg; } /* Medium+ */
   /* base is 16px */
-  /* small { @apply text-sm; } Tailwind already provides .text-sm */
-  /* .text-xs class is already provided by Tailwind utilities, applying it to itself is circular */
+  /* small is text-sm; */
+  /* .text-xs class is already provided by Tailwind utilities */
 }
 
 @layer components {
