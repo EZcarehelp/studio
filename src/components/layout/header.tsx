@@ -1,8 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Stethoscope, UserCircle, Bell, LogOut } from 'lucide-react';
+import { UserCircle, Bell, LogOut } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -57,9 +59,14 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary">
-          <Stethoscope className="h-8 w-8" />
-          <span className="text-gradient">EzCare Connect</span>
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/logo.svg"
+            alt="EzCare Connect Logo"
+            width={130} 
+            height={35}
+            priority
+          />
         </Link>
 
         <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">

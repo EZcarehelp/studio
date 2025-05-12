@@ -1,0 +1,14 @@
+<svg width="150" height="40" viewBox="0 0 150 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- EZ - Solid -->
+  <text x="5" y="23" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="hsl(var(--primary))">EZ</text>
+  
+  <!-- C with plus - Outline -->
+  <text x="37" y="23" font-family="Arial, sans-serif" font-size="20" fill="none" stroke="hsl(var(--primary))" stroke-width="1">C</text>
+  <text x="43.5" y="18" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="hsl(var(--primary))">+</text>
+  
+  <!-- ARE - Outline -->
+  <text x="57" y="23" font-family="Arial, sans-serif" font-size="20" fill="none" stroke="hsl(var(--primary))" stroke-width="1">ARE</text>
+  
+  <!-- care simplified - Tagline -->
+  <text x="38" y="35" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="hsl(var(--primary))">care simplified</text>
+</svg>

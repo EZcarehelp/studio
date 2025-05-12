@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -7,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Stethoscope, UserPlus, LogIn } from "lucide-react";
+import { UserPlus, LogIn } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -56,9 +58,14 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
-      <Link href="/" className="flex items-center gap-2 text-3xl font-bold text-primary mb-8">
-        <Stethoscope className="h-10 w-10" />
-        <span className="text-gradient">EzCare Connect</span>
+      <Link href="/" className="flex items-center gap-2 mb-8">
+         <Image
+            src="/logo.svg"
+            alt="EzCare Connect Logo"
+            width={180} 
+            height={45}
+            priority
+          />
       </Link>
       <Tabs defaultValue={initialTab} className="w-full max-w-md">
         <TabsList className="grid w-full grid-cols-2">
