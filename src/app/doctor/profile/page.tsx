@@ -5,11 +5,12 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCircle, CalendarDays, Users, Settings, LogOut, Edit2, ShieldCheck, Briefcase, Banknote } from "lucide-react";
+import { UserCircle, CalendarDays, Users, Settings, LogOut, Edit2, ShieldCheck, Briefcase, Banknote, MapPin, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
+import React from 'react'; // Ensure React is imported
 
 // Mock auth state - replace with actual auth context/hook
 const useAuth = () => {
@@ -19,7 +20,8 @@ const useAuth = () => {
     email: "emily.carter@ezcare.com",
     avatarUrl: "https://picsum.photos/seed/docProfile/200/200",
     isVerified: true,
-    specialty: "Cardiologist"
+    specialty: "Cardiologist",
+    location: "New York, NY" // Added location
   });
 
   const signOut = () => {
@@ -41,7 +43,6 @@ export default function DoctorProfilePage() {
   };
 
   if (!isAuthenticated || !user) {
-    // This case should ideally be handled by a layout or middleware redirecting to /auth
     return (
       <Card className="max-w-md mx-auto text-center shadow-lg rounded-lg">
         <CardHeader>
@@ -61,26 +62,26 @@ export default function DoctorProfilePage() {
   const quickActions = [
     { label: "Manage Schedule", icon: <CalendarDays className="w-5 h-5" />, href: "/doctor/schedule" },
     { label: "View Patients", icon: <Users className="w-5 h-5" />, href: "/doctor/patients" },
-    { label: "Consultation Settings", icon: <Settings className="w-5 h-5" />, href: "/doctor/consultations" }, // TODO: Create this page
-    { label: "View Reports", icon: <Briefcase className="w-5 h-5" />, href: "/doctor/reports" }, // TODO: Create this page
+    { label: "Consultation Settings", icon: <Settings className="w-5 h-5" />, href: "/doctor/consultations" },
+    { label: "View Reports", icon: <Briefcase className="w-5 h-5" />, href: "/doctor/reports" },
   ];
 
   const accountSettings = [
-    { label: "Professional Information", icon: <Briefcase className="w-5 h-5" />, href: "/doctor/profile/edit-professional" }, // TODO: Create this page
-    { label: "Account Details", icon: <UserCircle className="w-5 h-5" />, href: "/doctor/profile/edit-account" }, // TODO: Create this page
-    { label: "Payout Settings", icon: <Banknote className="w-5 h-5" />, href: "/doctor/profile/payouts" }, // TODO: Create this page
+    { label: "Professional Information", icon: <Briefcase className="w-5 h-5" />, href: "/doctor/profile/edit-professional" }, 
+    { label: "Account Details", icon: <UserCircle className="w-5 h-5" />, href: "/doctor/profile/edit-account" }, 
+    { label: "Payout Settings", icon: <Banknote className="w-5 h-5" />, href: "/doctor/profile/payouts" }, 
   ];
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <Card className="shadow-xl overflow-hidden rounded-lg">
         <div className="bg-gradient-to-r from-primary to-secondary p-6 relative">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-start space-x-4">
             <Avatar className="h-20 w-20 border-4 border-background">
               <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="doctor avatar" />
               <AvatarFallback>{user.name.substring(0,2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-grow">
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold text-primary-foreground">{user.name}</h1>
                 {user.isVerified && (
@@ -91,6 +92,11 @@ export default function DoctorProfilePage() {
               </div>
               <p className="text-sm text-primary-foreground/80">{user.email}</p>
               <p className="text-sm text-primary-foreground/80">{user.specialty}</p>
+              {user.location && (
+                <p className="text-sm text-primary-foreground/80 flex items-center">
+                  <MapPin className="w-3 h-3 mr-1.5" /> {user.location}
+                </p>
+              )}
             </div>
           </div>
            <Button variant="outline" size="sm" className="absolute top-4 right-4 bg-white/20 text-white hover:bg-white/30 border-white/50 rounded-md">
@@ -103,7 +109,7 @@ export default function DoctorProfilePage() {
         <CardHeader>
           <CardTitle className="text-xl">Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-2 gap-4"> {/* Enforcing 2x2 grid for md screens */}
+        <CardContent className="grid grid-cols-2 md:grid-cols-2 gap-4">
           {quickActions.map(action => (
             <Link key={action.label} href={action.href} passHref>
               <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-accent hover:shadow-md transition-all cursor-pointer text-center h-full justify-center card-gradient">
@@ -112,6 +118,20 @@ export default function DoctorProfilePage() {
               </div>
             </Link>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-xl">Lab Test Requests</CardTitle>
+          <CardDescription>View and manage lab test requests from patients.</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <FlaskConical className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">No pending lab test requests.</p>
+          <Button variant="link" asChild className="mt-2">
+            <Link href="/doctor/lab-tests/history">View History</Link>
+          </Button>
         </CardContent>
       </Card>
 

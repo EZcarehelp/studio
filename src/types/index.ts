@@ -65,14 +65,15 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor';
+  role: 'patient' | 'doctor' | 'lab_worker';
   avatarUrl?: string;
+  location?: string; // Added for patients and lab workers if needed
   // Patient specific
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
   // Doctor specific
-  doctorDetails?: Partial<Doctor>;
+  doctorDetails?: Partial<Doctor>; // Includes location via Doctor type
 }
 
 export interface Address {
@@ -91,4 +92,25 @@ export interface PaymentMethod {
   last4?: string;
   expiry?: string; // MM/YY for card
   isDefault?: boolean;
+}
+
+export interface LabTest {
+  id: string;
+  name: string;
+  description: string;
+  price?: number; // Optional price
+}
+
+export interface LabReport {
+  id: string;
+  patientId: string;
+  patientName?: string; // Added for convenience
+  testId: string;
+  testName?: string; // Added for convenience
+  reportImageUrl?: string; // URL to the uploaded report image
+  reportDataUri?: string; // Data URI for AI processing
+  dateUploaded: number; // Timestamp
+  notesByLabWorker?: string;
+  status: 'pending_analysis' | 'analysis_complete' | 'error';
+  dietPlan?: string; // Store AI generated diet plan
 }

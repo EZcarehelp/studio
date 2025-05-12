@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type UserRole = 'patient' | 'doctor' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
 interface HeaderProps {
   userRole: UserRole;
@@ -38,20 +38,31 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/doctor/schedule', label: 'Schedule' },
     { href: '/doctor/patients', label: 'Patients' },
   ];
+  
+  const labWorkerNavLinks = [
+    { href: '/lab/dashboard', label: 'Dashboard' },
+    { href: '/lab/reports/upload', label: 'Upload Report' },
+  ];
 
   const commonLinks = [
      { href: '/', label: 'Home' }
   ];
   
   let navLinks = commonLinks;
+  let profileLink = '/auth';
+
   if (isAuthenticated) {
     if (userRole === 'patient') {
       navLinks = [...navLinks, ...patientNavLinks];
+      profileLink = '/patient/profile';
     } else if (userRole === 'doctor') {
       navLinks = [...navLinks, ...doctorNavLinks];
+      profileLink = '/doctor/profile';
+    } else if (userRole === 'lab_worker') {
+      navLinks = [...navLinks, ...labWorkerNavLinks];
+      profileLink = '/lab/profile'; // Assuming a lab worker profile page
     }
   } else {
-    // Unauthenticated users might see a limited set or e.g. Find Doctors if public
      navLinks = [...navLinks, { href: '/patient/find-doctors', label: 'Find Doctors' }];
   }
 
@@ -64,7 +75,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             src="/logo.svg"
             alt="EzCare Connect Logo"
             width={130} 
-            height={45} // Adjusted height based on typical logo aspect ratio
+            height={45}
             priority
           />
         </Link>
@@ -102,14 +113,20 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   <DropdownMenuLabel>My Account ({userRole})</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={userRole === 'patient' ? '/patient/profile' : '/doctor/profile'}>Profile</Link>
+                    <Link href={profileLink}>Profile</Link>
                   </DropdownMenuItem>
                   {userRole === 'patient' && (
                      <DropdownMenuItem asChild><Link href="/patient/appointments">My Appointments</Link></DropdownMenuItem>
                   )}
+                   {userRole === 'doctor' && (
+                     <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
+                  )}
+                   {userRole === 'lab_worker' && (
+                     <DropdownMenuItem asChild><Link href="/lab/dashboard">Dashboard</Link></DropdownMenuItem>
+                  )}
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onSignOut} className="text-destructive">
+                  <DropdownMenuItem onClick={onSignOut} className="text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>

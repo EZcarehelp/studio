@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Stethoscope, Search, Users, MessageSquare, Activity, ShieldCheck, FileText, Pill, FlaskConical, BookHeart, Star } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
-import { DoctorCard } from '@/components/shared/doctor-card'; // Assuming DoctorCard is created
-import type { Doctor } from '@/types'; // Assuming types are defined
+import { DoctorCard } from '@/components/shared/doctor-card'; 
+import type { Doctor } from '@/types'; 
 
 const popularSearches = [
   { name: "Dentist", icon: <Stethoscope className="w-5 h-5 mr-2" /> },
@@ -25,9 +25,9 @@ const services = [
 ];
 
 const featuredDoctors: Doctor[] = [
-  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc1/200/200", isVerified: true, location: "New York, USA" },
+  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc1/200/200", isVerified: true, location: "New York, NY" },
   { id: "2", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://picsum.photos/seed/doc2/200/200", isVerified: true, location: "London, UK" },
-  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc3/200/200", isVerified: true, location: "Mumbai, India" },
+  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc3/200/200", isVerified: true, location: "Mumbai, MH" },
 ];
 
 const testimonials = [

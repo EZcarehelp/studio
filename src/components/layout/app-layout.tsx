@@ -8,11 +8,11 @@ import { useEffect, useState } from 'react';
 
 // Mock authentication state
 // In a real app, this would come from a context or auth service
-type UserRole = 'patient' | 'doctor' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRole>(null); // 'patient', 'doctor', or null
+  const [userRole, setUserRole] = useState<UserRole>(null); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Simulate role changes based on path for demo purposes
@@ -23,16 +23,19 @@ export function AppLayout({ children }: { children: ReactNode }) {
     } else if (pathname.startsWith('/doctor')) {
       setUserRole('doctor');
       setIsAuthenticated(true);
-    } else if (pathname === '/auth') {
+    } else if (pathname.startsWith('/lab')) {
+      setUserRole('lab_worker');
+      setIsAuthenticated(true);
+    }
+     else if (pathname === '/auth') {
       setUserRole(null);
       setIsAuthenticated(false);
-    }
-    // For other paths like home ('/'), assume patient or unauthenticated based on needs
-    // For this demo, let's assume unauthenticated on home page if not explicitly in patient/doctor routes
-    else if (pathname === '/') {
+    } else if (pathname === '/') {
        // Keep previous role or default to null if no specific role path was hit before
+       // if not authenticated and on home, set role to null
+       if (!isAuthenticated) setUserRole(null);
     }
-  }, [pathname]);
+  }, [pathname, isAuthenticated]);
 
 
   // Hide header/nav on auth page or other specific pages if needed
@@ -42,13 +45,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
   
-  // This is a mock function. In a real app, you'd use your auth provider's sign out method.
   const handleSignOut = () => {
     setIsAuthenticated(false);
     setUserRole(null);
-    // router.push('/auth'); // Redirect to auth page after sign out
-    // For now, just log it
+    // router.push('/auth'); // Ideally redirect via router after state update
     console.log("User signed out");
+    // Simulate redirect by directly changing path for demo
+    if (typeof window !== 'undefined') {
+      window.location.pathname = '/auth';
+    }
   };
 
 

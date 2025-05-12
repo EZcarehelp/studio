@@ -23,7 +23,7 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
     toast({
       title: "Appointment Requested",
       description: `Your request to book an appointment with ${doctor.name} has been sent.`,
-      variant: "success", // Using success variant
+      variant: "success", 
     });
   };
   

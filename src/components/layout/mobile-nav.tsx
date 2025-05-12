@@ -1,10 +1,10 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, ShoppingBag, MessageCircle, User, LayoutDashboard, CalendarDays, Users } from 'lucide-react';
+import { Home, Search, ShoppingBag, MessageCircle, User, LayoutDashboard, CalendarDays, Users, FlaskConical, Upload } from 'lucide-react'; // Added FlaskConical, Upload
 import { usePathname } from 'next/navigation';
 
-type UserRole = 'patient' | 'doctor' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
 interface MobileNavProps {
   userRole: UserRole;
@@ -28,7 +28,22 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/doctor/profile', label: 'Profile', icon: User },
   ];
 
-  const navItems = userRole === 'patient' ? patientNavItems : userRole === 'doctor' ? doctorNavItems : [];
+  const labWorkerNavItems = [
+    { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
+    // Add more lab-specific links here, e.g., a profile page
+    { href: '/lab/profile', label: 'Profile', icon: User }, // Assuming /lab/profile
+  ];
+
+  let navItems = [];
+  if (userRole === 'patient') {
+    navItems = patientNavItems;
+  } else if (userRole === 'doctor') {
+    navItems = doctorNavItems;
+  } else if (userRole === 'lab_worker') {
+    navItems = labWorkerNavItems;
+  }
+
 
   if (navItems.length === 0) return null;
 

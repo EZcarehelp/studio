@@ -21,37 +21,43 @@ export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
   const initialTab = searchParams.get('tab') || 'login';
-  const [userType, setUserType] = useState<'patient' | 'doctor'>('patient');
+  const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker'>('patient');
   
   // Mock login
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // const formData = new FormData(event.currentTarget);
-    // const phone = formData.get('phone');
-    // const password = formData.get('password');
-    // In a real app, call your auth API
     console.log("Logging in...");
     toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
-    // Simulate role and redirect
-    const role = (event.currentTarget.elements.namedItem('phone') as HTMLInputElement).value.includes('doc') ? 'doctor' : 'patient';
+    
+    const phoneValue = (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement).value;
+    let role = 'patient'; // Default role
+    if (phoneValue.includes('doc')) {
+      role = 'doctor';
+    } else if (phoneValue.includes('lab')) {
+      role = 'lab_worker';
+    }
+
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
+    } else if (role === 'lab_worker') {
+      router.push('/lab/dashboard');
     } else {
-      router.push('/patient/dashboard'); // or '/'
+      router.push('/patient/dashboard');
     }
   };
 
   // Mock signup
   const handleSignUp = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // const formData = new FormData(event.currentTarget);
-    // In a real app, call your auth API
     console.log("Signing up as", userType);
     toast({ title: "Sign Up Successful", description: `Account created as ${userType}. Please verify if applicable.` });
      if (userType === 'doctor') {
-      router.push('/doctor/dashboard'); // Or a verification pending page
-    } else {
-      router.push('/patient/dashboard'); // or '/'
+      router.push('/doctor/dashboard'); 
+    } else if (userType === 'lab_worker') {
+      router.push('/lab/dashboard');
+    }
+     else {
+      router.push('/patient/dashboard');
     }
   };
 
@@ -63,7 +69,7 @@ export default function AuthPage() {
             src="/logo.svg"
             alt="EzCare Connect Logo"
             width={180} 
-            height={63} // Adjusted height based on typical logo aspect ratio
+            height={63} 
             priority
           />
       </Link>
@@ -76,7 +82,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare Connect account.</CardDescription>
+              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
@@ -108,7 +114,11 @@ export default function AuthPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>I am a:</Label>
-                  <RadioGroup defaultValue="patient" onValueChange={(value: 'patient' | 'doctor') => setUserType(value)} className="flex gap-4">
+                  <RadioGroup 
+                    defaultValue="patient" 
+                    onValueChange={(value: 'patient' | 'doctor' | 'lab_worker') => setUserType(value)} 
+                    className="flex gap-4 flex-wrap"
+                  >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="patient" id="patient" />
                       <Label htmlFor="patient">Patient</Label>
@@ -116,6 +126,10 @@ export default function AuthPage() {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="doctor" id="doctor" />
                       <Label htmlFor="doctor">Doctor</Label>
+                    </div>
+                     <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="lab_worker" id="lab_worker" />
+                      <Label htmlFor="lab_worker">Lab Worker</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -141,11 +155,28 @@ export default function AuthPage() {
                       <Label htmlFor="specialization">Specialization</Label>
                       <Input id="specialization" name="specialization" placeholder="e.g., Cardiologist" required />
                     </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="location-doctor">Location (City, State)</Label>
+                      <Input id="location-doctor" name="location" placeholder="e.g., New York, NY" required />
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="experience">Years of Experience</Label>
                       <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required />
                     </div>
                     <p className="text-xs text-muted-foreground">Your account will be pending verification.</p>
+                  </>
+                )}
+                {userType === 'lab_worker' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="lab-id">Laboratory ID / Affiliation</Label>
+                      <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="location-lab">Location (City, State)</Label>
+                      <Input id="location-lab" name="location" placeholder="e.g., San Francisco, CA" required />
+                    </div>
+                     <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
                   </>
                 )}
                 <div className="flex items-center space-x-2">

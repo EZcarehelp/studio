@@ -1,10 +1,11 @@
+
 "use client";
 
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCircle, CalendarDays, FileText, MessageSquare, HelpCircle, Settings, MapPin, CreditCard, Bell, LogOut, Edit2 } from "lucide-react";
+import { UserCircle, FlaskConical, Upload, Settings, LogOut, Edit2, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
@@ -14,10 +15,11 @@ import { Separator } from '@/components/ui/separator';
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true); // Simulate logged in
   const [user, setUser] = useState({
-    name: "Jane Patient",
-    email: "jane.patient@example.com",
-    avatarUrl: "https://picsum.photos/seed/patient1/200/200",
-    location: "San Francisco, CA" // Added location for patient
+    name: "Lab Technician Leo",
+    email: "leo.lab@ezcare.com",
+    avatarUrl: "https://picsum.photos/seed/labworker1/200/200",
+    labAffiliation: "EzCare Central Lab",
+    location: "Cityville, ST"
   });
 
   const signOut = () => {
@@ -27,7 +29,7 @@ const useAuth = () => {
   return { isAuthenticated, user, signOut };
 };
 
-export default function PatientProfilePage() {
+export default function LabWorkerProfilePage() {
   const { isAuthenticated, user, signOut } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -43,15 +45,13 @@ export default function PatientProfilePage() {
       <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
         <Card className="w-full max-w-md text-center shadow-lg rounded-lg">
           <CardHeader className="items-center">
-            <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
-              <UserCircle className="h-16 w-16 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Sign in to your account</CardTitle>
-            <CardDescription>Access your profile to manage your health journey with EzCare Connect.</CardDescription>
+            <UserCircle className="h-16 w-16 mx-auto text-primary mb-4" />
+            <CardTitle className="text-2xl">Access Your Profile</CardTitle>
+            <CardDescription>Sign in to manage your lab worker profile and tasks.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full btn-premium rounded-md">
-              <Link href="/auth">Sign In / Sign Up</Link>
+              <Link href="/auth?tab=login">Sign In</Link>
             </Button>
           </CardContent>
         </Card>
@@ -60,17 +60,13 @@ export default function PatientProfilePage() {
   }
 
   const quickActions = [
-    { label: "My Appointments", icon: <CalendarDays className="w-6 h-6" />, href: "/patient/appointments" },
-    { label: "Medical Records", icon: <FileText className="w-6 h-6" />, href: "/patient/medical-records" },
-    { label: "My Consultations", icon: <MessageSquare className="w-6 h-6" />, href: "/patient/chats" },
-    { label: "Help & Support", icon: <HelpCircle className="w-6 h-6" />, href: "/support" },
+    { label: "View Pending Tests", icon: <FlaskConical className="w-6 h-6" />, href: "/lab/pending-tests" },
+    { label: "Upload Reports", icon: <Upload className="w-6 h-6" />, href: "/lab/reports/upload" },
   ];
 
   const accountSettings = [
-    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/patient/profile/edit", actionText: "Edit" },
-    { label: "Saved Addresses", icon: <MapPin className="w-5 h-5" />, href: "/patient/profile/addresses", actionText: "Manage" },
-    { label: "Payment Methods", icon: <CreditCard className="w-5 h-5" />, href: "/patient/profile/payments", actionText: "Manage" },
-    { label: "Notifications", icon: <Bell className="w-5 h-5" />, href: "/patient/profile/notifications", actionText: "Settings" },
+    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/lab/profile/edit", actionText: "Edit" },
+    { label: "Notification Settings", icon: <Settings className="w-5 h-5" />, href: "/lab/profile/notifications", actionText: "Manage" },
   ];
 
   return (
@@ -79,21 +75,20 @@ export default function PatientProfilePage() {
          <div className="bg-gradient-to-r from-primary to-secondary p-6 relative">
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20 border-4 border-background shadow-md">
-                <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="user avatar" />
+                <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="lab worker avatar" />
                 <AvatarFallback className="text-2xl bg-primary/30 text-primary-foreground">{user.name.substring(0,1)}</AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold text-primary-foreground">{user.name}</h1>
                 <p className="text-sm text-primary-foreground/80">{user.email}</p>
+                <p className="text-sm text-primary-foreground/80">Affiliation: {user.labAffiliation}</p>
                 {user.location && (
-                  <p className="text-sm text-primary-foreground/80 flex items-center">
-                    <MapPin className="w-3 h-3 mr-1.5" /> {user.location}
-                  </p>
+                    <p className="text-sm text-primary-foreground/80 flex items-center"><MapPin className="w-3 h-3 mr-1.5" /> {user.location}</p>
                 )}
               </div>
             </div>
              <Button variant="outline" size="sm" asChild className="absolute top-4 right-4 bg-white/20 text-white hover:bg-white/30 border-white/50 rounded-md">
-              <Link href="/patient/profile/edit">
+              <Link href="/lab/profile/edit">
                 <Edit2 className="w-3 h-3 mr-1.5" /> Edit Profile
               </Link>
             </Button>
@@ -124,7 +119,7 @@ export default function PatientProfilePage() {
           {accountSettings.map((setting, index) => (
             <React.Fragment key={setting.label}>
               <Link href={setting.href} passHref>
-                 <div className="flex items-center justify-between py-3 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2"> 
+                 <div className="flex items-center justify-between py-3 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2">
                   <div className="flex items-center">
                     <div className="text-primary mr-3">{setting.icon}</div>
                     <span className="text-foreground/90">{setting.label}</span>
