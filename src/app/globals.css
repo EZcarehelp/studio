@@ -56,6 +56,18 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Remedy Colors */
+    --remedy-herbal-bg: 80 70% 95%; /* Soft Green #F2FCE2 */
+    --remedy-herbal-fg: 80 40% 30%; 
+    --remedy-digestion-bg: 50 95% 90%; /* Soft Yellow #FEF7CD */
+    --remedy-digestion-fg: 50 70% 40%;
+    --remedy-inflammation-bg: 20 90% 91%; /* Soft Peach #FDE1D3 */
+    --remedy-inflammation-fg: 20 60% 45%;
+    --remedy-calming-bg: 216 93% 91%; /* Soft Blue #D3E4FD */
+    --remedy-calming-fg: 216 60% 40%;
+    --remedy-general-bg: 210 20% 95%; /* Neutral light gray for general */
+    --remedy-general-fg: 210 10% 40%;
   }
 
   .dark {
@@ -99,6 +111,18 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Remedy Colors Dark Mode */
+    --remedy-herbal-bg: 80 30% 20%;
+    --remedy-herbal-fg: 80 70% 80%;
+    --remedy-digestion-bg: 50 40% 25%;
+    --remedy-digestion-fg: 50 95% 75%;
+    --remedy-inflammation-bg: 20 40% 28%;
+    --remedy-inflammation-fg: 20 90% 78%;
+    --remedy-calming-bg: 216 40% 25%;
+    --remedy-calming-fg: 216 93% 80%;
+    --remedy-general-bg: 210 10% 22%;
+    --remedy-general-fg: 210 20% 75%;
   }
 }
 
@@ -116,9 +140,54 @@ body {
   h1 { @apply text-2xl; } /* Extra Large */
   h2 { @apply text-xl; } /* Large */
   h3 { @apply text-lg; } /* Medium+ */
-  /* base is 16px */
-  /* small is text-sm; */
-  /* .text-xs class is already provided by Tailwind utilities */
+
+  /* For react-markdown prose styles */
+  .prose {
+    @apply text-foreground;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    @apply text-foreground font-semibold;
+  }
+  .prose p {
+    @apply text-foreground/90;
+  }
+  .prose a {
+    @apply text-primary hover:text-secondary;
+  }
+  .prose strong {
+    @apply text-foreground font-semibold;
+  }
+  .prose ul {
+    @apply list-disc;
+  }
+  .prose ol {
+    @apply list-decimal;
+  }
+  .prose li {
+    @apply my-1;
+  }
+  .prose blockquote {
+    @apply border-l-primary pl-4 italic text-muted-foreground;
+  }
+  .dark .prose {
+     @apply text-foreground; /* In dark mode, foreground is light */
+  }
+   .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
+    @apply text-foreground font-semibold;
+  }
+  .dark .prose p {
+    @apply text-foreground/90;
+  }
+  .dark .prose a {
+    @apply text-primary hover:text-secondary;
+  }
+  .dark .prose strong {
+    @apply text-foreground font-semibold;
+  }
+   .dark .prose blockquote {
+    @apply border-l-primary pl-4 italic text-muted-foreground;
+  }
+
 }
 
 @layer components {

@@ -40,6 +40,10 @@ export default {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))'
+        },
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
@@ -59,7 +63,28 @@ export default {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+        // Remedy Colors
+        'remedy-herbal': {
+          DEFAULT: 'hsl(var(--remedy-herbal-bg))',
+          foreground: 'hsl(var(--remedy-herbal-fg))',
+        },
+        'remedy-digestion': {
+          DEFAULT: 'hsl(var(--remedy-digestion-bg))',
+          foreground: 'hsl(var(--remedy-digestion-fg))',
+        },
+        'remedy-inflammation': {
+          DEFAULT: 'hsl(var(--remedy-inflammation-bg))',
+          foreground: 'hsl(var(--remedy-inflammation-fg))',
+        },
+        'remedy-calming': {
+          DEFAULT: 'hsl(var(--remedy-calming-bg))',
+          foreground: 'hsl(var(--remedy-calming-fg))',
+        },
+        'remedy-general': {
+          DEFAULT: 'hsl(var(--remedy-general-bg))',
+          foreground: 'hsl(var(--remedy-general-fg))',
+        },
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -90,5 +115,5 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
 } satisfies Config;

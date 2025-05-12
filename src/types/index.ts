@@ -114,3 +114,19 @@ export interface LabReport {
   status: 'pending_analysis' | 'analysis_complete' | 'error';
   dietPlan?: string; // Store AI generated diet plan
 }
+
+export type RemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
+
+export interface AyurvedicRemedy {
+  id: string;
+  name: string;
+  type: RemedyType;
+  tags: string[]; // e.g., ["cough", "cold", "home remedy"]
+  description: string;
+  ingredients: string[];
+  preparation: string; // Step-by-step instructions
+  usage?: string; // How and when to use
+  imageUrl?: string; // Optional image for the remedy card
+  source?: string; // Optional source or link for more info
+  isFavorite?: boolean; // For user to mark as favorite
+}

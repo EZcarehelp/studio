@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, ShoppingBag, MessageCircle, User, LayoutDashboard, CalendarDays, Users, FlaskConical, Upload } from 'lucide-react'; // Added FlaskConical, Upload
+import { Home, Search, ShoppingBag, MessageCircle, User, LayoutDashboard, CalendarDays, Users, FlaskConical, Upload, Leaf } from 'lucide-react'; // Added Leaf
 import { usePathname } from 'next/navigation';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
@@ -16,7 +16,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
   const patientNavItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
-    { href: '/patient/store', label: 'Store', icon: ShoppingBag },
+    { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     { href: '/patient/chats', label: 'Chats', icon: MessageCircle },
     { href: '/patient/profile', label: 'Profile', icon: User },
   ];
@@ -31,8 +31,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
   const labWorkerNavItems = [
     { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
-    // Add more lab-specific links here, e.g., a profile page
-    { href: '/lab/profile', label: 'Profile', icon: User }, // Assuming /lab/profile
+    { href: '/lab/profile', label: 'Profile', icon: User }, 
   ];
 
   let navItems = [];
@@ -51,11 +50,11 @@ export function MobileNav({ userRole }: MobileNavProps) {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-40">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
-            <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center text-center flex-1 p-1">
-              <item.icon className={`h-6 w-6 mb-0.5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-              <span className={`text-xs ${isActive ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+            <Link key={item.label} href={item.href} className="flex flex-col items-center justify-center text-center flex-1 p-1 group">
+              <item.icon className={`h-5 w-5 mb-0.5 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+              <span className={`text-xs transition-colors ${isActive ? 'text-primary font-medium' : 'text-muted-foreground group-hover:text-primary/80'}`}>
                 {item.label}
               </span>
             </Link>
