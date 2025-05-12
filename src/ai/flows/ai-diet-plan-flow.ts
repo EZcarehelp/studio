@@ -4,14 +4,14 @@
  * @fileOverview An AI-powered diet plan generator based on lab report images.
  *
  * - aiDietPlanFromReportImage - A function that analyzes a lab report image and suggests a diet plan.
- * - AiDietPlanInputSchema - The input type for the aiDietPlanFromReportImage function.
- * - AiDietPlanOutputSchema - The return type for the aiDietPlanFromReportImage function.
+ * - AiDietPlanInput - The input type for the aiDietPlanFromReportImage function.
+ * - AiDietPlanOutput - The return type for the aiDietPlanFromReportImage function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AiDietPlanInputSchema = z.object({
+const AiDietPlanInputSchema = z.object({
   reportImageDataUri: z
     .string()
     .describe(
@@ -20,7 +20,7 @@ export const AiDietPlanInputSchema = z.object({
 });
 export type AiDietPlanInput = z.infer<typeof AiDietPlanInputSchema>;
 
-export const AiDietPlanOutputSchema = z.object({
+const AiDietPlanOutputSchema = z.object({
   dietPlan: z
     .string()
     .describe(

@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { RemedyType } from '@/types';
 
-export const AiAyurvedicRemedyInputSchema = z.object({
+const AiAyurvedicRemedyInputSchema = z.object({
   query: z.string().min(3).max(200).describe('User\'s request for an Ayurvedic remedy, e.g., "remedy for dry cough" or "how to improve digestion".'),
   // You could add more context here like user's age, existing conditions if allowed and handled ethically
 });
@@ -20,7 +20,7 @@ export type AiAyurvedicRemedyInput = z.infer<typeof AiAyurvedicRemedyInputSchema
 const remedyTypeEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<RemedyType>;
 
 
-export const AiAyurvedicRemedyOutputSchema = z.object({
+const AiAyurvedicRemedyOutputSchema = z.object({
   remedyName: z.string().describe("The common name of the Ayurvedic remedy, or a title for the suggestion if it's general advice."),
   type: remedyTypeEnum.describe("The category type of the remedy based on its primary use or ingredients. Use 'general' if no specific category fits well."),
   description: z.string().describe("A brief description of what the remedy is for or what the advice addresses."),
