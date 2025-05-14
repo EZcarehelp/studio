@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'media.zenfs.com', // Specific subdomain from the error
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lifehacker.com', // Added for Lifehacker images via NewsAPI
+        port: '',
+        pathname: '/**',
       }
     ],
   },
