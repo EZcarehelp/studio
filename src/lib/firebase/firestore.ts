@@ -4,9 +4,9 @@ import type { Doctor, PharmacyProfile, UserProfile } from '@/types';
 
 // In-memory store for doctors for mocking purposes
 let mockDoctorsDB: Doctor[] = [
-  { id: "doc1-firebase", name: "Dr. Alice Smith (Firebase)", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "New York, NY", dataAiHint: "doctor portrait", licenseNumber: "L123", clinicHours: "Mon-Fri 9am-5pm" },
-  { id: "doc2-firebase", name: "Dr. Bob Johnson (Firebase)", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait", licenseNumber: "L456", clinicHours: "Tue-Sat 10am-6pm" },
-  { id: "doc3-firebase", name: "Dr. Carol Williams (Firebase)", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait", licenseNumber: "L789", clinicHours: "Mon, Wed, Fri 8am-4pm" },
+  { id: "doc1-firebase", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "New York, NY", dataAiHint: "doctor portrait", licenseNumber: "L123", clinicHours: "Mon-Fri 9am-5pm" },
+  { id: "doc2-firebase", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait", licenseNumber: "L456", clinicHours: "Tue-Sat 10am-6pm" },
+  { id: "doc3-firebase", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait", licenseNumber: "L789", clinicHours: "Mon, Wed, Fri 8am-4pm" },
 ];
 
 // In-memory store for pharmacists
