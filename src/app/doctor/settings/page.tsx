@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCircle, CalendarDays, Users, Settings, LogOut, Edit2, ShieldCheck, Briefcase, Banknote, MapPin, FlaskConical, FileText, BarChart3, DollarSign } from "lucide-react";
+import { UserCircle, CalendarDays, Users, Settings, LogOut, Edit2, ShieldCheck, Briefcase, Banknote, MapPin, FlaskConical, FileText, BarChart3, DollarSign, CalendarClock, BellIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
@@ -69,17 +69,16 @@ export default function DoctorSettingsPage() {
 
   // Based on user's detailed list for Doctor Settings
   const settingsCategories = [
-    { label: "Practice Schedule", icon: <CalendarDays className="w-5 h-5" />, href: "/doctor/settings/practice-schedule", description: "Manage clinic hours, slot durations, holidays." },
-    { label: "Fee Settings", icon: <Banknote className="w-5 h-5" />, href: "/doctor/settings/fees", description: "Set in-clinic and online consultation fees." },
-    { label: "Notification Settings", icon: <Settings className="w-5 h-5" />, href: "/doctor/settings/notifications", description: "Control how and when you receive alerts." }, // Changed from original profile
-    { label: "Profile & Practice Info", icon: <UserCircle className="w-5 h-5" />, href: "/doctor/settings/profile-info", description: "Edit public profile, clinic details, qualifications." }, // Changed from original profile
-    { label: "Prescription Settings", icon: <FileText className="w-5 h-5" />, href: "/doctor/settings/prescriptions", description: "Customize your default prescription format." },
-    { label: "Reports & Analytics", icon: <BarChart3 className="w-5 h-5" />, href: "/doctor/reports", description: "View patient footfall, revenue, feedback." }, // Link to existing reports page
-    { label: "Privacy & Security", icon: <ShieldCheck className="w-5 h-5" />, href: "/doctor/settings/security", description: "Change password, manage 2FA, session timeout." },
-    // Adding a few more from existing quick actions or general dashboard links
+    { label: "Profile & Practice Info", icon: <UserCircle className="w-5 h-5" />, href: "/doctor/settings/profile-info", description: "Edit public profile, clinic details, qualifications." },
+    { label: "Practice Schedule", icon: <CalendarClock className="w-5 h-5" />, href: "/doctor/settings/practice-schedule", description: "Manage clinic hours, slot durations, holidays." },
+    { label: "Fee Settings", icon: <Banknote className="w-5 h-5" />, href: "/doctor/settings/fees", description: "Set in-clinic and online consultation fees." }, // Placeholder page
+    { label: "Notification Settings", icon: <BellIcon className="w-5 h-5" />, href: "/doctor/settings/notifications", description: "Control how and when you receive alerts." }, // Placeholder page
+    { label: "Prescription Settings", icon: <FileText className="w-5 h-5" />, href: "/doctor/settings/prescriptions", description: "Customize your default prescription format." }, // Placeholder page
+    { label: "Reports & Analytics", icon: <BarChart3 className="w-5 h-5" />, href: "/doctor/reports", description: "View patient footfall, revenue, feedback." }, 
+    { label: "Privacy & Security", icon: <ShieldCheck className="w-5 h-5" />, href: "/doctor/settings/security", description: "Change password, manage 2FA, session timeout." }, // Placeholder page
     { label: "View Patients", icon: <Users className="w-5 h-5" />, href: "/doctor/patients", description: "Access your patient list and records." },
     { label: "Consultation Settings (Legacy)", icon: <DollarSign className="w-5 h-5" />, href: "/doctor/consultations", description: "Legacy consultation settings page." },
-    { label: "Lab Test Requests (Mock)", icon: <FlaskConical className="w-5 h-5" />, href: "/doctor/lab-tests/history", description: "View patient lab test requests and history." },
+    { label: "Lab Test Requests (Mock)", icon: <FlaskConical className="w-5 h-5" />, href: "/doctor/lab-tests/history", description: "View patient lab test requests and history." }, // Placeholder page
   ];
 
 
@@ -111,7 +110,7 @@ export default function DoctorSettingsPage() {
             </div>
           </div>
            <Button variant="outline" size="sm" asChild className="absolute top-4 right-4 bg-white/20 text-white hover:bg-white/30 border-white/50 rounded-md">
-             <Link href="/doctor/settings/profile-info"> {/* Updated to a more specific settings sub-page */}
+             <Link href="/doctor/settings/profile-info"> 
                 <Edit2 className="w-3 h-3 mr-1.5" /> Edit Profile
              </Link>
           </Button>
@@ -120,7 +119,7 @@ export default function DoctorSettingsPage() {
 
       <Card className="rounded-lg">
         <CardHeader className="border-b">
-          <CardTitle className="text-xl">Doctor Settings & Management</CardTitle>
+          <CardTitle className="text-xl">Doctor Settings &amp; Management</CardTitle>
           <CardDescription>Manage all aspects of your practice and account from here.</CardDescription>
         </CardHeader>
         <CardContent className="pt-3 pb-1">
@@ -152,3 +151,4 @@ export default function DoctorSettingsPage() {
     </div>
   );
 }
+
