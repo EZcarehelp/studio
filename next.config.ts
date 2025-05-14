@@ -22,6 +22,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 's.yimg.com', // Added for Yahoo images via NewsAPI
+        port: '',
+        pathname: '/**',
+      },
+      { // It's good practice to add common news image CDNs if you expect variety
+        protocol: 'https',
+        hostname: 'media.zenfs.com', // Specific subdomain from the error
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
