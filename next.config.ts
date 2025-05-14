@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
         hostname: 'static.toiimg.com', // Added for Times of India images via NewsAPI
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.sciencealert.com', // Added for ScienceAlert images via NewsAPI
+        port: '',
+        pathname: '/**',
       }
     ],
   },
