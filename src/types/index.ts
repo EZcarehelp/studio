@@ -12,7 +12,11 @@ export interface Doctor {
   location?: string;
   bio?: string;
   licenseNumber?: string;
-  weeklyAvailability?: {
+  // Basic schedule/availability representation for now
+  // More detailed structure can be added for specific settings like clinic hours, slot durations etc.
+  clinicHours?: string; // e.g., "Mon-Fri: 9 AM - 5 PM"
+  onlineConsultationEnabled?: boolean;
+  weeklyAvailability?: { // This was already present, good for basic availability
     [day: string]: boolean; // "monday", "tuesday", etc.
   };
   dataAiHint?: string;
@@ -70,13 +74,13 @@ export interface UserProfile {
   phone: string;
   role: 'patient' | 'doctor' | 'lab_worker';
   avatarUrl?: string;
-  location?: string; // Added for patients and lab workers if needed
+  location?: string; 
   // Patient specific
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
   // Doctor specific
-  doctorDetails?: Partial<Doctor>; // Includes location via Doctor type
+  doctorDetails?: Partial<Doctor>; 
 }
 
 export interface Address {
@@ -116,8 +120,8 @@ export interface LabReport {
   notesByLabWorker?: string;
   status: 'pending_analysis' | 'analysis_complete' | 'error';
   dietPlan?: string; 
-  keyFindings?: string[]; // Added for AI Diet Plan Flow
-  dataAiHint?: string; // Added for placeholder image hints
+  keyFindings?: string[]; 
+  dataAiHint?: string; 
 }
 
 export type RemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
@@ -126,25 +130,24 @@ export interface AyurvedicRemedy {
   id: string;
   name: string;
   type: RemedyType;
-  tags: string[]; // e.g., ["cough", "cold", "home remedy"]
+  tags: string[]; 
   description: string;
   ingredients: string[];
-  preparation: string; // Step-by-step instructions
-  usage?: string; // How and when to use
-  imageUrl?: string; // Optional image for the remedy card
-  source?: string; // Optional source or link for more info
-  isFavorite?: boolean; // For user to mark as favorite
+  preparation: string; 
+  usage?: string; 
+  imageUrl?: string; 
+  source?: string; 
+  isFavorite?: boolean; 
   dataAiHint?: string;
 }
 
 export interface NewsArticle {
   id: string;
   title: string;
-  snippet: string; // Changed from nullable to non-nullable
-  imageUrl: string; // Changed from nullable to non-nullable
+  snippet: string; 
+  imageUrl: string; 
   sourceName: string;
   publishedAt: string; 
   articleUrl: string;
   dataAiHint?: string;
 }
-

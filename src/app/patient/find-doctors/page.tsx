@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DoctorCard } from '@/components/shared/doctor-card';
 import type { Doctor } from '@/types';
-import { Search, Filter, X, Check, MapPin } from 'lucide-react';
+import { Search, Filter, X, Check, MapPin, Loader2 } from 'lucide-react'; // Added Loader2
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,29 +21,40 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { getDoctors } from '@/lib/firebase/firestore'; // Import mock Firebase function
 
-const mockDoctors: Doctor[] = [
-  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc1/400/250", isVerified: true, location: "New York, NY" },
-  { id: "2", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://picsum.photos/seed/doc2/400/250", isVerified: true, location: "London, UK" },
-  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc3/400/250", isVerified: true, location: "Mumbai, MH" },
-  { id: "4", name: "Dr. David Brown", specialty: "Orthopedic Surgeon", experience: 15, rating: 4.7, consultationFee: 2000, availability: "Next 3 days", imageUrl: "https://picsum.photos/seed/doc4/400/250", isVerified: false, location: "Toronto, ON" },
-  { id: "5", name: "Dr. Emily Jones", specialty: "Neurologist", experience: 8, rating: 4.6, consultationFee: 1800, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc5/400/250", isVerified: true, location: "Sydney, NSW" },
-  { id: "6", name: "Dr. Frank Davis", specialty: "Cardiologist", experience: 5, rating: 4.3, consultationFee: 1300, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc6/400/250", isVerified: true, location: "Paris, France" },
-  { id: "7", name: "Dr. Grace Lee", specialty: "Dermatologist", experience: 6, rating: 4.7, consultationFee: 1400, availability: "Next 3 days", imageUrl: "https://picsum.photos/seed/doc7/400/250", isVerified: true, location: "New York, NY" },
-];
-
-const specialties = ["Cardiologist", "Dermatologist", "Pediatrician", "Orthopedic Surgeon", "Neurologist", "General Physician"];
-const availabilityOptions = ["any", "Available Today", "Next 3 days"];
+const specialtiesList = ["Cardiologist", "Dermatologist", "Pediatrician", "Orthopedic Surgeon", "Neurologist", "General Physician", "Endocrinologist", "Psychiatrist"];
+const availabilityOptions = ["any", "Available Today", "Next 3 days", "Within a week"];
 
 export default function FindDoctorsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationTerm, setLocationTerm] = useState('');
-  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>(mockDoctors.filter(doc => doc.isVerified)); 
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string>("any");
 
   useEffect(() => {
-    let doctors = mockDoctors.filter(doc => doc.isVerified); 
+    async function fetchDoctors() {
+      setIsLoading(true);
+      try {
+        const doctorsFromDB = await getDoctors(); // Fetch from mock Firebase
+        setAllDoctors(doctorsFromDB.filter(doc => doc.isVerified)); // Only show verified doctors by default
+        setFilteredDoctors(doctorsFromDB.filter(doc => doc.isVerified));
+      } catch (error) {
+        console.error("Failed to fetch doctors:", error);
+        // Handle error, maybe show a toast
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    let doctors = [...allDoctors];
 
     if (searchTerm) {
       doctors = doctors.filter(doc =>
@@ -66,7 +78,7 @@ export default function FindDoctorsPage() {
     }
 
     setFilteredDoctors(doctors);
-  }, [searchTerm, locationTerm, selectedSpecialties, selectedAvailability]);
+  }, [searchTerm, locationTerm, selectedSpecialties, selectedAvailability, allDoctors]);
 
   const handleSpecialtyChange = (specialty: string) => {
     setSelectedSpecialties(prev =>
@@ -84,10 +96,10 @@ export default function FindDoctorsPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-md">
+      <Card className="shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl text-gradient">Find Your Doctor</CardTitle>
-          <CardDescription>Search for doctors by name, specialty, location, or symptoms.</CardDescription>
+          <CardDescription>Search for verified doctors by name, specialty, location, or symptoms.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
@@ -97,7 +109,7 @@ export default function FindDoctorsPage() {
                 id="search-term"
                 type="text"
                 placeholder="Dr. Smith, Cardiologist..."
-                className="pl-10 h-12 text-base mt-1"
+                className="pl-10 h-12 text-base mt-1 rounded-md"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -109,7 +121,7 @@ export default function FindDoctorsPage() {
                 id="location-term"
                 type="text"
                 placeholder="City, State or Zip Code..."
-                className="pl-10 h-12 text-base mt-1"
+                className="pl-10 h-12 text-base mt-1 rounded-md"
                 value={locationTerm}
                 onChange={(e) => setLocationTerm(e.target.value)}
               />
@@ -117,7 +129,7 @@ export default function FindDoctorsPage() {
             </div>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="lg" className="h-12 sm:col-span-2 lg:col-span-1 lg:w-auto lg:justify-self-start">
+                <Button variant="outline" size="lg" className="h-12 sm:col-span-2 lg:col-span-1 lg:w-auto lg:justify-self-start rounded-md">
                   <Filter className="mr-2 h-5 w-5" /> Advanced Filters
                 </Button>
               </SheetTrigger>
@@ -130,7 +142,7 @@ export default function FindDoctorsPage() {
                   <div>
                     <h4 className="font-medium mb-2">Specialty</h4>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {specialties.map(spec => (
+                      {specialtiesList.map(spec => (
                         <div key={spec} className="flex items-center space-x-2">
                           <Checkbox
                             id={`spec-${spec}`}
@@ -155,11 +167,11 @@ export default function FindDoctorsPage() {
                   </div>
                 </div>
                 <SheetFooter className="mt-auto">
-                  <Button variant="outline" onClick={resetFilters} className="w-full sm:w-auto">
+                  <Button variant="outline" onClick={resetFilters} className="w-full sm:w-auto rounded-md">
                     <X className="mr-2 h-4 w-4" /> Reset All
                   </Button>
                   <SheetClose asChild>
-                    <Button type="submit" className="w-full sm:w-auto btn-premium">
+                    <Button type="submit" className="w-full sm:w-auto btn-premium rounded-md">
                       <Check className="mr-2 h-4 w-4" /> Apply Filters
                     </Button>
                   </SheetClose>
@@ -170,14 +182,19 @@ export default function FindDoctorsPage() {
         </CardContent>
       </Card>
 
-      {filteredDoctors.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="ml-3 text-lg text-muted-foreground">Loading doctors...</p>
+        </div>
+      ) : filteredDoctors.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDoctors.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12">
+        <Card className="text-center py-12 rounded-lg">
           <CardContent>
             <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Doctors Found</h3>

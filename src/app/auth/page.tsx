@@ -14,7 +14,8 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-
+import { addDoctor } from '@/lib/firebase/firestore'; // Import the mock Firebase function
+import type { Doctor } from '@/types';
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -23,20 +24,20 @@ export default function AuthPage() {
   const initialTab = searchParams.get('tab') || 'login';
   const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker'>('patient');
   
-  // Mock login
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log("Logging in...");
     toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
     
     const phoneValue = (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement).value;
-    let role = 'patient'; // Default role
+    let role = 'patient'; 
     if (phoneValue.includes('doc')) {
       role = 'doctor';
     } else if (phoneValue.includes('lab')) {
       role = 'lab_worker';
     }
 
+    // Simulate successful login and role-based redirect
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'lab_worker') {
@@ -46,17 +47,48 @@ export default function AuthPage() {
     }
   };
 
-  // Mock signup
-  const handleSignUp = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const name = formData.get('fullName') as string;
+    // const phone = formData.get('phone') as string;
+    // const password = formData.get('password') as string;
+
     console.log("Signing up as", userType);
-    toast({ title: "Sign Up Successful", description: `Account created as ${userType}. Please verify if applicable.` });
-     if (userType === 'doctor') {
-      router.push('/doctor/dashboard'); 
+    
+    if (userType === 'doctor') {
+      const specialty = formData.get('specialization') as string;
+      const location = formData.get('location') as string;
+      const experience = parseInt(formData.get('experience') as string, 10);
+      const licenseNumber = formData.get('licenseNumber') as string;
+
+      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'> = {
+        name,
+        specialty,
+        experience,
+        consultationFee: 1000, // Default or prompt for this
+        location,
+        licenseNumber,
+        clinicHours: "Mon-Fri: 9 AM - 5 PM", // Default example
+        onlineConsultationEnabled: true,
+      };
+      try {
+        await addDoctor(doctorData); // Store doctor using mock Firebase
+        toast({ title: "Doctor Sign Up Successful", description: `Account created for Dr. ${name}. Please verify if applicable.` });
+        router.push('/doctor/dashboard'); // Redirect to doctor dashboard
+      } catch (error) {
+        console.error("Doctor signup error:", error);
+        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create doctor account." });
+      }
     } else if (userType === 'lab_worker') {
+       // const labId = formData.get('labId') as string;
+       // const locationLab = formData.get('location-lab') as string;
+      // Handle Lab Worker signup logic here (e.g., store in Firebase)
+      toast({ title: "Lab Worker Sign Up Successful", description: `Account created. Please verify if applicable.` });
       router.push('/lab/dashboard');
-    }
-     else {
+    } else { // Patient
+      // Handle Patient signup logic here
+      toast({ title: "Patient Sign Up Successful", description: `Account created.` });
       router.push('/patient/dashboard');
     }
   };
@@ -66,7 +98,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
       <Link href="/" className="flex items-center gap-2 mb-8">
          <Image
-            src="/logo.svg"
+            src="/logo.svg" 
             alt="EzCare Connect Logo"
             width={180} 
             height={63} 
@@ -88,11 +120,11 @@ export default function AuthPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone-login">Phone Number</Label>
-                  <Input id="phone-login" name="phone" type="tel" placeholder="Enter your phone number" required />
+                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Password</Label>
-                  <Input id="password-login" name="password" type="password" placeholder="Enter your password" required />
+                  <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">

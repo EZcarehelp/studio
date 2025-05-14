@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss } from 'lucide-react'; // Added Leaf, Rss
+import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings } from 'lucide-react'; // Added Settings
 import { usePathname } from 'next/navigation';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
@@ -20,8 +20,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/health-news', label: 'News', icon: Rss },
     { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     { href: '/patient/chats', label: 'Chats', icon: MessageCircle },
-    // Profile is often last or grouped differently
-    // { href: '/patient/profile', label: 'Profile', icon: User }, 
+    { href: '/patient/settings', label: 'Settings', icon: Settings }, // Changed from User to Settings icon and path
   ];
 
   const doctorNavItems = [
@@ -29,23 +28,16 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/doctor/schedule', label: 'Schedule', icon: CalendarDays },
     { href: '/doctor/patients', label: 'Patients', icon: Users },
     { href: '/health-news', label: 'News', icon: Rss },
-    // { href: '/doctor/profile', label: 'Profile', icon: User },
+    { href: '/doctor/settings', label: 'Settings', icon: Settings }, // Changed from User to Settings icon and path
   ];
 
   const labWorkerNavItems = [
     { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
     { href: '/health-news', label: 'News', icon: Rss },
-    // { href: '/lab/profile', label: 'Profile', icon: User }, 
+    { href: '/lab/profile', label: 'Profile', icon: User }, // Lab worker profile might still be /lab/profile or can be changed to /lab/settings
   ];
   
-  // Common item for profile, added after role-specific items
-  let profileItem = null;
-  if (userRole === 'patient') profileItem = { href: '/patient/profile', label: 'Profile', icon: User };
-  else if (userRole === 'doctor') profileItem = { href: '/doctor/profile', label: 'Profile', icon: User };
-  else if (userRole === 'lab_worker') profileItem = { href: '/lab/profile', label: 'Profile', icon: User };
-
-
   let navItems = [];
   if (userRole === 'patient') {
     navItems = patientNavItems;
@@ -53,10 +45,6 @@ export function MobileNav({ userRole }: MobileNavProps) {
     navItems = doctorNavItems;
   } else if (userRole === 'lab_worker') {
     navItems = labWorkerNavItems;
-  }
-
-  if (profileItem) {
-    navItems.push(profileItem); // Add profile as the last item
   }
 
 

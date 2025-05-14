@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Bell, LogOut, Leaf, Rss } from 'lucide-react'; // Added Leaf and Rss
+import { UserCircle, Bell, LogOut, Leaf, Rss } from 'lucide-react'; 
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -45,34 +45,33 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  // Common links visible to all, including unauthenticated users
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
   ];
   
   let navLinks = [...commonBaseLinks];
-  let profileLink = '/auth';
+  let settingsLink = '/auth'; // Default to auth if not authenticated
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
       navLinks = [...navLinks, ...patientNavLinks];
-      profileLink = '/patient/profile';
+      settingsLink = '/patient/settings'; // Updated from profile to settings
     } else if (userRole === 'doctor') {
       navLinks = [...navLinks, ...doctorNavLinks];
-      profileLink = '/doctor/profile';
+      settingsLink = '/doctor/settings'; // Updated from profile to settings
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
-      profileLink = '/lab/profile'; 
+      settingsLink = '/lab/profile'; // Lab worker profile/settings might still be /lab/profile or could also move to /lab/settings
+                                     // For now, keeping /lab/profile as its settings structure wasn't explicitly detailed for a big change
     }
   } else {
-     // For unauthenticated users, show Home, Health News, Find Doctors, and Remedies
      navLinks = [...navLinks, 
         { href: '/patient/find-doctors', label: 'Find Doctors' },
         { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     ];
   }
-  // Remove duplicate "Home" if it exists from role-specific links (patientNavLinks might have it)
+  
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
@@ -90,7 +89,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             width={140} 
             height={35} 
             priority
-            className="h-8 md:h-9 w-auto" // Slightly adjusted size
+            className="h-8 md:h-9 w-auto" 
           />
         </Link>
 
@@ -100,7 +99,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               key={link.href}
               href={link.href}
               className={`text-xs lg:text-sm font-medium transition-colors hover:text-primary px-1.5 py-1 rounded-md flex items-center gap-1 ${
-                pathname === link.href ? 'text-primary bg-primary/10' : 'text-foreground/80'
+                pathname === link.href || (pathname.startsWith(link.href) && link.href !== '/') ? 'text-primary bg-primary/10' : 'text-foreground/80'
               }`}
             >
               {link.icon && <link.icon className="h-3.5 w-3.5 lg:h-4 lg:w-4 opacity-80" />}
@@ -128,7 +127,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   <DropdownMenuLabel>My Account ({userRole})</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={profileLink}>Profile</Link>
+                    <Link href={settingsLink}>Profile & Settings</Link>
                   </DropdownMenuItem>
                   {userRole === 'patient' && (
                      <DropdownMenuItem asChild><Link href="/patient/appointments">My Appointments</Link></DropdownMenuItem>
@@ -136,10 +135,11 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                    {userRole === 'doctor' && (
                      <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
                   )}
-                   {userRole === 'lab_worker' && (
-                     <DropdownMenuItem asChild><Link href="/lab/dashboard">Dashboard</Link></DropdownMenuItem>
+                   {userRole === 'lab_worker' && ( // Lab worker might still use /lab/profile if settings page not created
+                     <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Profile</Link></DropdownMenuItem>
                   )}
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  {/* Generic settings link can be removed if specific profile/settings link is present */}
+                  {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -150,19 +150,16 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </>
           ) : (
             <div className="space-x-2">
-              <Button variant="outline" asChild size="sm">
+              <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
-              <Button asChild className="btn-premium" size="sm">
+              <Button asChild className="btn-premium rounded-md" size="sm">
                 <Link href="/auth?tab=signup">Sign Up</Link>
               </Button>
             </div>
           )}
-           {/* MobileNav Trigger for MD and below, but actual MobileNav is separate */}
            <div className="md:hidden">
-            {/* Placeholder or trigger for a mobile menu if Header were to manage it.
-                Currently MobileNav is separate. If a hamburger is needed here: */}
-            {/* <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button> */}
+           
           </div>
         </div>
       </div>

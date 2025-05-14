@@ -1,10 +1,11 @@
+
 "use client";
 
 import React, { useState } from 'react'; 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCircle, CalendarDays, FileText, MessageSquare, HelpCircle, Settings, MapPin, CreditCard, Bell, LogOut, Edit2 } from "lucide-react";
+import { UserCircle, CalendarDays, FileText, MessageSquare, HelpCircle, Settings, MapPin, CreditCard, Bell, LogOut, Edit2, Pill, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
@@ -16,8 +17,8 @@ const useAuth = () => {
   const [user, setUser] = useState({
     name: "Jane Patient",
     email: "jane.patient@example.com",
-    avatarUrl: "https://picsum.photos/seed/patient1/200/200",
-    location: "San Francisco, CA" // Added location for patient
+    avatarUrl: "https://placehold.co/200x200.png",
+    location: "San Francisco, CA" 
   });
 
   const signOut = () => {
@@ -27,7 +28,7 @@ const useAuth = () => {
   return { isAuthenticated, user, signOut };
 };
 
-export default function PatientProfilePage() {
+export default function PatientSettingsPage() {
   const { isAuthenticated, user, signOut } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -47,11 +48,11 @@ export default function PatientProfilePage() {
               <UserCircle className="h-16 w-16 text-primary" />
             </div>
             <CardTitle className="text-2xl">Sign in to your account</CardTitle>
-            <CardDescription>Access your profile to manage your health journey with EzCare Connect.</CardDescription>
+            <CardDescription>Access your settings to manage your health journey with EzCare Connect.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full btn-premium rounded-md">
-              <Link href="/auth">Sign In / Sign Up</Link>
+              <Link href="/auth?tab=login">Sign In / Sign Up</Link>
             </Button>
           </CardContent>
         </Card>
@@ -59,19 +60,20 @@ export default function PatientProfilePage() {
     );
   }
 
-  const quickActions = [
-    { label: "My Appointments", icon: <CalendarDays className="w-6 h-6" />, href: "/patient/appointments" },
-    { label: "Medical Records", icon: <FileText className="w-6 h-6" />, href: "/patient/medical-records" },
-    { label: "My Consultations", icon: <MessageSquare className="w-6 h-6" />, href: "/patient/chats" },
-    { label: "Help & Support", icon: <HelpCircle className="w-6 h-6" />, href: "/support" },
+  // From user's list for Patient Settings
+  const settingsCategories = [
+    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/patient/settings/profile-info", description: "Manage name, DOB, gender, contact, profile picture." },
+    { label: "Appointment Settings", icon: <CalendarDays className="w-5 h-5" />, href: "/patient/settings/appointments", description: "Preferences, reminders, view history, manage bookings." },
+    { label: "Medicine & Health Records", icon: <Pill className="w-5 h-5" />, href: "/patient/medical-records", description: "View prescriptions, lab reports, upload records." }, // links to existing medical records
+    { label: "Payments & Billing", icon: <CreditCard className="w-5 h-5" />, href: "/patient/settings/payments", description: "Manage payment methods, view invoice history." },
+    { label: "Notification Settings", icon: <Bell className="w-5 h-5" />, href: "/patient/settings/notifications", description: "Control how and when you receive updates." },
+    { label: "Diagnostic/Lab Test Settings", icon: <FlaskConical className="w-5 h-5" />, href: "/patient/lab-tests", description: "Track bookings, download reports." }, // Links to existing lab tests page
+    { label: "Address & Delivery Settings", icon: <MapPin className="w-5 h-5" />, href: "/patient/settings/addresses", description: "Manage addresses for medicine delivery and home tests." },
+    { label: "Security & Privacy", icon: <Settings className="w-5 h-5" />, href: "/patient/settings/security", description: "Change password, manage 2FA, download data." },
+    { label: "Help & Support", icon: <HelpCircle className="w-5 h-5" />, href: "/support", description: "Access FAQ and contact support." }, // Link to existing support page
+    { label: "My Chats", icon: <MessageSquare className="w-5 h-5" />, href: "/patient/chats", description: "View your consultations with doctors." }, // From old quick actions
   ];
 
-  const accountSettings = [
-    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/patient/profile/edit", actionText: "Edit" },
-    { label: "Saved Addresses", icon: <MapPin className="w-5 h-5" />, href: "/patient/profile/addresses", actionText: "Manage" },
-    { label: "Payment Methods", icon: <CreditCard className="w-5 h-5" />, href: "/patient/profile/payments", actionText: "Manage" },
-    { label: "Notifications", icon: <Bell className="w-5 h-5" />, href: "/patient/profile/notifications", actionText: "Settings" },
-  ];
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -93,7 +95,7 @@ export default function PatientProfilePage() {
               </div>
             </div>
              <Button variant="outline" size="sm" asChild className="absolute top-4 right-4 bg-white/20 text-white hover:bg-white/30 border-white/50 rounded-md">
-              <Link href="/patient/profile/edit">
+              <Link href="/patient/settings/profile-info"> {/* Link to specific profile info settings */}
                 <Edit2 className="w-3 h-3 mr-1.5" /> Edit Profile
               </Link>
             </Button>
@@ -101,40 +103,28 @@ export default function PatientProfilePage() {
       </Card>
 
       <Card className="rounded-lg">
-        <CardHeader>
-          <CardTitle className="text-xl">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-2 gap-4">
-          {quickActions.map(action => (
-            <Link key={action.label} href={action.href} passHref>
-              <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-accent hover:shadow-md transition-all cursor-pointer text-center h-full justify-center card-gradient transform hover:scale-102">
-                <div className="p-3 bg-primary/10 rounded-full mb-2 text-primary">{action.icon}</div>
-                <span className="text-sm font-medium">{action.label}</span>
-              </div>
-            </Link>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-lg">
         <CardHeader className="border-b">
-          <CardTitle className="text-xl">Account Settings</CardTitle>
+          <CardTitle className="text-xl">Patient Settings</CardTitle>
+           <CardDescription>Manage your account, preferences, and health information.</CardDescription>
         </CardHeader>
-        <CardContent className="pt-2 pb-2">
-          {accountSettings.map((setting, index) => (
+        <CardContent className="pt-3 pb-1">
+          {settingsCategories.map((setting, index) => (
             <React.Fragment key={setting.label}>
               <Link href={setting.href} passHref>
-                 <div className="flex items-center justify-between py-3 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2"> 
-                  <div className="flex items-center">
-                    <div className="text-primary mr-3">{setting.icon}</div>
-                    <span className="text-foreground/90">{setting.label}</span>
+                 <div className="flex items-start justify-between py-3.5 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2"> 
+                  <div className="flex items-start">
+                    <div className="text-primary mr-3 mt-0.5">{setting.icon}</div>
+                    <div>
+                        <span className="text-foreground/90 font-medium">{setting.label}</span>
+                        <p className="text-xs text-muted-foreground">{setting.description}</p>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <span className="text-primary text-xs">{setting.actionText} <Edit2 className="inline w-3 h-3 ml-1 opacity-70"/></span>
+                  <Button variant="ghost" size="sm" asChild className="mt-1">
+                    <span className="text-primary text-xs">Manage <Edit2 className="inline w-3 h-3 ml-1 opacity-70"/></span>
                   </Button>
                 </div>
               </Link>
-              {index < accountSettings.length - 1 && <Separator/>}
+              {index < settingsCategories.length - 1 && <Separator/>}
             </React.Fragment>
           ))}
         </CardContent>
