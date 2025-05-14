@@ -14,8 +14,8 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor } from '@/lib/firebase/firestore'; // Import the mock Firebase function
-import type { Doctor } from '@/types';
+import { addDoctor, addPharmacist } from '@/lib/firebase/firestore'; 
+import type { Doctor, PharmacyProfile, UserProfile } from '@/types';
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -57,7 +57,8 @@ export default function AuthPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const name = formData.get('fullName') as string;
-    // const phone = formData.get('phone') as string;
+    const phone = formData.get('phone') as string;
+    const email = formData.get('email-signup') as string; // Assuming email field exists
     // const password = formData.get('password') as string;
 
     console.log("Signing up as", userType);
@@ -79,27 +80,45 @@ export default function AuthPage() {
         onlineConsultationEnabled: true,
       };
       try {
-        await addDoctor(doctorData); // Store doctor using mock Firebase
+        await addDoctor(doctorData); 
         toast({ title: "Doctor Sign Up Successful", description: `Account created for Dr. ${name}. Please verify if applicable.` });
-        router.push('/doctor/dashboard'); // Redirect to doctor dashboard
+        router.push('/doctor/dashboard'); 
       } catch (error) {
         console.error("Doctor signup error:", error);
         toast({ variant: "destructive", title: "Signup Failed", description: "Could not create doctor account." });
       }
     } else if (userType === 'lab_worker') {
-       // const labId = formData.get('labId') as string;
-       // const locationLab = formData.get('location-lab') as string;
+      // const labId = formData.get('labId') as string;
+      // const locationLab = formData.get('location-lab') as string;
       toast({ title: "Lab Worker Sign Up Successful", description: `Account created. Please verify if applicable.` });
       router.push('/lab/dashboard');
     } else if (userType === 'pharmacist') {
       const pharmacyName = formData.get('pharmacyName') as string;
       const pharmacyLicense = formData.get('pharmacyLicense') as string;
-      // Handle Pharmacist signup logic here
-      toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${pharmacyName} created. Please verify if applicable.` });
-      router.push('/pharmacist/dashboard');
+      const location = formData.get('location') as string;
+
+      const pharmacistSignupData = {
+        name,
+        phone,
+        email,
+        role: 'pharmacist' as const,
+        location,
+        pharmacyDetails: {
+          pharmacyName,
+          licenseNumber: pharmacyLicense,
+        },
+      };
+      try {
+        await addPharmacist(pharmacistSignupData);
+        toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${pharmacyName} created. Please verify if applicable.` });
+        router.push('/pharmacist/dashboard');
+      } catch (error) {
+        console.error("Pharmacist signup error:", error);
+        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create pharmacist account." });
+      }
     }
      else { // Patient
-      toast({ title: "Patient Sign Up Successful", description: `Account created.` });
+      toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
       router.push('/patient/dashboard');
     }
   };
@@ -185,6 +204,10 @@ export default function AuthPage() {
                   <Input id="name-signup" name="fullName" placeholder="Enter your full name" required />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="email-signup">Email Address</Label>
+                  <Input id="email-signup" name="email-signup" type="email" placeholder="Enter your email address" required />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="phone-signup">Phone Number</Label>
                   <Input id="phone-signup" name="phone" type="tel" placeholder="Enter your phone number" required />
                 </div>
@@ -192,6 +215,7 @@ export default function AuthPage() {
                   <Label htmlFor="password-signup">Password</Label>
                   <Input id="password-signup" name="password" type="password" placeholder="Create a password" required />
                 </div>
+
                 {userType === 'doctor' && (
                   <>
                     <div className="space-y-2">

@@ -45,7 +45,6 @@ export default function HealthNewsPage() {
           </CardTitle>
           <CardDescription>
             Stay updated with the latest news and breakthroughs in health and medicine.
-            {/* Removed conditional warnings based on NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER */}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -106,7 +105,7 @@ export default function HealthNewsPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3">{article.snippet || "No snippet available."}</p>
               </CardContent>
               <CardFooter className="flex flex-col items-start gap-2 pt-3 border-t">
-                <div className="flex justify-between w-full text-xs text-muted-foreground">
+                <div className="flex justify-between w-full text-xs text-foreground opacity-75">
                   <span>{article.sourceName}</span>
                   <span className="flex items-center">
                     <CalendarDays className="mr-1 h-3.5 w-3.5" />

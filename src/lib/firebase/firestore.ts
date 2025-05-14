@@ -1,6 +1,6 @@
 
 // Mock Firestore interactions
-import type { Doctor } from '@/types';
+import type { Doctor, PharmacyProfile, UserProfile } from '@/types';
 
 // In-memory store for doctors for mocking purposes
 let mockDoctorsDB: Doctor[] = [
@@ -8,6 +8,10 @@ let mockDoctorsDB: Doctor[] = [
   { id: "doc2-firebase", name: "Dr. Bob Johnson (Firebase)", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait", licenseNumber: "L456", clinicHours: "Tue-Sat 10am-6pm" },
   { id: "doc3-firebase", name: "Dr. Carol Williams (Firebase)", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait", licenseNumber: "L789", clinicHours: "Mon, Wed, Fri 8am-4pm" },
 ];
+
+// In-memory store for pharmacists
+let mockPharmacistsDB: UserProfile[] = [];
+
 
 // Simulate adding a doctor to Firestore
 export async function addDoctor(doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'> & Partial<Pick<Doctor, 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'>>): Promise<Doctor> {
@@ -49,6 +53,29 @@ export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): 
     return mockDoctorsDB[doctorIndex];
   }
   return null;
+}
+
+// Simulate adding a pharmacist to Firestore
+export async function addPharmacist(
+  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails'> & { pharmacyDetails: Omit<PharmacyProfile, 'id'> }
+): Promise<UserProfile> {
+  console.log("Mock Firestore: Adding pharmacist", pharmacistData);
+  const newPharmacist: UserProfile = {
+    id: `pharm${Date.now()}-firebase`,
+    name: pharmacistData.name,
+    phone: pharmacistData.phone,
+    email: pharmacistData.email,
+    role: 'pharmacist',
+    location: pharmacistData.location,
+    pharmacyDetails: {
+      id: `pharmaDetail${Date.now()}`,
+      ...pharmacistData.pharmacyDetails,
+    },
+    avatarUrl: pharmacistData.avatarUrl || "https://placehold.co/200x200.png",
+  };
+  mockPharmacistsDB.push(newPharmacist);
+  console.log("Mock Firestore: Pharmacist added", newPharmacist);
+  return newPharmacist;
 }
 
 // Add more mock functions as needed for patients, appointments, etc.
