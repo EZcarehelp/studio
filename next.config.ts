@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'lifehacker.com', // Added for Lifehacker images via NewsAPI
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdnph.upi.com', // Added for UPI images via NewsAPI
+        port: '',
+        pathname: '/**',
       }
     ],
   },
