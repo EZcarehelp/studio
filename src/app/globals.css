@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,56 +9,56 @@ body {
 
 @layer base {
   :root {
-    /* Luxury Theme - Light Mode */
+    /* Luxury Theme - Light Mode (Practo Inspired) */
     --background: 60 100% 97%; /* Ivory #FFFFF0 */
-    --foreground: 0 0% 20%; /* Charcoal #343434 */
+    --foreground: 0 0% 21%;    /* Charcoal #343434 */
 
-    --card: 0 0% 100%; /* Pure White #FFFFFF */
-    --card-foreground: 0 0% 20%; /* Charcoal #343434 */
+    --card: 0 0% 100%;         /* Pure White #FFFFFF */
+    --card-foreground: 0 0% 21%; /* Charcoal #343434 */
 
-    --popover: 0 0% 100%; /* Pure White #FFFFFF */
-    --popover-foreground: 0 0% 20%; /* Charcoal #343434 */
+    --popover: 0 0% 100%;      /* Pure White #FFFFFF */
+    --popover-foreground: 0 0% 21%; /* Charcoal #343434 */
 
-    --primary: 224 76% 57%; /* Royal Blue #4169E1 */
+    --primary: 224 76% 58%;    /* Royal Blue #4169E1 (for Medical Blue #1A73E8) */
     --primary-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --secondary: 45 65% 52%; /* Royal Gold #D4AF37 */
-    --secondary-foreground: 0 0% 0%; /* Rich Black #000000 for contrast on gold */
+    --secondary: 145 60% 55%;  /* Emerald #50C878 (for Medical Teal #20C997) */
+    --secondary-foreground: 0 0% 0%; /* Rich Black #000000 */
 
-    --muted: 60 10% 90%; /* Platinum #E5E4E2 */
+    --muted: 60 20% 90%;       /* Platinum #E5E4E2 */
     --muted-foreground: 0 0% 41%; /* Dove Gray #696969 */
 
-    --accent: 43 58% 81%; /* Champagne Gold #ECD9B0 */
-    --accent-foreground: 27 15% 45%; /* Mocha #837060 for text on Champagne Gold */
+    --accent: 145 60% 55%;     /* Emerald #50C878 (same as secondary for interactive elements) */
+    --accent-foreground: 0 0% 0%; /* Rich Black #000000 */
     
-    --success: 145 58% 54%; /* Emerald #50C878 */
+    --success: 120 100% 80%;   /* Mint #98FF98 (for Soft Green #A5D6A7) */
     --success-foreground: 122 92% 20%; /* Dark Emerald #046307 */
 
     --destructive: 350 80% 34%; /* Ruby #9B111E */
     --destructive-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --border: 0 0% 75%; /* Silver #C0C0C0 */
-    --input: 0 0% 75%; /* Silver #C0C0C0 */
-    --ring: 224 76% 57%; /* Royal Blue #4169E1 for focus rings */
+    --border: 0 0% 75%;        /* Silver #C0C0C0 */
+    --input: 0 0% 75%;         /* Silver #C0C0C0 */
+    --ring: 224 76% 58%;       /* Royal Blue #4169E1 (for focus rings) */
 
-    --chart-1: 12 76% 61%; /* Keeping original chart colors for now */
+    --chart-1: 12 76% 61%; 
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    /* Sidebar variables - using new luxury shades */
-    --sidebar-background: 60 10% 90%; /* Platinum #E5E4E2 */
-    --sidebar-foreground: 0 0% 20%; /* Charcoal #343434 */
-    --sidebar-primary: 224 76% 57%; /* Royal Blue #4169E1 */
+    /* Sidebar variables - using luxury shades */
+    --sidebar-background: 60 20% 90%; /* Platinum #E5E4E2 */
+    --sidebar-foreground: 0 0% 21%; /* Charcoal #343434 */
+    --sidebar-primary: 224 76% 58%; /* Royal Blue #4169E1 */
     --sidebar-primary-foreground: 0 0% 100%; /* Pure White #FFFFFF */
-    --sidebar-accent: 43 58% 81%; /* Champagne Gold #ECD9B0 */
-    --sidebar-accent-foreground: 27 15% 45%; /* Mocha #837060 */
+    --sidebar-accent: 145 60% 55%;  /* Emerald #50C878 */
+    --sidebar-accent-foreground: 0 0% 0%; /* Rich Black */
     --sidebar-border: 0 0% 75%; /* Silver #C0C0C0 */
-    --sidebar-ring: 224 76% 57%; /* Royal Blue */
+    --sidebar-ring: 224 76% 58%; /* Royal Blue */
 
-    /* Remedy Colors - Luxury Theme */
+    /* Remedy Colors - Luxury Theme (from user's list / previous luxury theme) */
     --remedy-herbal-bg: 47 14% 62%; /* Sage #B2AC88 */
     --remedy-herbal-fg: 122 92% 20%; /* Dark Emerald #046307 */
     --remedy-digestion-bg: 45 31% 63%; /* Sand #C2B280 */
@@ -67,53 +68,53 @@ body {
     --remedy-calming-bg: 240 67% 94%; /* Lavender #E6E6FA */
     --remedy-calming-fg: 321 68% 20%; /* Deep Plum #580F41 */
     --remedy-general-bg: 37 13% 71%; /* Greige #BEB6AD */
-    --remedy-general-fg: 0 0% 20%; /* Charcoal #343434 */
+    --remedy-general-fg: 0 0% 21%; /* Charcoal #343434 */
   }
 
   .dark {
-    /* Luxury Theme - Dark Mode */
-    --background: 0 0% 4%; /* Jet Black #0A0A0A */
+    /* Luxury Theme - Dark Mode (Practo Inspired) */
+    --background: 0 0% 4%;    /* Jet Black #0A0A0A */
     --foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --card: 0 0% 11%; /* Soft Black #1C1C1C */
+    --card: 0 0% 11%;          /* Soft Black #1C1C1C */
     --card-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --popover: 0 0% 11%; /* Soft Black #1C1C1C */
+    --popover: 0 0% 11%;       /* Soft Black #1C1C1C */
     --popover-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --primary: 224 77% 65%; /* Lighter Royal Blue #6488E8 */
+    --primary: 224 76% 70%;    /* Lighter Royal Blue */
     --primary-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
 
-    --secondary: 51 100% 50%; /* Pure Gold #FFD700 */
-    --secondary-foreground: 0 0% 0%; /* Rich Black #000000 */
+    --secondary: 145 60% 70%;  /* Lighter Emerald */
+    --secondary-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
 
-    --muted: 0 0% 18%; /* Graphite #2F2F2F */
+    --muted: 0 0% 18%;         /* Graphite #2F2F2F */
     --muted-foreground: 0 0% 75%; /* Silver #C0C0C0 */
 
-    --accent: 33 52% 51%; /* Antique Gold #C28840 */
-    --accent-foreground: 60 100% 97%; /* Ivory #FFFFF0 */
+    --accent: 145 60% 70%;     /* Lighter Emerald */
+    --accent-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
 
-    --success: 157 100% 33%; /* Jade #00A86B */
-    --success-foreground: 0 0% 100%; /* Pure White #FFFFFF */
+    --success: 122 92% 20%;   /* Dark Emerald #046307 (as BG) */
+    --success-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
     --destructive: 348 83% 47%; /* Crimson #DC143C */
     --destructive-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --border: 220 5% 28%; /* Steel Gray #43464B */
-    --input: 220 5% 28%; /* Steel Gray #43464B */
-    --ring: 224 77% 65%; /* Lighter Royal Blue #6488E8 */
+    --border: 214 5% 28%;      /* Steel Gray #43464B */
+    --input: 214 5% 28%;       /* Steel Gray #43464B */
+    --ring: 224 76% 70%;       /* Lighter Royal Blue */
 
     /* Sidebar variables for dark mode - luxury */
     --sidebar-background: 0 0% 11%; /* Soft Black #1C1C1C */
     --sidebar-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
-    --sidebar-primary: 224 77% 65%; /* Lighter Royal Blue */
+    --sidebar-primary: 224 76% 70%; /* Lighter Royal Blue */
     --sidebar-primary-foreground: 0 0% 4%; /* Jet Black */
-    --sidebar-accent: 33 52% 51%; /* Antique Gold */
-    --sidebar-accent-foreground: 60 100% 97%; /* Ivory */
-    --sidebar-border: 220 5% 28%; /* Steel Gray */
-    --sidebar-ring: 224 77% 65%; /* Lighter Royal Blue */
+    --sidebar-accent: 145 60% 70%; /* Lighter Emerald */
+    --sidebar-accent-foreground: 0 0% 4%; /* Jet Black */
+    --sidebar-border: 214 5% 28%; /* Steel Gray */
+    --sidebar-ring: 224 76% 70%; /* Lighter Royal Blue */
 
-    /* Remedy Colors Dark Mode - Luxury */
+    /* Remedy Colors Dark Mode - Luxury (from user's list / previous luxury theme) */
     --remedy-herbal-bg: 134 29% 29%; /* Hunter Green #355E3B */
     --remedy-herbal-fg: 47 14% 62%; /* Sage #B2AC88 */
     --remedy-digestion-bg: 27 15% 45%; /* Mocha #837060 */
@@ -122,8 +123,8 @@ body {
     --remedy-inflammation-fg: 30 56% 92%; /* Linen #FAF0E6 */
     --remedy-calming-bg: 265 36% 49%; /* Royal Purple #7851A9 */
     --remedy-calming-fg: 240 67% 94%; /* Lavender #E6E6FA */
-    --remedy-general-bg: 220 5% 28%; /* Steel Gray #43464B */
-    --remedy-general-fg: 60 10% 90%; /* Platinum #E5E4E2 */
+    --remedy-general-bg: 214 5% 28%; /* Steel Gray #43464B */
+    --remedy-general-fg: 60 20% 90%; /* Platinum #E5E4E2 */
   }
 }
 
@@ -137,9 +138,9 @@ body {
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
   }
-  h1 { @apply text-2xl; } /* Extra Large */
-  h2 { @apply text-xl; } /* Large */
-  h3 { @apply text-lg; } /* Medium+ */
+  h1 { @apply text-2xl; } 
+  h2 { @apply text-xl; } 
+  h3 { @apply text-lg; } 
 
   /* For react-markdown prose styles */
   .prose {
@@ -170,7 +171,7 @@ body {
     @apply border-l-primary pl-4 italic text-muted-foreground;
   }
   .dark .prose {
-     @apply text-foreground; /* In dark mode, foreground is light */
+     @apply text-foreground; 
   }
    .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
     @apply text-foreground font-semibold;
@@ -199,9 +200,7 @@ body {
   .card-gradient {
     @apply bg-gradient-to-b from-card via-card to-muted/30;
   }
-  .text-highlight-teal { /* This class might need re-evaluation if teal is no longer prominent */
-    @apply bg-secondary/20 px-1 rounded;
-  }
+  
   /* Custom remedy type background and text utility classes for Tailwind */
   .bg-remedy-herbal { @apply bg-[hsl(var(--remedy-herbal-bg))]; }
   .text-remedy-herbal-foreground { @apply text-[hsl(var(--remedy-herbal-fg))]; }
@@ -217,5 +216,4 @@ body {
   
   .bg-remedy-general { @apply bg-[hsl(var(--remedy-general-bg))]; }
   .text-remedy-general-foreground { @apply text-[hsl(var(--remedy-general-fg))]; }
-
 }
