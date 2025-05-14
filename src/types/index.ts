@@ -12,12 +12,10 @@ export interface Doctor {
   location?: string;
   bio?: string;
   licenseNumber?: string;
-  // Basic schedule/availability representation for now
-  // More detailed structure can be added for specific settings like clinic hours, slot durations etc.
-  clinicHours?: string; // e.g., "Mon-Fri: 9 AM - 5 PM"
+  clinicHours?: string; 
   onlineConsultationEnabled?: boolean;
-  weeklyAvailability?: { // This was already present, good for basic availability
-    [day: string]: boolean; // "monday", "tuesday", etc.
+  weeklyAvailability?: { 
+    [day: string]: boolean; 
   };
   dataAiHint?: string;
 }
@@ -29,21 +27,21 @@ export interface Medicine {
   price: number; // INR
   rating: number; // 0-5
   imageUrl: string;
-  category: string; // e.g., "Popular", "Pain Relief"
-  affiliateLink: string; // Amazon affiliate link
+  category: string; 
+  affiliateLink: string; 
   dataAiHint?: string;
 }
 
 export interface ChatMessage {
   id: string;
-  senderId: string; // 'patient' or doctor's ID
+  senderId: string; 
   receiverId: string;
   text?: string;
-  timestamp: number; // Unix timestamp
+  timestamp: number; 
   isRead?: boolean;
-  type: 'text' | 'prescription' | 'image'; // Add other types as needed
-  prescriptionDetails?: Prescription; // If type is 'prescription'
-  imageUrl?: string; // If type is 'image'
+  type: 'text' | 'prescription' | 'image'; 
+  prescriptionDetails?: Prescription; 
+  imageUrl?: string; 
 }
 
 export interface Prescription {
@@ -72,16 +70,25 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor' | 'lab_worker';
+  role: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist'; // Added pharmacist
   avatarUrl?: string;
   location?: string; 
-  // Patient specific
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
-  // Doctor specific
   doctorDetails?: Partial<Doctor>; 
+  pharmacyDetails?: Partial<PharmacyProfile>; // Added for pharmacist
 }
+
+export interface PharmacyProfile { // New type for Pharmacist specific details
+  id: string;
+  pharmacyName: string;
+  licenseNumber: string;
+  gstNumber?: string;
+  bankDetails?: any; // Simplified for now
+  // other pharmacy specific details
+}
+
 
 export interface Address {
   id: string;
@@ -95,9 +102,9 @@ export interface Address {
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'upi'; // etc.
+  type: 'card' | 'upi'; 
   last4?: string;
-  expiry?: string; // MM/YY for card
+  expiry?: string; 
   isDefault?: boolean;
 }
 
@@ -105,7 +112,7 @@ export interface LabTest {
   id: string;
   name: string;
   description: string;
-  price?: number; // Optional price
+  price?: number; 
 }
 
 export interface LabReport {

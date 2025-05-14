@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode } from 'react';
@@ -8,7 +9,7 @@ import { useEffect, useState } from 'react';
 
 // Mock authentication state
 // In a real app, this would come from a context or auth service
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; // Added pharmacist
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -25,6 +26,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
     } else if (pathname.startsWith('/lab')) {
       setUserRole('lab_worker');
+      setIsAuthenticated(true);
+    } else if (pathname.startsWith('/pharmacist')) { // Added pharmacist
+      setUserRole('pharmacist');
       setIsAuthenticated(true);
     }
      else if (pathname === '/auth') {
@@ -48,9 +52,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const handleSignOut = () => {
     setIsAuthenticated(false);
     setUserRole(null);
-    // router.push('/auth'); // Ideally redirect via router after state update
     console.log("User signed out");
-    // Simulate redirect by directly changing path for demo
     if (typeof window !== 'undefined') {
       window.location.pathname = '/auth';
     }

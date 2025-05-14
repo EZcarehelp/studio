@@ -7,12 +7,13 @@ import { HealthStatCard } from "@/components/patient/health-stat-card";
 import type { AyurvedicRemedy } from "@/types";
 import { AyurvedicRemedyCard } from "@/components/patient/ayurvedic-remedy-card"; // Assuming this path
 import { useState } from "react"; // Required for managing remedy state if done locally
+import React from 'react';
 
 
 // Mock data for Ayurvedic remedies to display on dashboard
 const featuredRemedies: AyurvedicRemedy[] = [
-  { id: 'dash-remedy1', name: 'Tulsi Tea for Immunity', type: 'herbal', tags: ['immunity', 'cold', 'wellness'], description: 'A simple tea to boost overall immunity and fight common colds.', ingredients: ['5-7 Tulsi (Holy Basil) leaves', '1 cup Water', '1/2 tsp Honey (optional)'], preparation: 'Boil Tulsi leaves in water for 5-7 minutes. Strain and add honey if desired.', usage: 'Drink once or twice daily.', imageUrl: 'https://picsum.photos/seed/tulsi_tea_dash/400/300', isFavorite: false },
-  { id: 'dash-remedy2', name: 'Fennel Seed Water for Digestion', type: 'digestion', tags: ['digestion', 'bloating', 'refreshing'], description: 'Aids digestion and helps reduce bloating. Acts as a mouth freshener.', ingredients: ['1 tsp Fennel Seeds', '1 cup Hot Water'], preparation: 'Steep fennel seeds in hot water for 5-10 minutes. Strain and drink warm or at room temperature.', usage: 'Sip after meals for best results.', imageUrl: 'https://picsum.photos/seed/fennel_water_dash/400/300', isFavorite: false },
+  { id: 'dash-remedy1', name: 'Tulsi Tea for Immunity', type: 'herbal', tags: ['immunity', 'cold', 'wellness'], description: 'A simple tea to boost overall immunity and fight common colds.', ingredients: ['5-7 Tulsi (Holy Basil) leaves', '1 cup Water', '1/2 tsp Honey (optional)'], preparation: 'Boil Tulsi leaves in water for 5-7 minutes. Strain and add honey if desired.', usage: 'Drink once or twice daily.', imageUrl: 'https://placehold.co/400x300.png',dataAiHint: "tulsi tea", isFavorite: false },
+  { id: 'dash-remedy2', name: 'Fennel Seed Water for Digestion', type: 'digestion', tags: ['digestion', 'bloating', 'refreshing'], description: 'Aids digestion and helps reduce bloating. Acts as a mouth freshener.', ingredients: ['1 tsp Fennel Seeds', '1 cup Hot Water'], preparation: 'Steep fennel seeds in hot water for 5-10 minutes. Strain and drink warm or at room temperature.', usage: 'Sip after meals for best results.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "fennel water", isFavorite: false },
 ];
 
 
@@ -93,7 +94,7 @@ export default function PatientDashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
           <DashboardActionCard title="Find Doctors" description="Search & book." icon={<Search />} href="/patient/find-doctors" />
           <DashboardActionCard title="My Appointments" description="View schedule." icon={<CalendarDays />} href="/patient/appointments" />
-          <DashboardActionCard title="AI Symptom Checker" description="Preliminary analysis." icon={<MessageSquare />} href="/ai-symptom-checker" />
+          <DashboardActionCard title="EzCare Chatbot" description="Preliminary analysis." icon={<MessageSquare />} href="/ai-symptom-checker" />
           <DashboardActionCard title="Order Medicines" description="Browse store." icon={<Pill />} href="/patient/store" />
           <DashboardActionCard title="Medical Records" description="Access records." icon={<FileText />} href="/patient/medical-records" />
           <DashboardActionCard title="Ayurvedic Remedies" description="Natural wellness." icon={<Leaf />} href="/patient/ayurvedic-remedies" />
@@ -123,7 +124,7 @@ export default function PatientDashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-blue-600 dark:text-blue-300/90">
-            The AI-powered suggestions and analyses provided by EzCare Connect, including symptom checking and diet plans, are for informational purposes only. They do not constitute medical advice, diagnosis, or treatment. Always consult with a qualified healthcare professional for any health concerns or before making any decisions related to your health or treatment.
+            The AI-powered suggestions and analyses provided by EzCare Connect, including the EzCare Chatbot and diet plans, are for informational purposes only. They do not constitute medical advice, diagnosis, or treatment. Always consult with a qualified healthcare professional for any health concerns or before making any decisions related to your health or treatment.
           </p>
         </CardContent>
       </Card>

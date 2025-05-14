@@ -21,7 +21,7 @@ const services = [
   { title: "Lab Tests", description: "Book lab tests at home or centers.", icon: <FlaskConical className="w-10 h-10 text-primary" />, href: "/patient/lab-tests" },
   { title: "Health Records", description: "Manage your health records securely.", icon: <FileText className="w-10 h-10 text-primary" />, href: "/patient/medical-records" },
   { title: "Health Plans", description: "Explore various health plans.", icon: <ShieldCheck className="w-10 h-10 text-primary" />, href: "/patient/health-plans" },
-  { title: "AI Symptom Checker", description: "Get AI-powered symptom analysis.", icon: <MessageSquare className="w-10 h-10 text-primary" />, href: "/ai-symptom-checker" },
+  { title: "EzCare Chatbot", description: "Get AI-powered symptom analysis.", icon: <MessageSquare className="w-10 h-10 text-primary" />, href: "/ai-symptom-checker" },
 ];
 
 const featuredDoctors: Doctor[] = [
@@ -32,7 +32,7 @@ const featuredDoctors: Doctor[] = [
 
 const testimonials = [
   { name: "Sarah L.", feedback: "EzCare Connect made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
-  { name: "John B.", feedback: "The AI symptom checker gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://placehold.co/100x100.png", rating: 4, dataAiHint: "user avatar" },
+  { name: "John B.", feedback: "The EzCare Chatbot gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://placehold.co/100x100.png", rating: 4, dataAiHint: "user avatar" },
   { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare!", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
 ];
 

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { UserPlus, LogIn } from "lucide-react";
+import { UserPlus, LogIn, Store } from "lucide-react"; // Added Store for Pharmacist
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -22,7 +22,7 @@ export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
   const initialTab = searchParams.get('tab') || 'login';
-  const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker'>('patient');
+  const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker' | 'pharmacist'>('patient');
   
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,14 +35,20 @@ export default function AuthPage() {
       role = 'doctor';
     } else if (phoneValue.includes('lab')) {
       role = 'lab_worker';
+    } else if (phoneValue.includes('pharm')) { // Hint for pharmacist
+      role = 'pharmacist';
     }
+
 
     // Simulate successful login and role-based redirect
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'lab_worker') {
       router.push('/lab/dashboard');
-    } else {
+    } else if (role === 'pharmacist') {
+      router.push('/pharmacist/dashboard');
+    }
+     else {
       router.push('/patient/dashboard');
     }
   };
@@ -83,11 +89,16 @@ export default function AuthPage() {
     } else if (userType === 'lab_worker') {
        // const labId = formData.get('labId') as string;
        // const locationLab = formData.get('location-lab') as string;
-      // Handle Lab Worker signup logic here (e.g., store in Firebase)
       toast({ title: "Lab Worker Sign Up Successful", description: `Account created. Please verify if applicable.` });
       router.push('/lab/dashboard');
-    } else { // Patient
-      // Handle Patient signup logic here
+    } else if (userType === 'pharmacist') {
+      const pharmacyName = formData.get('pharmacyName') as string;
+      const pharmacyLicense = formData.get('pharmacyLicense') as string;
+      // Handle Pharmacist signup logic here
+      toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${pharmacyName} created. Please verify if applicable.` });
+      router.push('/pharmacist/dashboard');
+    }
+     else { // Patient
       toast({ title: "Patient Sign Up Successful", description: `Account created.` });
       router.push('/patient/dashboard');
     }
@@ -114,7 +125,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
+              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc', 'lab', or 'pharm' in phone for roles)</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
@@ -148,7 +159,7 @@ export default function AuthPage() {
                   <Label>I am a:</Label>
                   <RadioGroup 
                     defaultValue="patient" 
-                    onValueChange={(value: 'patient' | 'doctor' | 'lab_worker') => setUserType(value)} 
+                    onValueChange={(value: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist') => setUserType(value)} 
                     className="flex gap-4 flex-wrap"
                   >
                     <div className="flex items-center space-x-2">
@@ -162,6 +173,10 @@ export default function AuthPage() {
                      <div className="flex items-center space-x-2">
                       <RadioGroupItem value="lab_worker" id="lab_worker" />
                       <Label htmlFor="lab_worker">Lab Worker</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pharmacist" id="pharmacist" />
+                      <Label htmlFor="pharmacist">Pharmacist</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -207,6 +222,23 @@ export default function AuthPage() {
                      <div className="space-y-2">
                       <Label htmlFor="location-lab">Location (City, State)</Label>
                       <Input id="location-lab" name="location" placeholder="e.g., San Francisco, CA" required />
+                    </div>
+                     <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
+                  </>
+                )}
+                {userType === 'pharmacist' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="pharmacyName">Pharmacy Name</Label>
+                      <Input id="pharmacyName" name="pharmacyName" placeholder="Enter pharmacy name" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pharmacyLicense">Pharmacy License Number</Label>
+                      <Input id="pharmacyLicense" name="pharmacyLicense" placeholder="Enter pharmacy license number" required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="location-pharmacy">Location (City, State)</Label>
+                      <Input id="location-pharmacy" name="location" placeholder="e.g., Chicago, IL" required />
                     </div>
                      <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
                   </>

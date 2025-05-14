@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Bell, LogOut, Leaf, Rss } from 'lucide-react'; 
+import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill } from 'lucide-react'; 
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; // Added pharmacist
 
 interface HeaderProps {
   userRole: UserRole;
@@ -28,10 +28,9 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   const patientNavLinks = [
     { href: '/patient/find-doctors', label: 'Find Doctors' },
-    { href: '/patient/store', label: 'Medicines' },
+    // Store link is now common
     { href: '/patient/lab-tests', label: 'Lab Tests' },
     { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
-    { href: '/ai-symptom-checker', label: 'Symptom Checker' },
   ];
 
   const doctorNavLinks = [
@@ -45,33 +44,44 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
+  const pharmacistNavLinks = [ // Added pharmacist links
+    { href: '/pharmacist/dashboard', label: 'Dashboard' },
+    // Add more pharmacist specific links here, e.g., Orders, Inventory
+  ];
+
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
+     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
+     { href: '/patient/store', label: 'Store', icon: Pill }, // Store available to all
   ];
   
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth'; // Default to auth if not authenticated
+  let settingsLink = '/auth'; 
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
       navLinks = [...navLinks, ...patientNavLinks];
-      settingsLink = '/patient/settings'; // Updated from profile to settings
+      settingsLink = '/patient/settings'; 
     } else if (userRole === 'doctor') {
       navLinks = [...navLinks, ...doctorNavLinks];
-      settingsLink = '/doctor/settings'; // Updated from profile to settings
+      settingsLink = '/doctor/settings'; 
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
-      settingsLink = '/lab/profile'; // Lab worker profile/settings might still be /lab/profile or could also move to /lab/settings
-                                     // For now, keeping /lab/profile as its settings structure wasn't explicitly detailed for a big change
+      settingsLink = '/lab/profile'; 
+    } else if (userRole === 'pharmacist') { // Added pharmacist
+      navLinks = [...navLinks, ...pharmacistNavLinks];
+      settingsLink = '/pharmacist/settings'; 
     }
   } else {
+     // For unauthenticated users, keep specific links if needed, Store is already common
      navLinks = [...navLinks, 
         { href: '/patient/find-doctors', label: 'Find Doctors' },
         { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     ];
   }
   
+  // Remove duplicates that might arise from commonBaseLinks and role-specific links
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
@@ -135,11 +145,12 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                    {userRole === 'doctor' && (
                      <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
                   )}
-                   {userRole === 'lab_worker' && ( // Lab worker might still use /lab/profile if settings page not created
+                   {userRole === 'lab_worker' && ( 
                      <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Profile</Link></DropdownMenuItem>
                   )}
-                  {/* Generic settings link can be removed if specific profile/settings link is present */}
-                  {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
+                  {userRole === 'pharmacist' && ( // Added pharmacist
+                     <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Settings</Link></DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />

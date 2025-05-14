@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -9,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { aiSymptomAnalysis, type AiSymptomAnalysisInput, type AiSymptomAnalysisOutput } from '@/ai/flows/ai-symptom-analysis';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, MessageCircle } from 'lucide-react'; // Added MessageCircle
 import ReactMarkdown from 'react-markdown';
 
 const symptomSchema = z.object({
@@ -18,7 +19,7 @@ const symptomSchema = z.object({
 
 type SymptomFormData = z.infer<typeof symptomSchema>;
 
-export default function AiSymptomCheckerPage() {
+export default function EzCareChatbotPage() { // Renamed function
   const [analysisResult, setAnalysisResult] = useState<AiSymptomAnalysisOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +51,10 @@ export default function AiSymptomCheckerPage() {
     <div className="max-w-2xl mx-auto py-8">
       <Card className="shadow-xl rounded-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-gradient">AI Symptom Checker</CardTitle>
+          <CardTitle className="text-2xl text-gradient flex items-center">
+            <MessageCircle className="mr-3 h-7 w-7" /> {/* Icon changed */}
+            EzCare Chatbot
+          </CardTitle>
           <CardDescription>
             Describe your symptoms, and our AI will provide a preliminary analysis.
             This tool is for informational purposes only and does not substitute professional medical advice.
@@ -107,7 +111,7 @@ export default function AiSymptomCheckerPage() {
       {analysisResult && (
         <Card className="mt-6 shadow-lg rounded-lg">
           <CardHeader>
-            <CardTitle className="text-xl">Symptom Analysis Result</CardTitle>
+            <CardTitle className="text-xl">Chatbot Analysis Result</CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none dark:prose-invert 
             prose-headings:font-semibold prose-headings:text-foreground 
