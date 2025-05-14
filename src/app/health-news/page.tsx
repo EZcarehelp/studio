@@ -1,60 +1,40 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import type { NewsArticle } from "@/types";
-import { Rss, ExternalLink, CalendarDays } from "lucide-react";
-import { format } from 'date-fns'; // For formatting dates
-
-// Mock News Data
-const mockNewsArticles: NewsArticle[] = [
-  {
-    id: "news1",
-    title: "Breakthrough in AI-Powered Diagnostics for Early Cancer Detection",
-    snippet: "Researchers have developed a new AI model that shows promising results in identifying early-stage cancers from medical imaging, potentially revolutionizing diagnostic processes.",
-    imageUrl: "https://placehold.co/600x400.png",
-    sourceName: "HealthTech Today",
-    publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Yesterday
-    articleUrl: "#",
-    dataAiHint: "medical technology"
-  },
-  {
-    id: "news2",
-    title: "The Impact of Sleep Quality on Mental Wellbeing: New Study Findings",
-    snippet: "A comprehensive study highlights the critical link between consistent, high-quality sleep and overall mental health, offering insights into preventative measures for stress and anxiety.",
-    imageUrl: "https://placehold.co/600x400.png",
-    sourceName: "Wellness Journal",
-    publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
-    articleUrl: "#",
-    dataAiHint: "person sleeping"
-  },
-  {
-    id: "news3",
-    title: "Global Health Initiative Launched to Combat Antibiotic Resistance",
-    snippet: "International health organizations have joined forces to launch a new initiative aimed at tackling the growing threat of antibiotic resistance through research and public awareness campaigns.",
-    imageUrl: "https://placehold.co/600x400.png",
-    sourceName: "Global Health News",
-    publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
-    articleUrl: "#",
-    dataAiHint: "laboratory research"
-  },
-  {
-    id: "news4",
-    title: "Nutritional Psychiatry: How Your Diet Affects Your Mental Health",
-    snippet: "Experts explore the emerging field of nutritional psychiatry, emphasizing the connection between food choices, gut health, and mental wellness. Learn which foods can boost your mood.",
-    imageUrl: "https://placehold.co/600x400.png",
-    sourceName: "Mind & Body Magazine",
-    publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
-    articleUrl: "#",
-    dataAiHint: "healthy food"
-  }
-];
-
+import { Rss, ExternalLink, CalendarDays, Loader2, AlertTriangle } from "lucide-react";
+import { format } from 'date-fns';
+import { fetchHealthNews, type FetchHealthNewsInput } from '@/ai/flows/fetch-health-news-flow';
 
 export default function HealthNewsPage() {
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadNews = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const input: FetchHealthNewsInput = { category: 'health', country: 'us', pageSize: 12 }; // Or 'in' for India, etc.
+        const result = await fetchHealthNews(input);
+        setArticles(result.articles);
+      } catch (err) {
+        console.error("Failed to fetch health news:", err);
+        setError(err instanceof Error ? err.message : "An unknown error occurred while fetching news.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNews();
+  }, []);
+
   return (
     <div className="space-y-8">
       <Card className="shadow-lg rounded-lg">
@@ -65,47 +45,95 @@ export default function HealthNewsPage() {
           </CardTitle>
           <CardDescription>
             Stay updated with the latest news and breakthroughs in health and medicine.
+            {process.env.NODE_ENV === 'development' && !process.env.NEWS_API_KEY?.startsWith('YOUR_') && (
+              <span className="block text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                Note: News is fetched live. Ensure your NEWS_API_KEY is valid.
+              </span>
+            )}
+             {process.env.NEWS_API_KEY?.includes('YOUR_API_KEY_HERE') && (
+              <span className="block text-xs text-destructive dark:text-red-400 mt-1">
+                <strong>Action Required:</strong> Configure your NEWS_API_KEY in .env.local to see live news. Showing mock/error data.
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockNewsArticles.map((article) => (
-          <Card key={article.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 card-gradient rounded-lg transform hover:scale-102">
-            <div className="relative w-full h-48">
-              <Image
-                src={article.imageUrl}
-                alt={article.title}
-                fill
-                style={{ objectFit: 'cover' }}
-                data-ai-hint={article.dataAiHint || "news article"}
-              />
-            </div>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold line-clamp-2 h-14">{article.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-3">{article.snippet}</p>
-            </CardContent>
-            <CardFooter className="flex flex-col items-start gap-2 pt-3 border-t">
-              <div className="flex justify-between w-full text-xs text-muted-foreground">
-                <span>{article.sourceName}</span>
-                <span className="flex items-center">
-                  <CalendarDays className="mr-1 h-3.5 w-3.5" />
-                  {format(new Date(article.publishedAt), "MMM d, yyyy")}
-                </span>
+      {isLoading && (
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="ml-3 text-lg text-muted-foreground">Loading health news...</p>
+        </div>
+      )}
+
+      {error && (
+        <Card className="border-destructive bg-destructive/10 rounded-lg">
+          <CardHeader className="flex flex-row items-center gap-2">
+             <AlertTriangle className="h-6 w-6 text-destructive" />
+            <CardTitle className="text-destructive">Error Fetching News</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-destructive">{error}</p>
+            <p className="text-sm text-destructive/80 mt-2">
+              Please ensure your NEWS_API_KEY is correctly set up in a `.env.local` file and that it's valid. 
+              If the issue persists, the NewsAPI service might be temporarily unavailable or your plan limits might have been reached.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isLoading && !error && articles.length === 0 && (
+        <Card className="text-center py-12 col-span-full rounded-lg bg-muted/50">
+          <CardContent>
+            <Rss className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No News Articles Found</h3>
+            <p className="text-muted-foreground">
+              We couldn't find any health news articles at the moment. This might be due to API issues or no recent news.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isLoading && !error && articles.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {articles.map((article) => (
+            <Card key={article.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 card-gradient rounded-lg transform hover:scale-102">
+              <div className="relative w-full h-48">
+                <Image
+                  src={article.imageUrl || "https://placehold.co/600x400.png"}
+                  alt={article.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  data-ai-hint={article.dataAiHint || "health news"}
+                  onError={(e) => (e.currentTarget.src = "https://placehold.co/600x400.png")} // Fallback for broken images
+                />
               </div>
-              <Button variant="link" asChild className="p-0 h-auto text-primary hover:text-secondary">
-                <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
-                  Read More <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold line-clamp-2 h-14">{article.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-sm text-muted-foreground line-clamp-3">{article.snippet || "No snippet available."}</p>
+              </CardContent>
+              <CardFooter className="flex flex-col items-start gap-2 pt-3 border-t">
+                <div className="flex justify-between w-full text-xs text-muted-foreground">
+                  <span>{article.sourceName}</span>
+                  <span className="flex items-center">
+                    <CalendarDays className="mr-1 h-3.5 w-3.5" />
+                    {format(new Date(article.publishedAt), "MMM d, yyyy")}
+                  </span>
+                </div>
+                <Button variant="link" asChild className="p-0 h-auto text-primary hover:text-secondary">
+                  <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
+                    Read More <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
        <p className="text-sm text-center text-muted-foreground mt-8">
-        News articles are provided for informational purposes. Content is sourced from various external news providers.
+        News articles are provided for informational purposes. Content is sourced from external news providers.
       </p>
     </div>
   );
