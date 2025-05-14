@@ -64,6 +64,12 @@ const nextConfig: NextConfig = {
         hostname: 'neurosciencenews.com', // Added for Neuroscience News images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wtop.com', // Added for WTOP images via NewsAPI
+        port: '',
+        pathname: '/**',
       }
     ],
   },
