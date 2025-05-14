@@ -1,3 +1,4 @@
+
 export interface Doctor {
   id: string;
   name: string;
@@ -106,15 +107,17 @@ export interface LabTest {
 export interface LabReport {
   id: string;
   patientId: string;
-  patientName?: string; // Added for convenience
+  patientName?: string; 
   testId: string;
-  testName?: string; // Added for convenience
-  reportImageUrl?: string; // URL to the uploaded report image
-  reportDataUri?: string; // Data URI for AI processing
-  dateUploaded: number; // Timestamp
+  testName?: string; 
+  reportImageUrl?: string; 
+  reportDataUri?: string; 
+  dateUploaded: number; 
   notesByLabWorker?: string;
   status: 'pending_analysis' | 'analysis_complete' | 'error';
-  dietPlan?: string; // Store AI generated diet plan
+  dietPlan?: string; 
+  keyFindings?: string[]; // Added for AI Diet Plan Flow
+  dataAiHint?: string; // Added for placeholder image hints
 }
 
 export type RemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
@@ -137,10 +140,11 @@ export interface AyurvedicRemedy {
 export interface NewsArticle {
   id: string;
   title: string;
-  snippet: string;
-  imageUrl: string;
+  snippet: string; // Changed from nullable to non-nullable
+  imageUrl: string; // Changed from nullable to non-nullable
   sourceName: string;
-  publishedAt: string; // Could be a formatted string or ISO string
+  publishedAt: string; 
   articleUrl: string;
   dataAiHint?: string;
 }
+
