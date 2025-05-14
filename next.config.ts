@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -55,6 +56,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.sciencealert.com', // Added for ScienceAlert images via NewsAPI
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'neurosciencenews.com', // Added for Neuroscience News images
         port: '',
         pathname: '/**',
       }
