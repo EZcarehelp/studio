@@ -45,12 +45,12 @@ export default function HealthNewsPage() {
           </CardTitle>
           <CardDescription>
             Stay updated with the latest news and breakthroughs in health and medicine.
-            {process.env.NODE_ENV === 'development' && !process.env.NEWS_API_KEY?.startsWith('YOUR_') && (
+            {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER === 'false' && (
               <span className="block text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                 Note: News is fetched live. Ensure your NEWS_API_KEY is valid.
               </span>
             )}
-             {process.env.NEWS_API_KEY?.includes('YOUR_API_KEY_HERE') && (
+             {process.env.NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER === 'true' && (
               <span className="block text-xs text-destructive dark:text-red-400 mt-1">
                 <strong>Action Required:</strong> Configure your NEWS_API_KEY in .env.local to see live news. Showing mock/error data.
               </span>
