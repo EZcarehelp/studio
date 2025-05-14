@@ -70,22 +70,24 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist'; // Added pharmacist
+  role: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist';
   avatarUrl?: string;
   location?: string; 
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
   doctorDetails?: Partial<Doctor>; 
-  pharmacyDetails?: Partial<PharmacyProfile>; // Added for pharmacist
+  pharmacyDetails?: Partial<PharmacyProfile>;
 }
 
-export interface PharmacyProfile { // New type for Pharmacist specific details
+export interface PharmacyProfile {
   id: string;
   pharmacyName: string;
   licenseNumber: string;
   gstNumber?: string;
-  bankDetails?: any; // Simplified for now
+  bankDetails?: any; 
+  latitude?: number; // For map integration
+  longitude?: number; // For map integration
   // other pharmacy specific details
 }
 
@@ -156,5 +158,22 @@ export interface NewsArticle {
   sourceName: string;
   publishedAt: string; 
   articleUrl: string;
+  dataAiHint?: string;
+}
+
+export type StockStatus = 'in-stock' | 'limited-stock' | 'out-of-stock';
+
+export interface Pharmacy {
+  id: string;
+  name: string;
+  address: string;
+  distance: string; // e.g., "0.5 km"
+  stockStatus: StockStatus;
+  deliveryTime?: string; // e.g., "30 min", "1 hr"
+  pickupAvailable: boolean;
+  timings: string; // e.g., "9 AM - 10 PM", "24x7"
+  latitude?: number;
+  longitude?: number;
+  imageUrl?: string;
   dataAiHint?: string;
 }

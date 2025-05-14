@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,18 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MedicineCard } from '@/components/shared/medicine-card';
 import type { Medicine } from '@/types';
-import { Search, Pill, ShoppingCart } from 'lucide-react';
+import { Search, Pill, ShoppingCart, LocateFixed } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Link from 'next/link';
 
 
 const mockMedicines: Medicine[] = [
-  { id: "1", name: "Paracetamol 500mg Tablets - Strip of 10", description: "Effective relief from fever, headaches, and body pain. Suitable for adults and children over 12.", price: 50, rating: 4.5, imageUrl: "https://picsum.photos/seed/med1/300/200", category: "Pain Relief", affiliateLink: "#paracetamol" },
-  { id: "2", name: "Vitamin C 1000mg Effervescent Tablets", description: "Boosts immunity and provides antioxidant support. Orange flavor, 20 tablets.", price: 250, rating: 4.8, imageUrl: "https://picsum.photos/seed/med2/300/200", category: "Vitamins", affiliateLink: "#vitaminc" },
-  { id: "3", name: "Antacid Syrup - Mint Flavor 200ml", description: "Quick relief from acidity, heartburn, and indigestion. Sugar-free formula.", price: 120, rating: 4.3, imageUrl: "https://picsum.photos/seed/med3/300/200", category: "Digestion", affiliateLink: "#antacid" },
-  { id: "4", name: "Herbal Cough Syrup - Honey & Ginger", description: "Soothes cough and throat irritation naturally. Non-drowsy formula, 100ml bottle.", price: 90, rating: 4.2, imageUrl: "https://picsum.photos/seed/med4/300/200", category: "Cold & Flu", affiliateLink: "#coughsyrup" },
-  { id: "5", name: "Multivitamin Capsules - 30 Day Supply", description: "Daily supplement for overall health, energy, and well-being. Contains essential vitamins and minerals.", price: 300, rating: 4.6, imageUrl: "https://picsum.photos/seed/med5/300/200", category: "Vitamins", affiliateLink: "#multivitamin" },
-  { id: "6", name: "Ibuprofen Pain Relief Gel - 30g Tube", description: "Topical pain relief for muscle aches, sprains, and joint pain. Fast-acting formula.", price: 150, rating: 4.4, imageUrl: "https://picsum.photos/seed/med6/300/200", category: "Pain Relief", affiliateLink: "#ibuprofengel" },
+  { id: "1", name: "Paracetamol 500mg Tablets - Strip of 10", description: "Effective relief from fever, headaches, and body pain. Suitable for adults and children over 12.", price: 50, rating: 4.5, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "medicine pills", category: "Pain Relief", affiliateLink: "#paracetamol" },
+  { id: "2", name: "Vitamin C 1000mg Effervescent Tablets", description: "Boosts immunity and provides antioxidant support. Orange flavor, 20 tablets.", price: 250, rating: 4.8, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "vitamin tablets", category: "Vitamins", affiliateLink: "#vitaminc" },
+  { id: "3", name: "Antacid Syrup - Mint Flavor 200ml", description: "Quick relief from acidity, heartburn, and indigestion. Sugar-free formula.", price: 120, rating: 4.3, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "medicine syrup", category: "Digestion", affiliateLink: "#antacid" },
+  { id: "4", name: "Herbal Cough Syrup - Honey & Ginger", description: "Soothes cough and throat irritation naturally. Non-drowsy formula, 100ml bottle.", price: 90, rating: 4.2, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "cough syrup", category: "Cold & Flu", affiliateLink: "#coughsyrup" },
+  { id: "5", name: "Multivitamin Capsules - 30 Day Supply", description: "Daily supplement for overall health, energy, and well-being. Contains essential vitamins and minerals.", price: 300, rating: 4.6, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "multivitamin capsules", category: "Vitamins", affiliateLink: "#multivitamin" },
+  { id: "6", name: "Ibuprofen Pain Relief Gel - 30g Tube", description: "Topical pain relief for muscle aches, sprains, and joint pain. Fast-acting formula.", price: 150, rating: 4.4, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "pain relief gel", category: "Pain Relief", affiliateLink: "#ibuprofengel" },
 ];
 
 const categories = ["All", "Popular", "Pain Relief", "Vitamins", "Digestion", "Cold & Flu", "Skin Care", "Baby Care", "Diabetes Care"];
@@ -41,7 +43,6 @@ export default function StorePage() {
     if (selectedCategory !== 'All' && selectedCategory !== 'Popular') { 
       medicines = medicines.filter(med => med.category === selectedCategory);
     } else if (selectedCategory === 'Popular') {
-      // Example: sort by rating for 'Popular' or use a predefined popular list
       medicines = [...medicines].sort((a, b) => b.rating - a.rating);
     }
     
@@ -53,7 +54,7 @@ export default function StorePage() {
       <Card className="shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl text-gradient">Medicine Store</CardTitle>
-          <CardDescription>Browse and find medicines. Purchases are made through our trusted affiliate partners.</CardDescription>
+          <CardDescription>Browse medicines or find them in nearby pharmacies. Purchases are made via affiliate partners.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative">
@@ -66,6 +67,11 @@ export default function StorePage() {
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
+           <Button variant="outline" className="w-full sm:w-auto rounded-md" asChild>
+            <Link href="/patient/store/nearby-pharmacies">
+              <LocateFixed className="mr-2 h-4 w-4" /> Find Nearby Pharmacies
+            </Link>
+          </Button>
         </CardContent>
       </Card>
 
@@ -87,7 +93,7 @@ export default function StorePage() {
         
         <div className="mt-6">
           {filteredMedicines.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredMedicines.map((medicine) => (
                 <MedicineCard key={medicine.id} medicine={medicine} />
               ))}
@@ -104,7 +110,7 @@ export default function StorePage() {
         </div>
       </Tabs>
        <p className="text-sm text-muted-foreground text-center mt-8">
-        Note: All medicine purchases are fulfilled through external affiliate partners. EzCare Connect may earn from qualifying purchases. Prices and availability are subject to change on the partner's site.
+        Note: All medicine purchases are fulfilled through external affiliate partners. EzCare Connect may earn from qualifying purchases. Prices and availability are subject to change on the partner's site. Check nearby pharmacies for local availability.
       </p>
     </div>
   );

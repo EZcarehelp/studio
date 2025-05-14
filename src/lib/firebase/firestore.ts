@@ -19,10 +19,10 @@ export async function addDoctor(doctorData: Omit<Doctor, 'id' | 'rating' | 'avai
   const newDoctor: Doctor = {
     id: `doc${Date.now()}-firebase`,
     ...doctorData,
-    rating: doctorData.rating || Math.floor(Math.random() * 2) + 3.5, // Random rating 3.5-4.5
+    rating: doctorData.rating || Math.floor(Math.random() * 2) + 3.5, 
     availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
     imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
-    isVerified: doctorData.isVerified || false, // Doctors start unverified, to be verified by admin
+    isVerified: doctorData.isVerified || false, 
     dataAiHint: doctorData.dataAiHint || "doctor portrait",
   };
   mockDoctorsDB.push(newDoctor);
@@ -33,8 +33,7 @@ export async function addDoctor(doctorData: Omit<Doctor, 'id' | 'rating' | 'avai
 // Simulate fetching doctors from Firestore
 export async function getDoctors(): Promise<Doctor[]> {
   console.log("Mock Firestore: Fetching doctors");
-  // In a real app, this would query Firestore
-  return [...mockDoctorsDB]; // Return a copy to prevent direct modification
+  return [...mockDoctorsDB]; 
 }
 
 // Simulate fetching a single doctor by ID
@@ -44,7 +43,7 @@ export async function getDoctorById(id: string): Promise<Doctor | null> {
   return doctor || null;
 }
 
-// Simulate updating doctor details (e.g., for settings)
+// Simulate updating doctor details
 export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): Promise<Doctor | null> {
   console.log(`Mock Firestore: Updating doctor ${doctorId} with`, updates);
   const doctorIndex = mockDoctorsDB.findIndex(doc => doc.id === doctorId);
@@ -57,25 +56,41 @@ export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): 
 
 // Simulate adding a pharmacist to Firestore
 export async function addPharmacist(
-  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails'> & { pharmacyDetails: Omit<PharmacyProfile, 'id'> }
+  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & 
+                  { pharmacyDetails: Omit<PharmacyProfile, 'id' | 'latitude' | 'longitude'> }
 ): Promise<UserProfile> {
   console.log("Mock Firestore: Adding pharmacist", pharmacistData);
+  
+  // Simulate geocoding based on the location string
+  // In a real app, this would be an API call to Nominatim or similar
+  let mockLat = 12.9716; // Default mock (Bangalore)
+  let mockLon = 77.5946;
+  if (pharmacistData.location?.toLowerCase().includes("new york")) {
+    mockLat = 40.7128;
+    mockLon = -74.0060;
+  } else if (pharmacistData.location?.toLowerCase().includes("london")) {
+    mockLat = 51.5074;
+    mockLon = 0.1278;
+  }
+  console.log(`Mock Geocoding for ${pharmacistData.location}: Lat ${mockLat}, Lon ${mockLon}`);
+
   const newPharmacist: UserProfile = {
     id: `pharm${Date.now()}-firebase`,
     name: pharmacistData.name,
     phone: pharmacistData.phone,
     email: pharmacistData.email,
     role: 'pharmacist',
-    location: pharmacistData.location,
+    location: pharmacistData.location, // Store the original address string
     pharmacyDetails: {
       id: `pharmaDetail${Date.now()}`,
-      ...pharmacistData.pharmacyDetails,
+      pharmacyName: pharmacistData.pharmacyDetails.pharmacyName,
+      licenseNumber: pharmacistData.pharmacyDetails.licenseNumber,
+      latitude: mockLat, // Store mock geocoded latitude
+      longitude: mockLon, // Store mock geocoded longitude
     },
-    avatarUrl: pharmacistData.avatarUrl || "https://placehold.co/200x200.png",
+    avatarUrl: "https://placehold.co/200x200.png", // Default avatar
   };
   mockPharmacistsDB.push(newPharmacist);
-  console.log("Mock Firestore: Pharmacist added", newPharmacist);
+  console.log("Mock Firestore: Pharmacist added with mock geo-coordinates", newPharmacist);
   return newPharmacist;
 }
-
-// Add more mock functions as needed for patients, appointments, etc.

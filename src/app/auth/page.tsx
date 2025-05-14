@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { UserPlus, LogIn, Store } from "lucide-react"; // Added Store for Pharmacist
+import { UserPlus, LogIn, Store } from "lucide-react"; 
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -35,12 +35,10 @@ export default function AuthPage() {
       role = 'doctor';
     } else if (phoneValue.includes('lab')) {
       role = 'lab_worker';
-    } else if (phoneValue.includes('pharm')) { // Hint for pharmacist
+    } else if (phoneValue.includes('pharm')) { 
       role = 'pharmacist';
     }
 
-
-    // Simulate successful login and role-based redirect
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'lab_worker') {
@@ -58,14 +56,13 @@ export default function AuthPage() {
     const formData = new FormData(event.currentTarget);
     const name = formData.get('fullName') as string;
     const phone = formData.get('phone') as string;
-    const email = formData.get('email-signup') as string; // Assuming email field exists
-    // const password = formData.get('password') as string;
+    const email = formData.get('email-signup') as string; 
+    const locationInput = formData.get('location') as string; // Common location input
 
     console.log("Signing up as", userType);
     
     if (userType === 'doctor') {
       const specialty = formData.get('specialization') as string;
-      const location = formData.get('location') as string;
       const experience = parseInt(formData.get('experience') as string, 10);
       const licenseNumber = formData.get('licenseNumber') as string;
 
@@ -73,10 +70,10 @@ export default function AuthPage() {
         name,
         specialty,
         experience,
-        consultationFee: 1000, // Default or prompt for this
-        location,
+        consultationFee: 1000, 
+        location: locationInput, 
         licenseNumber,
-        clinicHours: "Mon-Fri: 9 AM - 5 PM", // Default example
+        clinicHours: "Mon-Fri: 9 AM - 5 PM", 
         onlineConsultationEnabled: true,
       };
       try {
@@ -88,29 +85,28 @@ export default function AuthPage() {
         toast({ variant: "destructive", title: "Signup Failed", description: "Could not create doctor account." });
       }
     } else if (userType === 'lab_worker') {
-      // const labId = formData.get('labId') as string;
-      // const locationLab = formData.get('location-lab') as string;
       toast({ title: "Lab Worker Sign Up Successful", description: `Account created. Please verify if applicable.` });
       router.push('/lab/dashboard');
     } else if (userType === 'pharmacist') {
       const pharmacyName = formData.get('pharmacyName') as string;
       const pharmacyLicense = formData.get('pharmacyLicense') as string;
-      const location = formData.get('location') as string;
-
+      
+      // Conceptual geocoding - will be done in addPharmacist mock for now
       const pharmacistSignupData = {
         name,
         phone,
         email,
         role: 'pharmacist' as const,
-        location,
+        location: locationInput, // Pass the address string
         pharmacyDetails: {
           pharmacyName,
           licenseNumber: pharmacyLicense,
+          // latitude and longitude will be added by addPharmacist mock
         },
       };
       try {
-        await addPharmacist(pharmacistSignupData);
-        toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${pharmacyName} created. Please verify if applicable.` });
+        await addPharmacist(pharmacistSignupData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & { pharmacyDetails: Omit<PharmacyProfile, 'id' | 'latitude' | 'longitude'> });
+        toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${pharmacyName} created. Location conceptually geocoded.` });
         router.push('/pharmacist/dashboard');
       } catch (error) {
         console.error("Pharmacist signup error:", error);
@@ -216,6 +212,14 @@ export default function AuthPage() {
                   <Input id="password-signup" name="password" type="password" placeholder="Create a password" required />
                 </div>
 
+                {/* Common Location field for Doctor and Pharmacist */}
+                {(userType === 'doctor' || userType === 'pharmacist' || userType === 'lab_worker') && (
+                    <div className="space-y-2">
+                      <Label htmlFor="location-common">Location (City, State or Full Address)</Label>
+                      <Input id="location-common" name="location" placeholder="e.g., New York, NY or 123 Main St, City" required />
+                    </div>
+                )}
+
                 {userType === 'doctor' && (
                   <>
                     <div className="space-y-2">
@@ -225,10 +229,6 @@ export default function AuthPage() {
                     <div className="space-y-2">
                       <Label htmlFor="specialization">Specialization</Label>
                       <Input id="specialization" name="specialization" placeholder="e.g., Cardiologist" required />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="location-doctor">Location (City, State)</Label>
-                      <Input id="location-doctor" name="location" placeholder="e.g., New York, NY" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="experience">Years of Experience</Label>
@@ -243,10 +243,6 @@ export default function AuthPage() {
                       <Label htmlFor="lab-id">Laboratory ID / Affiliation</Label>
                       <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required />
                     </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="location-lab">Location (City, State)</Label>
-                      <Input id="location-lab" name="location" placeholder="e.g., San Francisco, CA" required />
-                    </div>
                      <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
                   </>
                 )}
@@ -260,11 +256,7 @@ export default function AuthPage() {
                       <Label htmlFor="pharmacyLicense">Pharmacy License Number</Label>
                       <Input id="pharmacyLicense" name="pharmacyLicense" placeholder="Enter pharmacy license number" required />
                     </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="location-pharmacy">Location (City, State)</Label>
-                      <Input id="location-pharmacy" name="location" placeholder="e.g., Chicago, IL" required />
-                    </div>
-                     <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
+                     <p className="text-xs text-muted-foreground">Your account may be subject to verification. Your location will be geocoded.</p>
                   </>
                 )}
                 <div className="flex items-center space-x-2">
