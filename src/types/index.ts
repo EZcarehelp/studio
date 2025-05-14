@@ -14,6 +14,7 @@ export interface Doctor {
   weeklyAvailability?: {
     [day: string]: boolean; // "monday", "tuesday", etc.
   };
+  dataAiHint?: string;
 }
 
 export interface Medicine {
@@ -25,6 +26,7 @@ export interface Medicine {
   imageUrl: string;
   category: string; // e.g., "Popular", "Pain Relief"
   affiliateLink: string; // Amazon affiliate link
+  dataAiHint?: string;
 }
 
 export interface ChatMessage {
@@ -129,4 +131,16 @@ export interface AyurvedicRemedy {
   imageUrl?: string; // Optional image for the remedy card
   source?: string; // Optional source or link for more info
   isFavorite?: boolean; // For user to mark as favorite
+  dataAiHint?: string;
+}
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  snippet: string;
+  imageUrl: string;
+  sourceName: string;
+  publishedAt: string; // Could be a formatted string or ISO string
+  articleUrl: string;
+  dataAiHint?: string;
 }
