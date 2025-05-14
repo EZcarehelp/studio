@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdnph.upi.com', // Added for UPI images via NewsAPI
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.toiimg.com', // Added for Times of India images via NewsAPI
+        port: '',
+        pathname: '/**',
       }
     ],
   },
