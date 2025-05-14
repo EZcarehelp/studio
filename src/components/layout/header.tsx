@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill } from 'lucide-react'; 
+import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react'; 
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; // Added pharmacist
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; 
 
 interface HeaderProps {
   userRole: UserRole;
@@ -28,7 +28,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   const patientNavLinks = [
     { href: '/patient/find-doctors', label: 'Find Doctors' },
-    // Store link is now common
     { href: '/patient/lab-tests', label: 'Lab Tests' },
     { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
   ];
@@ -44,7 +43,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  const pharmacistNavLinks = [ // Added pharmacist links
+  const pharmacistNavLinks = [ 
     { href: '/pharmacist/dashboard', label: 'Dashboard' },
     // Add more pharmacist specific links here, e.g., Orders, Inventory
   ];
@@ -53,35 +52,38 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
      { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
-     { href: '/patient/store', label: 'Store', icon: Pill }, // Store available to all
+     { href: '/patient/store', label: 'Store', icon: Pill }, 
   ];
   
   let navLinks = [...commonBaseLinks];
   let settingsLink = '/auth'; 
+  let profileLabel = "Profile";
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
       navLinks = [...navLinks, ...patientNavLinks];
       settingsLink = '/patient/settings'; 
+      profileLabel = "My Settings";
     } else if (userRole === 'doctor') {
       navLinks = [...navLinks, ...doctorNavLinks];
       settingsLink = '/doctor/settings'; 
+      profileLabel = "Doctor Settings";
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
       settingsLink = '/lab/profile'; 
-    } else if (userRole === 'pharmacist') { // Added pharmacist
+      profileLabel = "Lab Profile";
+    } else if (userRole === 'pharmacist') { 
       navLinks = [...navLinks, ...pharmacistNavLinks];
       settingsLink = '/pharmacist/settings'; 
+      profileLabel = "Pharmacy Settings";
     }
   } else {
-     // For unauthenticated users, keep specific links if needed, Store is already common
      navLinks = [...navLinks, 
         { href: '/patient/find-doctors', label: 'Find Doctors' },
         { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     ];
   }
   
-  // Remove duplicates that might arise from commonBaseLinks and role-specific links
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
@@ -137,7 +139,9 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   <DropdownMenuLabel>My Account ({userRole})</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={settingsLink}>Profile & Settings</Link>
+                    <Link href={settingsLink} className="flex items-center w-full">
+                      <Settings className="mr-2 h-4 w-4" /> {profileLabel}
+                    </Link>
                   </DropdownMenuItem>
                   {userRole === 'patient' && (
                      <DropdownMenuItem asChild><Link href="/patient/appointments">My Appointments</Link></DropdownMenuItem>
@@ -145,10 +149,10 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                    {userRole === 'doctor' && (
                      <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
                   )}
-                   {userRole === 'lab_worker' && ( 
+                  {userRole === 'lab_worker' && ( 
                      <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Profile</Link></DropdownMenuItem>
                   )}
-                  {userRole === 'pharmacist' && ( // Added pharmacist
+                  {userRole === 'pharmacist' && ( 
                      <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Settings</Link></DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -160,7 +164,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="space-x-2">
+            <div className="flex items-center gap-2">
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
