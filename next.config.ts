@@ -13,64 +13,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'picsum.photos',
+        hostname: '**', // Allows all hostnames for HTTPS
         port: '',
         pathname: '/**',
       },
       {
-        protocol: 'https',
-        hostname: 'placehold.co',
+        protocol: 'http',
+        hostname: '**', // Allows all hostnames for HTTP
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 's.yimg.com', // Added for Yahoo images via NewsAPI
-        port: '',
-        pathname: '/**',
-      },
-      { // It's good practice to add common news image CDNs if you expect variety
-        protocol: 'https',
-        hostname: 'media.zenfs.com', // Specific subdomain from the error
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lifehacker.com', // Added for Lifehacker images via NewsAPI
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdnph.upi.com', // Added for UPI images via NewsAPI
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'static.toiimg.com', // Added for Times of India images via NewsAPI
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.sciencealert.com', // Added for ScienceAlert images via NewsAPI
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'neurosciencenews.com', // Added for Neuroscience News images
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'wtop.com', // Added for WTOP images via NewsAPI
-        port: '',
-        pathname: '/**',
-      }
     ],
   },
 };
