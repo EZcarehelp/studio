@@ -79,12 +79,11 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
           <Image
             src="/logo.svg"
             alt="EzCare Connect Logo"
-            width={40} 
-            height={40}
+            width={180} 
+            height={63} 
             priority
-            className="h-8 w-auto md:h-10"
+            className="h-10 w-auto"
           />
-           <span className="font-bold text-xl text-gradient hidden sm:inline">EzCare</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-3 lg:space-x-4">
