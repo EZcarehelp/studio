@@ -13,6 +13,7 @@ import { z } from 'genkit';
 import type { NewsArticle } from '@/types';
 
 const NEWS_API_BASE_URL = 'https://newsapi.org/v2/top-headlines';
+const HARDCODED_NEWS_API_KEY = 'a0e02dc03c7d474bba442959c6d1a262';
 
 const FetchHealthNewsInputSchema = z.object({
   category: z.string().default('health').describe('The category of news to fetch.'),
@@ -48,36 +49,10 @@ const fetchHealthNewsFlow = ai.defineFlow(
     outputSchema: FetchHealthNewsOutputSchema,
   },
   async (input) => {
-    const apiKey = process.env.NEWS_API_KEY;
+    const apiKey = HARDCODED_NEWS_API_KEY; // API Key is now hardcoded
 
-    if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
-      console.error('NEWS_API_KEY is not configured. Please add it to your .env.local file.');
-      // Return empty or mock data to prevent app crash during development if key is missing
-      // Or throw an error if preferred:
-      // throw new Error('NEWS_API_KEY is not configured.');
-      return { articles: [
-        {
-            id: "mock-news-1",
-            title: "API Key Missing: Showing Mock Article 1",
-            snippet: "Please configure your NEWS_API_KEY in a .env.local file to fetch live news. This is a placeholder.",
-            imageUrl: "https://placehold.co/600x400.png",
-            sourceName: "EzCare System",
-            publishedAt: new Date().toISOString(),
-            articleUrl: "#",
-            dataAiHint: "configuration warning"
-        },
-        {
-            id: "mock-news-2",
-            title: "API Key Missing: Showing Mock Article 2",
-            snippet: "Visit NewsAPI.org to get a free API key for development purposes. Add it as NEWS_API_KEY in .env.local.",
-            imageUrl: "https://placehold.co/600x400.png",
-            sourceName: "EzCare System",
-            publishedAt: new Date().toISOString(),
-            articleUrl: "#",
-            dataAiHint: "news placeholder"
-        }
-      ]};
-    }
+    // The check for a missing/placeholder API key and returning mock data is removed.
+    // If the hardcoded key is invalid or there are other issues, the fetch will fail.
 
     const url = `${NEWS_API_BASE_URL}?category=${input.category}&country=${input.country}&pageSize=${input.pageSize}&apiKey=${apiKey}&language=en`;
 

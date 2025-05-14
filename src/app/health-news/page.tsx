@@ -45,16 +45,7 @@ export default function HealthNewsPage() {
           </CardTitle>
           <CardDescription>
             Stay updated with the latest news and breakthroughs in health and medicine.
-            {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER === 'false' && (
-              <span className="block text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                Note: News is fetched live. Ensure your NEWS_API_KEY is valid.
-              </span>
-            )}
-             {process.env.NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER === 'true' && (
-              <span className="block text-xs text-destructive dark:text-red-400 mt-1">
-                <strong>Action Required:</strong> Configure your NEWS_API_KEY in .env.local to see live news. Showing mock/error data.
-              </span>
-            )}
+            {/* Removed conditional warnings based on NEXT_PUBLIC_NEWS_API_KEY_IS_PLACEHOLDER */}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -75,8 +66,8 @@ export default function HealthNewsPage() {
           <CardContent>
             <p className="text-destructive">{error}</p>
             <p className="text-sm text-destructive/80 mt-2">
-              Please ensure your NEWS_API_KEY is correctly set up in a `.env.local` file and that it's valid. 
-              If the issue persists, the NewsAPI service might be temporarily unavailable or your plan limits might have been reached.
+              This might be due to an issue with the NewsAPI service, your internet connection, or the API key. 
+              Please try again later.
             </p>
           </CardContent>
         </Card>
