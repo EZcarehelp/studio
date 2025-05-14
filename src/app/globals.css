@@ -8,121 +8,122 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 210 10% 23%; /* Dark Gray #212529 */
+    /* Luxury Theme - Light Mode */
+    --background: 60 100% 97%; /* Ivory #FFFFF0 */
+    --foreground: 0 0% 20%; /* Charcoal #343434 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 10% 23%;
+    --card: 0 0% 100%; /* Pure White #FFFFFF */
+    --card-foreground: 0 0% 20%; /* Charcoal #343434 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 10% 23%;
+    --popover: 0 0% 100%; /* Pure White #FFFFFF */
+    --popover-foreground: 0 0% 20%; /* Charcoal #343434 */
 
-    --primary: 211 82% 52%; /* Medical Blue #1A73E8 */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 224 76% 57%; /* Royal Blue #4169E1 */
+    --primary-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --secondary: 161 70% 45%; /* Medical Teal #20C997 */
-    --secondary-foreground: 0 0% 100%; /* White */
+    --secondary: 45 65% 52%; /* Royal Gold #D4AF37 */
+    --secondary-foreground: 0 0% 0%; /* Rich Black #000000 for contrast on gold */
 
-    --muted: 210 40% 96%; /* Subtle Gray #F0F4F8 */
-    --muted-foreground: 215 10% 45%; /* Adjusted for better contrast on new muted */
+    --muted: 60 10% 90%; /* Platinum #E5E4E2 */
+    --muted-foreground: 0 0% 41%; /* Dove Gray #696969 */
 
-    --accent: 217 91% 95%; /* Light Blue #E8F0FE */
-    --accent-foreground: 211 82% 52%; /* Medical Blue for text/icons on accent */
+    --accent: 43 58% 81%; /* Champagne Gold #ECD9B0 */
+    --accent-foreground: 27 15% 45%; /* Mocha #837060 for text on Champagne Gold */
     
-    --success: 145 58% 65%; /* Soft Green #A5D6A7 for success messages */
-    --success-foreground: 145 50% 30%;
+    --success: 145 58% 54%; /* Emerald #50C878 */
+    --success-foreground: 122 92% 20%; /* Dark Emerald #046307 */
 
+    --destructive: 350 80% 34%; /* Ruby #9B111E */
+    --destructive-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --destructive: 0 84% 60%; /* Red */
-    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 75%; /* Silver #C0C0C0 */
+    --input: 0 0% 75%; /* Silver #C0C0C0 */
+    --ring: 224 76% 57%; /* Royal Blue #4169E1 for focus rings */
 
-    --border: 214 32% 91%; /* Light gray border #E9ECEF */
-    --input: 214 32% 91%;
-    --ring: 211 82% 52%; /* Medical Blue for focus rings */
-
-    --chart-1: 12 76% 61%;
+    --chart-1: 12 76% 61%; /* Keeping original chart colors for now */
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    /* Sidebar variables - may not be heavily used with top/bottom nav */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar variables - using new luxury shades */
+    --sidebar-background: 60 10% 90%; /* Platinum #E5E4E2 */
+    --sidebar-foreground: 0 0% 20%; /* Charcoal #343434 */
+    --sidebar-primary: 224 76% 57%; /* Royal Blue #4169E1 */
+    --sidebar-primary-foreground: 0 0% 100%; /* Pure White #FFFFFF */
+    --sidebar-accent: 43 58% 81%; /* Champagne Gold #ECD9B0 */
+    --sidebar-accent-foreground: 27 15% 45%; /* Mocha #837060 */
+    --sidebar-border: 0 0% 75%; /* Silver #C0C0C0 */
+    --sidebar-ring: 224 76% 57%; /* Royal Blue */
 
-    /* Remedy Colors */
-    --remedy-herbal-bg: 80 70% 95%; /* Soft Green #F2FCE2 */
-    --remedy-herbal-fg: 80 40% 30%; 
-    --remedy-digestion-bg: 50 95% 90%; /* Soft Yellow #FEF7CD */
-    --remedy-digestion-fg: 50 70% 40%;
-    --remedy-inflammation-bg: 20 90% 91%; /* Soft Peach #FDE1D3 */
-    --remedy-inflammation-fg: 20 60% 45%;
-    --remedy-calming-bg: 216 93% 91%; /* Soft Blue #D3E4FD */
-    --remedy-calming-fg: 216 60% 40%;
-    --remedy-general-bg: 210 20% 95%; /* Neutral light gray for general */
-    --remedy-general-fg: 210 10% 40%;
+    /* Remedy Colors - Luxury Theme */
+    --remedy-herbal-bg: 47 14% 62%; /* Sage #B2AC88 */
+    --remedy-herbal-fg: 122 92% 20%; /* Dark Emerald #046307 */
+    --remedy-digestion-bg: 45 31% 63%; /* Sand #C2B280 */
+    --remedy-digestion-fg: 357 38% 16%; /* Chocolate #381819 */
+    --remedy-inflammation-bg: 12 72% 62%; /* Terracotta #E2725B */
+    --remedy-inflammation-fg: 60 100% 97%; /* Ivory #FFFFF0 */
+    --remedy-calming-bg: 240 67% 94%; /* Lavender #E6E6FA */
+    --remedy-calming-fg: 321 68% 20%; /* Deep Plum #580F41 */
+    --remedy-general-bg: 37 13% 71%; /* Greige #BEB6AD */
+    --remedy-general-fg: 0 0% 20%; /* Charcoal #343434 */
   }
 
   .dark {
-    --background: 210 10% 15%; /* Darker version of foreground for dark mode background */
-    --foreground: 0 0% 98%; /* Light text for dark mode */
+    /* Luxury Theme - Dark Mode */
+    --background: 0 0% 4%; /* Jet Black #0A0A0A */
+    --foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --card: 210 10% 20%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 11%; /* Soft Black #1C1C1C */
+    --card-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --popover: 210 10% 20%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 11%; /* Soft Black #1C1C1C */
+    --popover-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
 
-    --primary: 211 82% 62%; /* Slightly lighter Medical Blue for dark mode */
-    --primary-foreground: 210 10% 15%;
+    --primary: 224 77% 65%; /* Lighter Royal Blue #6488E8 */
+    --primary-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
 
-    --secondary: 161 70% 55%; /* Slightly lighter Medical Teal */
-    --secondary-foreground: 210 10% 15%;
+    --secondary: 51 100% 50%; /* Pure Gold #FFD700 */
+    --secondary-foreground: 0 0% 0%; /* Rich Black #000000 */
 
-    --muted: 210 10% 25%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted: 0 0% 18%; /* Graphite #2F2F2F */
+    --muted-foreground: 0 0% 75%; /* Silver #C0C0C0 */
 
-    --accent: 217 80% 30%; /* Darker shade of Light Blue for dark mode accent */
-    --accent-foreground: 0 0% 98%;
+    --accent: 33 52% 51%; /* Antique Gold #C28840 */
+    --accent-foreground: 60 100% 97%; /* Ivory #FFFFF0 */
 
-    --success: 145 58% 55%; /* Darker Soft Green for dark mode */
-    --success-foreground: 145 50% 85%;
+    --success: 157 100% 33%; /* Jade #00A86B */
+    --success-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --destructive: 0 70% 50%; /* Slightly adjusted Red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 348 83% 47%; /* Crimson #DC143C */
+    --destructive-foreground: 0 0% 100%; /* Pure White #FFFFFF */
 
-    --border: 210 10% 30%;
-    --input: 210 10% 30%;
-    --ring: 211 82% 62%;
+    --border: 220 5% 28%; /* Steel Gray #43464B */
+    --input: 220 5% 28%; /* Steel Gray #43464B */
+    --ring: 224 77% 65%; /* Lighter Royal Blue #6488E8 */
 
-    /* Sidebar variables for dark mode - adjust as needed */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar variables for dark mode - luxury */
+    --sidebar-background: 0 0% 11%; /* Soft Black #1C1C1C */
+    --sidebar-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
+    --sidebar-primary: 224 77% 65%; /* Lighter Royal Blue */
+    --sidebar-primary-foreground: 0 0% 4%; /* Jet Black */
+    --sidebar-accent: 33 52% 51%; /* Antique Gold */
+    --sidebar-accent-foreground: 60 100% 97%; /* Ivory */
+    --sidebar-border: 220 5% 28%; /* Steel Gray */
+    --sidebar-ring: 224 77% 65%; /* Lighter Royal Blue */
 
-    /* Remedy Colors Dark Mode */
-    --remedy-herbal-bg: 80 30% 20%;
-    --remedy-herbal-fg: 80 70% 80%;
-    --remedy-digestion-bg: 50 40% 25%;
-    --remedy-digestion-fg: 50 95% 75%;
-    --remedy-inflammation-bg: 20 40% 28%;
-    --remedy-inflammation-fg: 20 90% 78%;
-    --remedy-calming-bg: 216 40% 25%;
-    --remedy-calming-fg: 216 93% 80%;
-    --remedy-general-bg: 210 10% 22%;
-    --remedy-general-fg: 210 20% 75%;
+    /* Remedy Colors Dark Mode - Luxury */
+    --remedy-herbal-bg: 134 29% 29%; /* Hunter Green #355E3B */
+    --remedy-herbal-fg: 47 14% 62%; /* Sage #B2AC88 */
+    --remedy-digestion-bg: 27 15% 45%; /* Mocha #837060 */
+    --remedy-digestion-fg: 45 31% 63%; /* Sand #C2B280 */
+    --remedy-inflammation-bg: 19 87% 39%; /* Rust #B7410E */
+    --remedy-inflammation-fg: 30 56% 92%; /* Linen #FAF0E6 */
+    --remedy-calming-bg: 265 36% 49%; /* Royal Purple #7851A9 */
+    --remedy-calming-fg: 240 67% 94%; /* Lavender #E6E6FA */
+    --remedy-general-bg: 220 5% 28%; /* Steel Gray #43464B */
+    --remedy-general-fg: 60 10% 90%; /* Platinum #E5E4E2 */
   }
 }
 
@@ -132,7 +133,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 16px; /* Base font size */
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
@@ -187,7 +187,6 @@ body {
    .dark .prose blockquote {
     @apply border-l-primary pl-4 italic text-muted-foreground;
   }
-
 }
 
 @layer components {
@@ -200,7 +199,23 @@ body {
   .card-gradient {
     @apply bg-gradient-to-b from-card via-card to-muted/30;
   }
-  .text-highlight-teal {
+  .text-highlight-teal { /* This class might need re-evaluation if teal is no longer prominent */
     @apply bg-secondary/20 px-1 rounded;
   }
+  /* Custom remedy type background and text utility classes for Tailwind */
+  .bg-remedy-herbal { @apply bg-[hsl(var(--remedy-herbal-bg))]; }
+  .text-remedy-herbal-foreground { @apply text-[hsl(var(--remedy-herbal-fg))]; }
+
+  .bg-remedy-digestion { @apply bg-[hsl(var(--remedy-digestion-bg))]; }
+  .text-remedy-digestion-foreground { @apply text-[hsl(var(--remedy-digestion-fg))]; }
+
+  .bg-remedy-inflammation { @apply bg-[hsl(var(--remedy-inflammation-bg))]; }
+  .text-remedy-inflammation-foreground { @apply text-[hsl(var(--remedy-inflammation-fg))]; }
+
+  .bg-remedy-calming { @apply bg-[hsl(var(--remedy-calming-bg))]; }
+  .text-remedy-calming-foreground { @apply text-[hsl(var(--remedy-calming-fg))]; }
+  
+  .bg-remedy-general { @apply bg-[hsl(var(--remedy-general-bg))]; }
+  .text-remedy-general-foreground { @apply text-[hsl(var(--remedy-general-fg))]; }
+
 }

@@ -25,15 +25,15 @@ const services = [
 ];
 
 const featuredDoctors: Doctor[] = [
-  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc1/200/200", isVerified: true, location: "New York, NY" },
-  { id: "2", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://picsum.photos/seed/doc2/200/200", isVerified: true, location: "London, UK" },
-  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://picsum.photos/seed/doc3/200/200", isVerified: true, location: "Mumbai, MH" },
+  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "New York, NY", dataAiHint: "doctor portrait" },
+  { id: "2", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait" },
+  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait" },
 ];
 
 const testimonials = [
-  { name: "Sarah L.", feedback: "EzCare Connect made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://picsum.photos/seed/user1/100/100", rating: 5 },
-  { name: "John B.", feedback: "The AI symptom checker gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://picsum.photos/seed/user2/100/100", rating: 4 },
-  { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare!", avatarUrl: "https://picsum.photos/seed/user3/100/100", rating: 5 },
+  { name: "Sarah L.", feedback: "EzCare Connect made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
+  { name: "John B.", feedback: "The AI symptom checker gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://placehold.co/100x100.png", rating: 4, dataAiHint: "user avatar" },
+  { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare!", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
 ];
 
 
@@ -49,12 +49,7 @@ export default function HomePage() {
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Connect with trusted doctors, order medicines, and manage your health all in one place with EzCare Connect.
           </p>
-          <div className="max-w-xl mx-auto flex flex-col sm:flex-row gap-2">
-            <Input type="text" placeholder="Search for doctors, specialists, symptoms..." className="flex-grow text-base h-12" />
-            <Button size="lg" className="btn-premium h-12">
-              <Search className="mr-2 h-5 w-5" /> Find Doctors
-            </Button>
-          </div>
+          {/* Search bar and Find Doctors button removed from here */}
         </div>
       </section>
 
@@ -125,7 +120,7 @@ export default function HomePage() {
                     width={48} 
                     height={48} 
                     className="rounded-full mr-4"
-                    data-ai-hint="user avatar" 
+                    data-ai-hint={testimonial.dataAiHint} 
                   />
                   <div>
                     <p className="font-semibold">{testimonial.name}</p>
