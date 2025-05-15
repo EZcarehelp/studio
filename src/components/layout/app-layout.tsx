@@ -11,7 +11,7 @@ type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRole>(null); 
+  const [userRole, setUserRole] = useState<UserRole>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthResolved, setIsAuthResolved] = useState(false); // New state to track if auth status is resolved
 
@@ -35,16 +35,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
       currentRole = null;
       currentAuth = false;
     } else if (pathname === '/') {
-      // For home page, initial state is unauthenticated unless a more robust auth check is implemented
-      // This example keeps it simple; real apps would check localStorage/cookies here if persistent login is desired
-      currentAuth = false; 
+      currentAuth = false;
       currentRole = null;
     }
-    
+
     setUserRole(currentRole);
     setIsAuthenticated(currentAuth);
     setIsAuthResolved(true); // Mark auth as resolved after first check
-  }, [pathname]);
+  }, [pathname]); // Only depends on pathname
 
 
   const showLayout = !pathname.startsWith('/auth');
@@ -52,23 +50,29 @@ export function AppLayout({ children }: { children: ReactNode }) {
   if (!showLayout) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
-  
+
+  // Avoid rendering Header/MobileNav with potentially incorrect auth state during initial client load
+  if (!isAuthResolved && typeof window !== 'undefined') {
+    // Return a structure whose root tag matches the final one to prevent hydration errors
+    return (
+      <div className="min-h-screen flex flex-col">
+        {/* Minimal layout while auth state resolves. Header/MobileNav will render once isAuthResolved is true. */}
+        <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">
+          {children}
+          {/* You could put a global loading spinner here if desired */}
+        </main>
+      </div>
+    );
+  }
+
   const handleSignOut = () => {
     setIsAuthenticated(false);
     setUserRole(null);
-    setIsAuthResolved(true); // Re-set auth resolved status
-    // In a real app, you'd also clear tokens/session here
+    // setIsAuthResolved(true); // No need to set here, useEffect handles it based on pathname
     if (typeof window !== 'undefined') {
       window.location.pathname = '/auth'; // Redirect to auth page
     }
   };
-
-  // Avoid rendering Header/MobileNav with potentially incorrect auth state during initial client load
-  // This is a common strategy to mitigate hydration errors related to auth state
-  if (!isAuthResolved && typeof window !== 'undefined') {
-     // Render nothing or a minimal loader until auth state is resolved on the client
-    return <main className="min-h-screen flex flex-col">{children}</main>; 
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
