@@ -57,7 +57,7 @@ export default function AuthPage() {
     const name = formData.get('fullName') as string;
     const phone = formData.get('phone') as string;
     const email = formData.get('email-signup') as string; 
-    const locationInput = formData.get('location') as string; // Common location input
+    const locationInput = formData.get('location') as string; 
 
     console.log("Signing up as", userType);
     
@@ -66,7 +66,7 @@ export default function AuthPage() {
       const experience = parseInt(formData.get('experience') as string, 10);
       const licenseNumber = formData.get('licenseNumber') as string;
 
-      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'> = {
+      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint'> & { isVerified: boolean } = {
         name,
         specialty,
         experience,
@@ -75,10 +75,11 @@ export default function AuthPage() {
         licenseNumber,
         clinicHours: "Mon-Fri: 9 AM - 5 PM", 
         onlineConsultationEnabled: true,
+        isVerified: true, // Set isVerified to true by default
       };
       try {
         await addDoctor(doctorData); 
-        toast({ title: "Doctor Sign Up Successful", description: `Account created for Dr. ${name}. Please verify if applicable.` });
+        toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live and discoverable.` });
         router.push('/doctor/dashboard'); 
       } catch (error) {
         console.error("Doctor signup error:", error);
@@ -91,17 +92,15 @@ export default function AuthPage() {
       const pharmacyName = formData.get('pharmacyName') as string;
       const pharmacyLicense = formData.get('pharmacyLicense') as string;
       
-      // Conceptual geocoding - will be done in addPharmacist mock for now
       const pharmacistSignupData = {
         name,
         phone,
         email,
         role: 'pharmacist' as const,
-        location: locationInput, // Pass the address string
+        location: locationInput,
         pharmacyDetails: {
           pharmacyName,
           licenseNumber: pharmacyLicense,
-          // latitude and longitude will be added by addPharmacist mock
         },
       };
       try {
@@ -212,7 +211,6 @@ export default function AuthPage() {
                   <Input id="password-signup" name="password" type="password" placeholder="Create a password" required />
                 </div>
 
-                {/* Common Location field for Doctor and Pharmacist */}
                 {(userType === 'doctor' || userType === 'pharmacist' || userType === 'lab_worker') && (
                     <div className="space-y-2">
                       <Label htmlFor="location-common">Location (City, State or Full Address)</Label>
@@ -234,7 +232,7 @@ export default function AuthPage() {
                       <Label htmlFor="experience">Years of Experience</Label>
                       <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required />
                     </div>
-                    <p className="text-xs text-muted-foreground">Your account will be pending verification.</p>
+                    <p className="text-xs text-muted-foreground">Your profile will be live immediately.</p>
                   </>
                 )}
                 {userType === 'lab_worker' && (
@@ -279,3 +277,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    
