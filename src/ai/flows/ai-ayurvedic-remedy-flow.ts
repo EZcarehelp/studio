@@ -1,9 +1,11 @@
+
 'use server';
 /**
  * @fileOverview An AI-powered Ayurvedic remedy suggestion tool.
  *
  * - aiAyurvedicRemedy - A function that handles the remedy suggestion process.
  * - AiAyurvedicRemedyInput - The input type for the aiAyurvedicRemedy function.
+ * - AiAyurvedicRemedyOutputSchema - The Zod schema for the output.
  * - AiAyurvedicRemedyOutput - The return type for the aiAyurvedicRemedy function.
  */
 
@@ -20,7 +22,7 @@ export type AiAyurvedicRemedyInput = z.infer<typeof AiAyurvedicRemedyInputSchema
 const remedyTypeEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<RemedyType>;
 
 
-const AiAyurvedicRemedyOutputSchema = z.object({
+export const AiAyurvedicRemedyOutputSchema = z.object({
   remedyName: z.string().describe("The common name of the Ayurvedic remedy, or a title for the suggestion if it's general advice."),
   type: remedyTypeEnum.describe("The category type of the remedy based on its primary use or ingredients. Use 'general' if no specific category fits well."),
   description: z.string().describe("A brief description of what the remedy is for or what the advice addresses."),
