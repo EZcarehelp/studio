@@ -80,7 +80,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     }
   } else {
      navLinks = [...navLinks,
-        { href: '/patient/find-doctors', label: 'Find Doctors' }, // No icon specified, Search icon can be added if desired
+        { href: '/patient/find-doctors', label: 'Find Doctors' },
         { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     ];
   }
@@ -94,7 +94,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-18 flex items-center justify-between"> {/* Increased height */}
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Increased height */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
