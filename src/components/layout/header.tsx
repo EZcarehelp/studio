@@ -52,12 +52,12 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
-     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
+     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare }, // Corrected href if page was renamed
      { href: '/patient/store', label: 'Store', icon: Pill },
   ];
 
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth'; // Default if not authenticated or role not set
+  let settingsLink = '/auth'; 
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
@@ -71,7 +71,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       profileLabel = "Doctor Settings";
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
-      settingsLink = '/lab/profile'; // Specific link for lab worker profile/settings
+      settingsLink = '/lab/profile'; 
       profileLabel = "Lab Profile";
     } else if (userRole === 'pharmacist') {
       navLinks = [...navLinks, ...pharmacistNavLinks];
@@ -85,24 +85,21 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     ];
   }
 
-  // Remove duplicate links by checking both href and label
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
     ))
   );
 
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      {/* Reverted to h-16 to match server output indicated in error, undoing h-[4.5rem] */}
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Using arbitrary value for height */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
             alt="EzCare Connect Logo"
-            width={140}
-            height={35}
+            width={140} 
+            height={35} 
             priority
             className="h-8 md:h-9 w-auto"
           />
@@ -113,13 +110,13 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
-                key={`${link.href}-${link.label}`} // Unique key
+                key={`${link.href}-${link.label}`} 
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
                   isActive
-                  ? 'text-primary bg-primary/10' // Active state
-                  : 'text-foreground/70 hover:text-primary hover:bg-primary/5' // Default and hover
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-foreground/70 hover:text-primary hover:bg-primary/5' 
                 )}
               >
                 {link.icon && <link.icon className="h-4 w-4 opacity-90" />}
@@ -173,7 +170,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3"> {/* Changed gap-2 to gap-3 for consistency */}
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
