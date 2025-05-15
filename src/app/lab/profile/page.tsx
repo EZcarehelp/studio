@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCircle, FlaskConical, Upload, Settings, LogOut, Edit2, MapPin } from "lucide-react";
+import { UserCircle, FlaskConical, Upload, Settings, LogOut, Edit2, MapPin, Bell } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
@@ -17,9 +17,10 @@ const useAuth = () => {
   const [user, setUser] = useState({
     name: "Lab Technician Leo",
     email: "leo.lab@ezcare.com",
-    avatarUrl: "https://picsum.photos/seed/labworker1/200/200",
-    labAffiliation: "EzCare Central Lab",
-    location: "Cityville, ST"
+    avatarUrl: "https://placehold.co/200x200.png", // Changed placeholder
+    labAffiliation: "EzCare Central Diagnostics",
+    location: "Cityville, ST",
+    dataAiHint: "lab worker avatar"
   });
 
   const signOut = () => {
@@ -45,7 +46,9 @@ export default function LabWorkerProfilePage() {
       <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
         <Card className="w-full max-w-md text-center shadow-lg rounded-lg">
           <CardHeader className="items-center">
-            <UserCircle className="h-16 w-16 mx-auto text-primary mb-4" />
+             <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
+                <UserCircle className="h-16 w-16 text-primary" />
+             </div>
             <CardTitle className="text-2xl">Access Your Profile</CardTitle>
             <CardDescription>Sign in to manage your lab worker profile and tasks.</CardDescription>
           </CardHeader>
@@ -65,8 +68,8 @@ export default function LabWorkerProfilePage() {
   ];
 
   const accountSettings = [
-    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/lab/profile/edit", actionText: "Edit" },
-    { label: "Notification Settings", icon: <Settings className="w-5 h-5" />, href: "/lab/profile/notifications", actionText: "Manage" },
+    { label: "Personal Information", icon: <UserCircle className="w-5 h-5" />, href: "/lab/profile/edit", description: "Manage name, contact, lab details." },
+    { label: "Notification Settings", icon: <Bell className="w-5 h-5" />, href: "/lab/profile/notifications", description: "Control alerts for new requests, results." },
   ];
 
   return (
@@ -75,8 +78,8 @@ export default function LabWorkerProfilePage() {
          <div className="bg-gradient-to-r from-primary to-secondary p-6 relative">
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20 border-4 border-background shadow-md">
-                <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="lab worker avatar" />
-                <AvatarFallback className="text-2xl bg-primary/30 text-primary-foreground">{user.name.substring(0,1)}</AvatarFallback>
+                <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint={user.dataAiHint || "lab worker"} />
+                <AvatarFallback className="text-2xl bg-primary/30 text-primary-foreground">{user.name.substring(0,1).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold text-primary-foreground">{user.name}</h1>
@@ -114,18 +117,22 @@ export default function LabWorkerProfilePage() {
       <Card className="rounded-lg">
         <CardHeader className="border-b">
           <CardTitle className="text-xl">Account Settings</CardTitle>
+           <CardDescription>Manage your profile and notification preferences.</CardDescription>
         </CardHeader>
-        <CardContent className="pt-2 pb-2">
+        <CardContent className="pt-3 pb-1">
           {accountSettings.map((setting, index) => (
             <React.Fragment key={setting.label}>
               <Link href={setting.href} passHref>
-                 <div className="flex items-center justify-between py-3 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2">
-                  <div className="flex items-center">
-                    <div className="text-primary mr-3">{setting.icon}</div>
-                    <span className="text-foreground/90">{setting.label}</span>
+                 <div className="flex items-start justify-between py-3.5 rounded-md hover:bg-accent transition-colors cursor-pointer px-2 -mx-2"> 
+                  <div className="flex items-start">
+                    <div className="text-primary mr-3 mt-0.5">{setting.icon}</div>
+                    <div>
+                        <span className="text-foreground/90 font-medium">{setting.label}</span>
+                        <p className="text-xs text-muted-foreground">{setting.description}</p>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <span className="text-primary text-xs">{setting.actionText} <Edit2 className="inline w-3 h-3 ml-1 opacity-70"/></span>
+                  <Button variant="ghost" size="sm" asChild className="mt-1">
+                    <span className="text-primary text-xs">Manage <Edit2 className="inline w-3 h-3 ml-1 opacity-70"/></span>
                   </Button>
                 </div>
               </Link>

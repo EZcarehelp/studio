@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addPharmacist } from '@/lib/firebase/firestore'; 
+import { addDoctor, addPharmacist, addLabWorker } from '@/lib/firebase/firestore'; 
 import type { Doctor, PharmacyProfile, UserProfile } from '@/types';
 
 export default function AuthPage() {
@@ -86,8 +86,23 @@ export default function AuthPage() {
         toast({ variant: "destructive", title: "Signup Failed", description: "Could not create doctor account." });
       }
     } else if (userType === 'lab_worker') {
-      toast({ title: "Lab Worker Sign Up Successful", description: `Account created. Please verify if applicable.` });
-      router.push('/lab/dashboard');
+      const labAffiliation = formData.get('labId') as string; // Reusing labId for affiliation
+      const labWorkerData = {
+        name,
+        phone,
+        email,
+        role: 'lab_worker' as const,
+        location: locationInput,
+        labAffiliation,
+      };
+      try {
+        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & { labAffiliation: string });
+        toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created.` });
+        router.push('/lab/dashboard');
+      } catch (error) {
+        console.error("Lab worker signup error:", error);
+        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create lab worker account." });
+      }
     } else if (userType === 'pharmacist') {
       const pharmacyName = formData.get('pharmacyName') as string;
       const pharmacyLicense = formData.get('pharmacyLicense') as string;
@@ -277,5 +292,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
-    

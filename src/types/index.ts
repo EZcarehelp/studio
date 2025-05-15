@@ -78,6 +78,7 @@ export interface UserProfile {
   paymentMethods?: PaymentMethod[];
   doctorDetails?: Partial<Doctor>; 
   pharmacyDetails?: Partial<PharmacyProfile>;
+  labAffiliation?: string; // Added for Lab Worker
 }
 
 export interface PharmacyProfile {
@@ -176,4 +177,5 @@ export interface Pharmacy {
   longitude?: number;
   imageUrl?: string;
   dataAiHint?: string;
+  rating?: number; // Added optional rating
 }

@@ -13,6 +13,7 @@ export default function LabWorkerNotificationsPage() {
           </CardTitle>
           <CardDescription>
             Manage your notification preferences for lab-related activities. This feature is under development.
+            (Toggles for new test requests, critical results, report uploads, etc., would go here).
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center py-12">

@@ -50,12 +50,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   if (!showLayout) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
-
-  // Removed the conditional block that caused hydration mismatch.
-  // The server and initial client render will now have the same structure.
-  // Header and MobileNav will render based on initial (logged-out) state,
-  // then update after client-side useEffect resolves authentication.
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
@@ -65,10 +60,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
           window.location.pathname = '/auth';
         }
       }} />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]"> {/* Ensure this padding accommodates header height */}
+      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">
         {children}
       </main>
-      {isAuthenticated && <MobileNav userRole={userRole} />}
+      {isAuthenticated && isAuthResolved && <MobileNav userRole={userRole} />}
     </div>
   );
 }

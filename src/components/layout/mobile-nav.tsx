@@ -2,10 +2,10 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings, Pill, Store as StoreIcon } from 'lucide-react'; // Added Settings, Pill, StoreIcon
+import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings, Pill, Store as StoreIcon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; // Added pharmacist
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
 
 interface MobileNavProps {
   userRole: UserRole;
@@ -18,7 +18,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/', label: 'Home', icon: Home },
     { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
     { href: '/patient/store', label: 'Store', icon: Pill },
-    { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle }, // Renamed
+    { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle }, 
     { href: '/patient/settings', label: 'Settings', icon: Settings }, 
   ];
 
@@ -37,9 +37,9 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/lab/profile', label: 'Profile', icon: User }, 
   ];
 
-  const pharmacistNavItems = [ // Added pharmacist items
+  const pharmacistNavItems = [ 
     { href: '/pharmacist/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/patient/store', label: 'Store Mgt.', icon: StoreIcon }, // Link to existing store page, label implies management
+    { href: '/patient/store', label: 'Store Mgt.', icon: StoreIcon }, 
     { href: '/health-news', label: 'News', icon: Rss },
     { href: '/pharmacist/settings', label: 'Settings', icon: Settings },
   ];
@@ -51,7 +51,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
     navItems = doctorNavItems;
   } else if (userRole === 'lab_worker') {
     navItems = labWorkerNavItems;
-  } else if (userRole === 'pharmacist') { // Added pharmacist
+  } else if (userRole === 'pharmacist') { 
     navItems = pharmacistNavItems;
   }
 

@@ -46,13 +46,13 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   const pharmacistNavLinks = [
     { href: '/pharmacist/dashboard', label: 'Dashboard' },
-    { href: '/patient/store', label: 'Store Mgt.' }, // Placeholder link
+    { href: '/patient/store', label: 'Store Mgt.' }, 
   ];
 
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
-     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare }, // Corrected href if page was renamed
+     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
      { href: '/patient/store', label: 'Store', icon: Pill },
   ];
 
@@ -93,7 +93,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Using arbitrary value for height */}
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
@@ -170,7 +170,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-3"> {/* Changed gap-2 to gap-3 for consistency */}
+            <div className="flex items-center gap-3">
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
@@ -180,7 +180,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
-            {/* Placeholder for potential mobile menu trigger if needed differently than MobileNav */}
           </div>
         </div>
       </div>

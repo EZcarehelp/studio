@@ -11,6 +11,8 @@ let mockDoctorsDB: Doctor[] = [
 
 // In-memory store for pharmacists
 let mockPharmacistsDB: UserProfile[] = [];
+// In-memory store for lab workers
+let mockLabWorkersDB: UserProfile[] = [];
 
 
 // Simulate adding a doctor to Firestore
@@ -22,7 +24,7 @@ export async function addDoctor(doctorData: Omit<Doctor, 'id' | 'rating' | 'avai
     rating: doctorData.rating || Math.floor(Math.random() * 2) + 3.5, 
     availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
     imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
-    isVerified: doctorData.isVerified || false, 
+    isVerified: doctorData.isVerified === undefined ? true : doctorData.isVerified, // Default to true if not provided
     dataAiHint: doctorData.dataAiHint || "doctor portrait",
   };
   mockDoctorsDB.push(newDoctor);
@@ -56,13 +58,11 @@ export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): 
 
 // Simulate adding a pharmacist to Firestore
 export async function addPharmacist(
-  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & 
+  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation'> & 
                   { pharmacyDetails: Omit<PharmacyProfile, 'id' | 'latitude' | 'longitude'> }
 ): Promise<UserProfile> {
   console.log("Mock Firestore: Adding pharmacist", pharmacistData);
   
-  // Simulate geocoding based on the location string
-  // In a real app, this would be an API call to Nominatim or similar
   let mockLat = 12.9716; // Default mock (Bangalore)
   let mockLon = 77.5946;
   if (pharmacistData.location?.toLowerCase().includes("new york")) {
@@ -80,17 +80,37 @@ export async function addPharmacist(
     phone: pharmacistData.phone,
     email: pharmacistData.email,
     role: 'pharmacist',
-    location: pharmacistData.location, // Store the original address string
+    location: pharmacistData.location, 
     pharmacyDetails: {
       id: `pharmaDetail${Date.now()}`,
       pharmacyName: pharmacistData.pharmacyDetails.pharmacyName,
       licenseNumber: pharmacistData.pharmacyDetails.licenseNumber,
-      latitude: mockLat, // Store mock geocoded latitude
-      longitude: mockLon, // Store mock geocoded longitude
+      latitude: mockLat, 
+      longitude: mockLon, 
     },
-    avatarUrl: "https://placehold.co/200x200.png", // Default avatar
+    avatarUrl: "https://placehold.co/200x200.png", 
   };
   mockPharmacistsDB.push(newPharmacist);
   console.log("Mock Firestore: Pharmacist added with mock geo-coordinates", newPharmacist);
   return newPharmacist;
+}
+
+// Simulate adding a lab worker to Firestore
+export async function addLabWorker(
+  labWorkerData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation'> & { labAffiliation: string }
+): Promise<UserProfile> {
+  console.log("Mock Firestore: Adding lab worker", labWorkerData);
+  const newLabWorker: UserProfile = {
+    id: `lab${Date.now()}-firebase`,
+    name: labWorkerData.name,
+    phone: labWorkerData.phone,
+    email: labWorkerData.email,
+    role: 'lab_worker',
+    location: labWorkerData.location,
+    labAffiliation: labWorkerData.labAffiliation,
+    avatarUrl: "https://placehold.co/200x200.png", // Default avatar
+  };
+  mockLabWorkersDB.push(newLabWorker);
+  console.log("Mock Firestore: Lab worker added", newLabWorker);
+  return newLabWorker;
 }

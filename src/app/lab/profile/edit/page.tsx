@@ -13,6 +13,7 @@ export default function LabWorkerProfileEditPage() {
           </CardTitle>
           <CardDescription>
             Update your personal and lab affiliation details. This feature is under development.
+            (Form fields for Name, Contact, Lab ID/Affiliation, Location, Profile Photo would go here).
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center py-12">
