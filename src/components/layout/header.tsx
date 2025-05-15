@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react'; 
+import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -14,8 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from '@/lib/utils';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null; 
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
 
 interface HeaderProps {
   userRole: UserRole;
@@ -37,53 +38,53 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/doctor/schedule', label: 'Schedule' },
     { href: '/doctor/patients', label: 'Patients' },
   ];
-  
+
   const labWorkerNavLinks = [
     { href: '/lab/dashboard', label: 'Dashboard' },
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  const pharmacistNavLinks = [ 
+  const pharmacistNavLinks = [
     { href: '/pharmacist/dashboard', label: 'Dashboard' },
-    // Add more pharmacist specific links here, e.g., Orders, Inventory
+    { href: '/patient/store', label: 'Store Mgt.' }, // Placeholder link
   ];
 
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
      { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
-     { href: '/patient/store', label: 'Store', icon: Pill }, 
+     { href: '/patient/store', label: 'Store', icon: Pill },
   ];
-  
+
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth'; 
+  let settingsLink = '/auth';
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
       navLinks = [...navLinks, ...patientNavLinks];
-      settingsLink = '/patient/settings'; 
+      settingsLink = '/patient/settings';
       profileLabel = "My Settings";
     } else if (userRole === 'doctor') {
       navLinks = [...navLinks, ...doctorNavLinks];
-      settingsLink = '/doctor/settings'; 
+      settingsLink = '/doctor/settings';
       profileLabel = "Doctor Settings";
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
-      settingsLink = '/lab/profile'; 
+      settingsLink = '/lab/profile';
       profileLabel = "Lab Profile";
-    } else if (userRole === 'pharmacist') { 
+    } else if (userRole === 'pharmacist') {
       navLinks = [...navLinks, ...pharmacistNavLinks];
-      settingsLink = '/pharmacist/settings'; 
+      settingsLink = '/pharmacist/settings';
       profileLabel = "Pharmacy Settings";
     }
   } else {
-     navLinks = [...navLinks, 
-        { href: '/patient/find-doctors', label: 'Find Doctors' },
+     navLinks = [...navLinks,
+        { href: '/patient/find-doctors', label: 'Find Doctors' }, // No icon specified, Search icon can be added if desired
         { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
     ];
   }
-  
+
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
@@ -92,35 +93,44 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
+      <div className="container mx-auto px-4 h-18 flex items-center justify-between"> {/* Increased height */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
             alt="EzCare Connect Logo"
-            width={140} 
-            height={35} 
+            width={140}
+            height={35}
             priority
-            className="h-8 md:h-9 w-auto" 
+            className="h-8 md:h-9 w-auto"
           />
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-2 lg:space-x-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-xs lg:text-sm font-medium transition-colors hover:text-primary px-1.5 py-1 rounded-md flex items-center gap-1 ${
-                pathname === link.href || (pathname.startsWith(link.href) && link.href !== '/') ? 'text-primary bg-primary/10' : 'text-foreground/80'
-              }`}
-            >
-              {link.icon && <link.icon className="h-3.5 w-3.5 lg:h-4 lg:w-4 opacity-80" />}
-              {link.label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2"> {/* Adjusted spacing */}
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+            // Special case for home to only be active on exact match unless it's the only link
+            const isHomeExactlyActive = link.href === '/' && pathname === '/';
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
+                  (isActive || isHomeExactlyActive) && link.href === '/' ? 'text-primary bg-primary/10' : 
+                  isActive ? 'text-primary bg-primary/10' // Active state
+                  : 'text-foreground/70 hover:text-primary hover:bg-primary/5' // Default and hover
+                )}
+              >
+                {link.icon && <link.icon className="h-4 w-4 opacity-90" />}
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-3"> {/* Adjusted gap */}
           {isAuthenticated ? (
             <>
               <Button variant="ghost" size="icon" className="relative rounded-full">
@@ -149,10 +159,10 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                    {userRole === 'doctor' && (
                      <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
                   )}
-                  {userRole === 'lab_worker' && ( 
+                  {userRole === 'lab_worker' && (
                      <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Profile</Link></DropdownMenuItem>
                   )}
-                  {userRole === 'pharmacist' && ( 
+                  {userRole === 'pharmacist' && (
                      <DropdownMenuItem asChild><Link href={settingsLink}>Dashboard/Settings</Link></DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -174,7 +184,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
-           
+            {/* Placeholder for potential mobile menu trigger if needed differently than MobileNav */}
           </div>
         </div>
       </div>
