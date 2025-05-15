@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAuthResolved, setIsAuthResolved] = useState(false); // New state to track if auth status is resolved
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
 
   useEffect(() => {
     let currentAuth = false;
@@ -41,8 +41,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
     setUserRole(currentRole);
     setIsAuthenticated(currentAuth);
-    setIsAuthResolved(true); // Mark auth as resolved after first check
-  }, [pathname]); // Only depends on pathname
+    setIsAuthResolved(true);
+  }, [pathname]);
 
 
   const showLayout = !pathname.startsWith('/auth');
@@ -51,33 +51,21 @@ export function AppLayout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
 
-  // Avoid rendering Header/MobileNav with potentially incorrect auth state during initial client load
-  if (!isAuthResolved && typeof window !== 'undefined') {
-    // Return a structure whose root tag matches the final one to prevent hydration errors
-    return (
-      <div className="min-h-screen flex flex-col">
-        {/* Minimal layout while auth state resolves. Header/MobileNav will render once isAuthResolved is true. */}
-        <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">
-          {children}
-          {/* You could put a global loading spinner here if desired */}
-        </main>
-      </div>
-    );
-  }
-
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
-    setUserRole(null);
-    // setIsAuthResolved(true); // No need to set here, useEffect handles it based on pathname
-    if (typeof window !== 'undefined') {
-      window.location.pathname = '/auth'; // Redirect to auth page
-    }
-  };
+  // Removed the conditional block that caused hydration mismatch.
+  // The server and initial client render will now have the same structure.
+  // Header and MobileNav will render based on initial (logged-out) state,
+  // then update after client-side useEffect resolves authentication.
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={handleSignOut} />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]"> {/* Adjusted padding top for header h-[4.5rem] + some breathing room */}
+      <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
+        setIsAuthenticated(false);
+        setUserRole(null);
+        if (typeof window !== 'undefined') {
+          window.location.pathname = '/auth';
+        }
+      }} />
+      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]"> {/* Ensure this padding accommodates header height */}
         {children}
       </main>
       {isAuthenticated && <MobileNav userRole={userRole} />}
