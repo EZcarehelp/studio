@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addLabWorker } from '@/lib/firebase/firestore'; 
+import { addDoctor, addPatient, addLabWorker, addPharmacist } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
 
 export default function AuthPage() {
@@ -22,7 +22,7 @@ export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
   const initialTab = searchParams.get('tab') || 'login';
-  const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker'>('patient');
+  const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker' | 'pharmacist'>('patient');
   
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,12 +35,17 @@ export default function AuthPage() {
       role = 'doctor';
     } else if (phoneValue.includes('lab')) {
       role = 'lab_worker';
+    } else if (phoneValue.includes('pharm')) {
+      role = 'pharmacist';
     }
+
 
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'lab_worker') {
       router.push('/lab/dashboard');
+    } else if (role === 'pharmacist') {
+      router.push('/pharmacist/dashboard');
     }
      else {
       router.push('/patient/dashboard');
@@ -62,7 +67,7 @@ export default function AuthPage() {
       const experience = parseInt(formData.get('experience') as string, 10);
       const licenseNumber = formData.get('licenseNumber') as string;
 
-      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint'> & { isVerified: boolean } = {
+      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint' | 'createdAt'> = {
         name,
         specialty,
         experience,
@@ -71,7 +76,7 @@ export default function AuthPage() {
         licenseNumber,
         clinicHours: "Mon-Fri: 9 AM - 5 PM", 
         onlineConsultationEnabled: true,
-        isVerified: true, // Directly set to true, skipping manual verification for prototype
+        isVerified: true, 
       };
       try {
         await addDoctor(doctorData); 
@@ -92,18 +97,52 @@ export default function AuthPage() {
         labAffiliation,
       };
       try {
-        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & { labAffiliation: string });
+        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'createdAt'> & { labAffiliation: string });
         toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created.` });
         router.push('/lab/dashboard');
       } catch (error) {
         console.error("Lab worker signup error:", error);
         toast({ variant: "destructive", title: "Signup Failed", description: "Could not create lab worker account." });
       }
+    } else if (userType === 'pharmacist') {
+        const pharmacyName = formData.get('pharmacyName') as string;
+        const pharmacyLicense = formData.get('pharmacyLicense') as string;
+        const pharmacistData = {
+            name,
+            phone,
+            email,
+            role: 'pharmacist' as const,
+            location: locationInput,
+            pharmacyDetails: {
+                name: pharmacyName,
+                license: pharmacyLicense,
+            }
+        };
+        try {
+            await addPharmacist(pharmacistData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt'> & { pharmacyDetails: { name: string; license: string; } });
+            toast({ title: "Pharmacist Sign Up Successful", description: `Account for ${name} at ${pharmacyName} created.` });
+            router.push('/pharmacist/dashboard');
+        } catch (error) {
+            console.error("Pharmacist signup error:", error);
+            toast({ variant: "destructive", title: "Signup Failed", description: "Could not create pharmacist account." });
+        }
     }
      else { // Patient
-      // For now, patient signup only shows a toast and redirects. No data is "saved" to the mock DB yet.
-      toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
-      router.push('/patient/dashboard');
+      const patientData = {
+        name,
+        phone,
+        email,
+        role: 'patient' as const,
+        location: locationInput, // Or remove if not collected for patients
+      };
+      try {
+        await addPatient(patientData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation' | 'createdAt'>);
+        toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
+        router.push('/patient/dashboard');
+      } catch (error) {
+        console.error("Patient signup error:", error);
+        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create patient account." });
+      }
     }
   };
 
@@ -128,7 +167,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
+              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc', 'lab', or 'pharm' in phone for roles)</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
@@ -162,7 +201,7 @@ export default function AuthPage() {
                   <Label>I am a:</Label>
                   <RadioGroup 
                     defaultValue="patient" 
-                    onValueChange={(value: 'patient' | 'doctor' | 'lab_worker') => setUserType(value)} 
+                    onValueChange={(value: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist') => setUserType(value)} 
                     className="flex gap-4 flex-wrap"
                   >
                     <div className="flex items-center space-x-2">
@@ -176,6 +215,10 @@ export default function AuthPage() {
                      <div className="flex items-center space-x-2">
                       <RadioGroupItem value="lab_worker" id="lab_worker" />
                       <Label htmlFor="lab_worker">Lab Worker</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pharmacist" id="pharmacist" />
+                      <Label htmlFor="pharmacist">Pharmacist</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -196,7 +239,7 @@ export default function AuthPage() {
                   <Input id="password-signup" name="password" type="password" placeholder="Create a password" required />
                 </div>
 
-                {(userType === 'doctor' || userType === 'lab_worker') && (
+                {(userType === 'doctor' || userType === 'lab_worker' || userType === 'pharmacist' || userType === 'patient') && (
                     <div className="space-y-2">
                       <Label htmlFor="location-common">Location (City, State or Full Address)</Label>
                       <Input id="location-common" name="location" placeholder="e.g., New York, NY or 123 Main St, City" required />
@@ -227,6 +270,19 @@ export default function AuthPage() {
                       <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required />
                     </div>
                      <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
+                  </>
+                )}
+                {userType === 'pharmacist' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="pharmacy-name">Pharmacy Name</Label>
+                      <Input id="pharmacy-name" name="pharmacyName" placeholder="Enter your pharmacy name" required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="pharmacy-license">Pharmacy License Number</Label>
+                      <Input id="pharmacy-license" name="pharmacyLicense" placeholder="Enter pharmacy drug license" required />
+                    </div>
+                     <p className="text-xs text-muted-foreground">Your pharmacy profile will be live immediately.</p>
                   </>
                 )}
                 <div className="flex items-center space-x-2">

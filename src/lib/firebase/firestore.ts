@@ -1,75 +1,114 @@
-
-// Mock Firestore interactions
+import { db } from './config'; // Import Firestore instance from config
+import { collection, addDoc, getDocs, serverTimestamp, query, where, type DocumentData, type QuerySnapshot } from 'firebase/firestore';
 import type { Doctor, UserProfile } from '@/types';
 
-// In-memory store for doctors for mocking purposes
-let mockDoctorsDB: Doctor[] = [
-  { id: "doc1-firebase", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "New York, NY", dataAiHint: "doctor portrait", licenseNumber: "L123", clinicHours: "Mon-Fri 9am-5pm" },
-  { id: "doc2-firebase", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait", licenseNumber: "L456", clinicHours: "Tue-Sat 10am-6pm" },
-  { id: "doc3-firebase", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait", licenseNumber: "L789", clinicHours: "Mon, Wed, Fri 8am-4pm" },
-];
-
-// In-memory store for lab workers
-let mockLabWorkersDB: UserProfile[] = [];
-
-
-// Simulate adding a doctor to Firestore
+// Add a doctor to Firestore
 export async function addDoctor(doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'> & Partial<Pick<Doctor, 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'>>): Promise<Doctor> {
-  console.log("Mock Firestore: Adding doctor", doctorData);
-  const newDoctor: Doctor = {
-    id: `doc${Date.now()}-firebase`,
-    ...doctorData,
-    rating: doctorData.rating || Math.floor(Math.random() * 2) + 3.5, 
-    availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
-    imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
-    isVerified: doctorData.isVerified === undefined ? true : doctorData.isVerified, // Default to true if not provided
-    dataAiHint: doctorData.dataAiHint || "doctor portrait",
-  };
-  mockDoctorsDB.push(newDoctor);
-  console.log("Mock Firestore: Doctor added", newDoctor);
-  return newDoctor;
-}
-
-// Simulate fetching doctors from Firestore
-export async function getDoctors(): Promise<Doctor[]> {
-  console.log("Mock Firestore: Fetching doctors");
-  return [...mockDoctorsDB]; 
-}
-
-// Simulate fetching a single doctor by ID
-export async function getDoctorById(id: string): Promise<Doctor | null> {
-  console.log(`Mock Firestore: Fetching doctor with ID ${id}`);
-  const doctor = mockDoctorsDB.find(doc => doc.id === id);
-  return doctor || null;
-}
-
-// Simulate updating doctor details
-export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): Promise<Doctor | null> {
-  console.log(`Mock Firestore: Updating doctor ${doctorId} with`, updates);
-  const doctorIndex = mockDoctorsDB.findIndex(doc => doc.id === doctorId);
-  if (doctorIndex !== -1) {
-    mockDoctorsDB[doctorIndex] = { ...mockDoctorsDB[doctorIndex], ...updates };
-    return mockDoctorsDB[doctorIndex];
+  try {
+    const docDataWithTimestamp = {
+      ...doctorData,
+      rating: doctorData.rating || (Math.random() * 1.5 + 3.5).toFixed(1), // Random rating between 3.5 and 5.0
+      availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
+      imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
+      isVerified: doctorData.isVerified === undefined ? true : doctorData.isVerified,
+      dataAiHint: doctorData.dataAiHint || "doctor portrait",
+      createdAt: serverTimestamp(),
+    };
+    const docRef = await addDoc(collection(db, "doctors"), docDataWithTimestamp);
+    console.log("Doctor added to Firestore with ID: ", docRef.id);
+    return { id: docRef.id, ...docDataWithTimestamp } as Doctor; // Timestamps will be handled by Firestore
+  } catch (error) {
+    console.error("Error adding doctor to Firestore: ", error);
+    throw error;
   }
-  return null;
 }
 
-// Simulate adding a lab worker to Firestore
-export async function addLabWorker(
-  labWorkerData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation'> & { labAffiliation: string }
+// Get all doctors from Firestore
+export async function getDoctors(): Promise<Doctor[]> {
+  try {
+    const doctorsCollection = collection(db, "doctors");
+    const doctorsSnapshot: QuerySnapshot<DocumentData> = await getDocs(doctorsCollection);
+    const doctorsList: Doctor[] = doctorsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Doctor));
+    console.log("Fetched doctors from Firestore: ", doctorsList.length);
+    return doctorsList;
+  } catch (error) {
+    console.error("Error fetching doctors from Firestore: ", error);
+    return []; // Return empty array on error
+  }
+}
+
+// Add a patient to Firestore
+export async function addPatient(
+  patientData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation'>
 ): Promise<UserProfile> {
-  console.log("Mock Firestore: Adding lab worker", labWorkerData);
-  const newLabWorker: UserProfile = {
-    id: `lab${Date.now()}-firebase`,
-    name: labWorkerData.name,
-    phone: labWorkerData.phone,
-    email: labWorkerData.email,
-    role: 'lab_worker',
-    location: labWorkerData.location,
-    labAffiliation: labWorkerData.labAffiliation,
-    avatarUrl: "https://placehold.co/200x200.png", // Default avatar
-  };
-  mockLabWorkersDB.push(newLabWorker);
-  console.log("Mock Firestore: Lab worker added", newLabWorker);
-  return newLabWorker;
+  try {
+    const patientDataWithTimestamp = {
+      ...patientData,
+      role: 'patient' as const,
+      avatarUrl: patientData.avatarUrl || "https://placehold.co/200x200.png",
+      createdAt: serverTimestamp(),
+    };
+    const docRef = await addDoc(collection(db, "patients"), patientDataWithTimestamp);
+    console.log("Patient added to Firestore with ID: ", docRef.id);
+    return { id: docRef.id, ...patientDataWithTimestamp } as UserProfile;
+  } catch (error) {
+    console.error("Error adding patient to Firestore: ", error);
+    throw error;
+  }
+}
+
+// Add a lab worker to Firestore
+export async function addLabWorker(
+  labWorkerData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails'> & { labAffiliation: string }
+): Promise<UserProfile> {
+  try {
+    const labWorkerDataWithTimestamp = {
+      name: labWorkerData.name,
+      phone: labWorkerData.phone,
+      email: labWorkerData.email,
+      role: 'lab_worker' as const,
+      location: labWorkerData.location,
+      labAffiliation: labWorkerData.labAffiliation,
+      avatarUrl: "https://placehold.co/200x200.png",
+      createdAt: serverTimestamp(),
+    };
+    const docRef = await addDoc(collection(db, "lab_workers"), labWorkerDataWithTimestamp);
+    console.log("Lab worker added to Firestore with ID: ", docRef.id);
+    return { id: docRef.id, ...labWorkerDataWithTimestamp } as UserProfile;
+  } catch (error) {
+    console.error("Error adding lab worker to Firestore: ", error);
+    throw error;
+  }
+}
+
+// Simulate adding a pharmacist to Firestore
+export async function addPharmacist(
+  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation'> & { pharmacyDetails: { name: string; license: string; } }
+): Promise<UserProfile> {
+   try {
+    const pharmacistDataWithTimestamp = {
+      name: pharmacistData.name,
+      phone: pharmacistData.phone,
+      email: pharmacistData.email,
+      role: 'pharmacist' as const,
+      location: pharmacistData.location,
+      pharmacyDetails: pharmacistData.pharmacyDetails,
+      avatarUrl: "https://placehold.co/200x200.png", // Default avatar
+      createdAt: serverTimestamp(),
+       // Mock geocoding for now
+      latitude: pharmacistData.location?.toLowerCase().includes("new york") ? 40.7128 : pharmacistData.location?.toLowerCase().includes("london") ? 51.5074 : 12.9716, // Default to Bangalore
+      longitude: pharmacistData.location?.toLowerCase().includes("new york") ? -74.0060 : pharmacistData.location?.toLowerCase().includes("london") ? -0.1278 : 77.5946, // Default to Bangalore
+    };
+    console.log("Simulating geocoding for pharmacist location:", pharmacistData.location, "-> Lat:", pharmacistDataWithTimestamp.latitude, "Lng:", pharmacistDataWithTimestamp.longitude);
+
+    const docRef = await addDoc(collection(db, "pharmacists"), pharmacistDataWithTimestamp);
+    console.log("Pharmacist added to Firestore with ID: ", docRef.id);
+    return { id: docRef.id, ...pharmacistDataWithTimestamp } as UserProfile;
+  } catch (error) {
+    console.error("Error adding pharmacist to Firestore: ", error);
+    throw error;
+  }
 }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DoctorCard } from '@/components/shared/doctor-card';
 import type { Doctor } from '@/types';
-import { Search, Filter, X, Check, MapPin, Loader2 } from 'lucide-react'; // Added Loader2
+import { Search, Filter, X, Check, MapPin, Loader2 } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,7 +21,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { getDoctors } from '@/lib/firebase/firestore'; // Import mock Firebase function
+import { getDoctors } from '@/lib/firebase/firestore'; // Import Firebase function
 
 const specialtiesList = ["Cardiologist", "Dermatologist", "Pediatrician", "Orthopedic Surgeon", "Neurologist", "General Physician", "Endocrinologist", "Psychiatrist"];
 const availabilityOptions = ["any", "Available Today", "Next 3 days", "Within a week"];
@@ -37,20 +37,21 @@ export default function FindDoctorsPage() {
   const [selectedAvailability, setSelectedAvailability] = useState<string>("any");
 
   useEffect(() => {
-    async function fetchDoctors() {
+    async function fetchDoctorsData() {
       setIsLoading(true);
       try {
-        const doctorsFromDB = await getDoctors(); // Fetch from mock Firebase
-        setAllDoctors(doctorsFromDB.filter(doc => doc.isVerified)); // Only show verified doctors by default
-        setFilteredDoctors(doctorsFromDB.filter(doc => doc.isVerified));
+        const doctorsFromDB = await getDoctors(); // Fetch from Firebase
+        const verifiedDoctors = doctorsFromDB.filter(doc => doc.isVerified);
+        setAllDoctors(verifiedDoctors);
+        setFilteredDoctors(verifiedDoctors);
       } catch (error) {
         console.error("Failed to fetch doctors:", error);
-        // Handle error, maybe show a toast
+        // Handle error, maybe show a toast to the user
       } finally {
         setIsLoading(false);
       }
     }
-    fetchDoctors();
+    fetchDoctorsData();
   }, []);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function FindDoctorsPage() {
     }
 
     if (selectedAvailability !== "any") {
+      // This part might need adjustment if 'availability' field from Firestore has a different structure/format
       doctors = doctors.filter(doc => doc.availability === selectedAvailability);
     }
 
@@ -91,6 +93,7 @@ export default function FindDoctorsPage() {
     setLocationTerm('');
     setSelectedSpecialties([]);
     setSelectedAvailability("any");
+    setFilteredDoctors(allDoctors.filter(doc => doc.isVerified)); // Reset to all verified doctors
   };
 
 
@@ -198,7 +201,7 @@ export default function FindDoctorsPage() {
           <CardContent>
             <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Doctors Found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+            <p className="text-muted-foreground">Try adjusting your search or filter criteria, or check back later as new doctors join.</p>
             <Button variant="link" onClick={resetFilters} className="mt-4">
               Reset Filters
             </Button>
