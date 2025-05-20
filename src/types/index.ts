@@ -1,5 +1,5 @@
 
-import { z } from 'zod'; // Ensure Zod is imported here
+import { z } from 'zod'; 
 
 export interface Doctor {
   id: string;
@@ -72,26 +72,27 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist';
+  role: 'patient' | 'doctor' | 'lab_worker'; // Pharmacist role removed
   avatarUrl?: string;
   location?: string;
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
   doctorDetails?: Partial<Doctor>;
-  pharmacyDetails?: Partial<PharmacyProfile>;
+  // pharmacyDetails?: Partial<PharmacyProfile>; // Removed
   labAffiliation?: string;
 }
 
-export interface PharmacyProfile {
-  id: string;
-  pharmacyName: string;
-  licenseNumber: string;
-  gstNumber?: string;
-  bankDetails?: any;
-  latitude?: number;
-  longitude?: number;
-}
+// PharmacyProfile is no longer needed
+// export interface PharmacyProfile {
+//   id: string;
+//   pharmacyName: string;
+//   licenseNumber: string;
+//   gstNumber?: string;
+//   bankDetails?: any;
+//   latitude?: number;
+//   longitude?: number;
+// }
 
 
 export interface Address {
@@ -135,7 +136,7 @@ export interface LabReport {
   dataAiHint?: string;
 }
 
-export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general'; // Renamed to avoid conflict
+export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general'; 
 export const remedyTypeZodEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<OriginalRemedyType>;
 
 export const AiAyurvedicRemedyOutputSchema = z.object({
@@ -154,7 +155,7 @@ export type AiAyurvedicRemedyOutput = z.infer<typeof AiAyurvedicRemedyOutputSche
 export interface AyurvedicRemedy {
   id: string;
   name: string;
-  type: OriginalRemedyType; // Use the renamed type
+  type: OriginalRemedyType; 
   tags: string[];
   description: string;
   ingredients: string[];
@@ -177,20 +178,21 @@ export interface NewsArticle {
   dataAiHint?: string;
 }
 
-export type StockStatus = 'in-stock' | 'limited-stock' | 'out-of-stock';
+// StockStatus and Pharmacy types are no longer needed as Find Nearby Pharmacies feature is removed
+// export type StockStatus = 'in-stock' | 'limited-stock' | 'out-of-stock';
 
-export interface Pharmacy {
-  id: string;
-  name: string;
-  address: string;
-  distance: string;
-  stockStatus: StockStatus;
-  deliveryTime?: string;
-  pickupAvailable: boolean;
-  timings: string;
-  latitude?: number;
-  longitude?: number;
-  imageUrl?: string;
-  dataAiHint?: string;
-  rating?: number;
-}
+// export interface Pharmacy {
+//   id: string;
+//   name: string;
+//   address: string;
+//   distance: string;
+//   stockStatus: StockStatus;
+//   deliveryTime?: string;
+//   pickupAvailable: boolean;
+//   timings: string;
+//   latitude?: number;
+//   longitude?: number;
+//   imageUrl?: string;
+//   dataAiHint?: string;
+//   rating?: number;
+// }

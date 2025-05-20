@@ -2,10 +2,10 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings, Pill, Store as StoreIcon } from 'lucide-react';
+import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings, Pill } from 'lucide-react'; // Removed StoreIcon
 import { usePathname } from 'next/navigation';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null; // Pharmacist role removed
 
 interface MobileNavProps {
   userRole: UserRole;
@@ -34,15 +34,10 @@ export function MobileNav({ userRole }: MobileNavProps) {
     { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
     { href: '/health-news', label: 'News', icon: Rss },
-    { href: '/lab/profile', label: 'Profile', icon: User }, 
+    { href: '/lab/profile', label: 'Profile', icon: Settings }, // Changed icon to Settings
   ];
 
-  const pharmacistNavItems = [ 
-    { href: '/pharmacist/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/patient/store', label: 'Store Mgt.', icon: StoreIcon }, 
-    { href: '/health-news', label: 'News', icon: Rss },
-    { href: '/pharmacist/settings', label: 'Settings', icon: Settings },
-  ];
+  // pharmacistNavItems removed
   
   let navItems = [];
   if (userRole === 'patient') {
@@ -51,9 +46,8 @@ export function MobileNav({ userRole }: MobileNavProps) {
     navItems = doctorNavItems;
   } else if (userRole === 'lab_worker') {
     navItems = labWorkerNavItems;
-  } else if (userRole === 'pharmacist') { 
-    navItems = pharmacistNavItems;
   }
+  // Removed pharmacist role logic
 
 
   if (navItems.length === 0) return null;

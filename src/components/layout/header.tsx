@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -14,9 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
-import { ThemeToggle } from '@/components/shared/theme-toggle'; // Added import
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null; // Pharmacist role removed
 
 interface HeaderProps {
   userRole: UserRole;
@@ -44,10 +45,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  const pharmacistNavLinks = [ 
-    { href: '/pharmacist/dashboard', label: 'Dashboard' },
-    { href: '/patient/store', label: 'Store Mgt.' }, 
-  ];
+  // PharmacistNavLinks removed
 
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
@@ -73,11 +71,8 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       navLinks = [...navLinks, ...labWorkerNavLinks];
       settingsLink = '/lab/profile'; 
       profileLabel = "Lab Profile";
-    } else if (userRole === 'pharmacist') {
-      navLinks = [...navLinks, ...pharmacistNavLinks];
-      settingsLink = '/pharmacist/settings';
-      profileLabel = "Pharmacy Settings";
     }
+    // Removed pharmacist role logic
   } else {
      navLinks = [...navLinks,
         { href: '/patient/find-doctors', label: 'Find Doctors' },
@@ -87,14 +82,14 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
-      l.href === link.href && l.label === link.label // Ensure unique link by href and label
+      l.href === link.href && l.label === link.label 
     ))
   );
 
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Consistent height */}
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
@@ -111,7 +106,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1);
             return (
               <Link
-                key={`${link.href}-${link.label}`} // Unique key
+                key={`${link.href}-${link.label}`} 
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
@@ -127,8 +122,8 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
           })}
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-3">
-          <ThemeToggle /> {/* Added ThemeToggle component */}
+        <div className="flex items-center gap-3">
+          <ThemeToggle /> 
           {isAuthenticated ? (
             <>
               <Button variant="ghost" size="icon" className="relative rounded-full">
@@ -160,9 +155,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   {userRole === 'lab_worker' && (
                      <DropdownMenuItem asChild><Link href="/lab/profile">Lab Profile</Link></DropdownMenuItem>
                   )}
-                  {userRole === 'pharmacist' && (
-                     <DropdownMenuItem asChild><Link href="/pharmacist/settings">Pharmacy Settings</Link></DropdownMenuItem>
-                  )}
+                  {/* Removed pharmacist profile/settings link */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -172,7 +165,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-2"> {/* Ensured consistent gap for auth buttons */}
+            <div className="flex items-center gap-2"> 
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
@@ -182,8 +175,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
-             {/* Placeholder for mobile menu trigger if needed, or can be removed if MobileNav handles its own trigger */}
-          </div>
+           </div>
         </div>
       </div>
     </header>

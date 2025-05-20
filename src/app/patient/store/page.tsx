@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MedicineCard } from '@/components/shared/medicine-card';
 import type { Medicine } from '@/types';
-import { Search, Pill, ShoppingCart, LocateFixed } from 'lucide-react';
+import { Search, Pill, ShoppingCart } from 'lucide-react'; // Removed LocateFixed
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import Link from 'next/link';
-
+// Link import removed as Find Nearby Pharmacies button is removed
 
 const mockMedicines: Medicine[] = [
   { id: "1", name: "Paracetamol 500mg Tablets - Strip of 10", description: "Effective relief from fever, headaches, and body pain. Suitable for adults and children over 12.", price: 50, rating: 4.5, imageUrl: "https://placehold.co/300x200.png", dataAiHint: "medicine pills", category: "Pain Relief", affiliateLink: "#paracetamol" },
@@ -54,7 +53,7 @@ export default function StorePage() {
       <Card className="shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl text-gradient">Medicine Store</CardTitle>
-          <CardDescription>Browse medicines or find them in nearby pharmacies. Purchases are made via affiliate partners.</CardDescription>
+          <CardDescription>Browse medicines. Purchases are made via affiliate partners.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative">
@@ -67,11 +66,7 @@ export default function StorePage() {
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
-           <Button variant="outline" className="w-full sm:w-auto rounded-md" asChild>
-            <Link href="/patient/store/nearby-pharmacies">
-              <LocateFixed className="mr-2 h-4 w-4" /> Find Nearby Pharmacies
-            </Link>
-          </Button>
+           {/* Find Nearby Pharmacies button removed */}
         </CardContent>
       </Card>
 
@@ -110,7 +105,7 @@ export default function StorePage() {
         </div>
       </Tabs>
        <p className="text-sm text-muted-foreground text-center mt-8">
-        Note: All medicine purchases are fulfilled through external affiliate partners. EzCare Connect may earn from qualifying purchases. Prices and availability are subject to change on the partner's site. Check nearby pharmacies for local availability.
+        Note: All medicine purchases are fulfilled through external affiliate partners. EzCare Connect may earn from qualifying purchases. Prices and availability are subject to change on the partner's site.
       </p>
     </div>
   );

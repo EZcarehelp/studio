@@ -7,7 +7,7 @@ import { MobileNav } from './mobile-nav';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null; // Pharmacist role removed
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -28,20 +28,22 @@ export function AppLayout({ children }: { children: ReactNode }) {
     } else if (pathname.startsWith('/lab')) {
       currentRole = 'lab_worker';
       currentAuth = true;
-    } else if (pathname.startsWith('/pharmacist')) {
-      currentRole = 'pharmacist';
-      currentAuth = true;
-    } else if (pathname === '/auth') {
+    } 
+    // Removed /pharmacist path logic
+     else if (pathname === '/auth') {
       currentRole = null;
       currentAuth = false;
     } else if (pathname === '/') {
       currentAuth = false;
       currentRole = null;
     }
-
+    // If no specific role path is matched but it's not /auth or /, 
+    // it's likely a generic page like /health-news, treat as unauthenticated guest for layout purposes
+    // unless a global auth state indicates otherwise (not implemented yet).
+    
     setUserRole(currentRole);
     setIsAuthenticated(currentAuth);
-    setIsAuthResolved(true);
+    setIsAuthResolved(true); // Mark auth as resolved after first check
   }, [pathname]);
 
 
@@ -51,13 +53,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
   
+  // Consistent root structure for hydration
   return (
     <div className="min-h-screen flex flex-col">
       <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
         setIsAuthenticated(false);
         setUserRole(null);
+        // A more robust navigation would use Next.js router push
         if (typeof window !== 'undefined') {
-          window.location.pathname = '/auth';
+          window.location.pathname = '/auth'; 
         }
       }} />
       <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">

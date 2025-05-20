@@ -3,9 +3,9 @@ import type { Medicine } from '@/types';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, ShoppingCart, LocateFixed } from 'lucide-react'; // Added LocateFixed
+import { Star, ShoppingCart } from 'lucide-react'; // Removed LocateFixed
 import { PriceDisplay } from './price-display';
-import Link from 'next/link';
+// Link import removed as "Available Nearby" button is removed
 
 interface MedicineCardProps {
   medicine: Medicine;
@@ -32,12 +32,8 @@ export function MedicineCard({ medicine }: MedicineCardProps) {
         </div>
         <PriceDisplay inr={medicine.price} className="text-lg" />
       </CardContent>
-      <CardFooter className="p-3 grid grid-cols-2 gap-2 border-t mt-auto"> 
-        <Button variant="outline" size="sm" asChild className="rounded-md">
-           <Link href={`/patient/store/nearby-pharmacies?medicine=${encodeURIComponent(medicine.name)}`}>
-            <LocateFixed className="w-4 h-4 mr-1.5" /> Available Nearby
-          </Link>
-        </Button>
+      <CardFooter className="p-3 border-t mt-auto"> 
+        {/* "Available Nearby" button removed, "Buy Now" button takes full width */}
         <Button asChild className="w-full btn-premium rounded-md" size="sm">
           <a href={medicine.affiliateLink || '#'} target="_blank" rel="noopener noreferrer">
             <ShoppingCart className="w-4 h-4 mr-1.5" /> Buy Now

@@ -1,6 +1,6 @@
 
 // Mock Firestore interactions
-import type { Doctor, PharmacyProfile, UserProfile } from '@/types';
+import type { Doctor, UserProfile } from '@/types';
 
 // In-memory store for doctors for mocking purposes
 let mockDoctorsDB: Doctor[] = [
@@ -9,8 +9,6 @@ let mockDoctorsDB: Doctor[] = [
   { id: "doc3-firebase", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait", licenseNumber: "L789", clinicHours: "Mon, Wed, Fri 8am-4pm" },
 ];
 
-// In-memory store for pharmacists
-let mockPharmacistsDB: UserProfile[] = [];
 // In-memory store for lab workers
 let mockLabWorkersDB: UserProfile[] = [];
 
@@ -54,45 +52,6 @@ export async function updateDoctor(doctorId: string, updates: Partial<Doctor>): 
     return mockDoctorsDB[doctorIndex];
   }
   return null;
-}
-
-// Simulate adding a pharmacist to Firestore
-export async function addPharmacist(
-  pharmacistData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'pharmacyDetails' | 'labAffiliation'> & 
-                  { pharmacyDetails: Omit<PharmacyProfile, 'id' | 'latitude' | 'longitude'> }
-): Promise<UserProfile> {
-  console.log("Mock Firestore: Adding pharmacist", pharmacistData);
-  
-  let mockLat = 12.9716; // Default mock (Bangalore)
-  let mockLon = 77.5946;
-  if (pharmacistData.location?.toLowerCase().includes("new york")) {
-    mockLat = 40.7128;
-    mockLon = -74.0060;
-  } else if (pharmacistData.location?.toLowerCase().includes("london")) {
-    mockLat = 51.5074;
-    mockLon = 0.1278;
-  }
-  console.log(`Mock Geocoding for ${pharmacistData.location}: Lat ${mockLat}, Lon ${mockLon}`);
-
-  const newPharmacist: UserProfile = {
-    id: `pharm${Date.now()}-firebase`,
-    name: pharmacistData.name,
-    phone: pharmacistData.phone,
-    email: pharmacistData.email,
-    role: 'pharmacist',
-    location: pharmacistData.location, 
-    pharmacyDetails: {
-      id: `pharmaDetail${Date.now()}`,
-      pharmacyName: pharmacistData.pharmacyDetails.pharmacyName,
-      licenseNumber: pharmacistData.pharmacyDetails.licenseNumber,
-      latitude: mockLat, 
-      longitude: mockLon, 
-    },
-    avatarUrl: "https://placehold.co/200x200.png", 
-  };
-  mockPharmacistsDB.push(newPharmacist);
-  console.log("Mock Firestore: Pharmacist added with mock geo-coordinates", newPharmacist);
-  return newPharmacist;
 }
 
 // Simulate adding a lab worker to Firestore
