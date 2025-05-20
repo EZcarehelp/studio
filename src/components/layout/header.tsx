@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Bell, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react';
+import { UserCircle, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react'; // Removed Bell
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null; // Pharmacist role removed
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
 interface HeaderProps {
   userRole: UserRole;
@@ -45,8 +45,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  // PharmacistNavLinks removed
-
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
      { href: '/health-news', label: 'Health News', icon: Rss },
@@ -55,7 +53,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   ];
 
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth'; 
+  let settingsLink = '/auth';
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
@@ -69,10 +67,9 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       profileLabel = "Doctor Settings";
     } else if (userRole === 'lab_worker') {
       navLinks = [...navLinks, ...labWorkerNavLinks];
-      settingsLink = '/lab/profile'; 
+      settingsLink = '/lab/profile';
       profileLabel = "Lab Profile";
     }
-    // Removed pharmacist role logic
   } else {
      navLinks = [...navLinks,
         { href: '/patient/find-doctors', label: 'Find Doctors' },
@@ -80,39 +77,40 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     ];
   }
 
+  // Remove duplicate links (e.g. if a patient link is also in commonBaseLinks)
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
-      l.href === link.href && l.label === link.label 
+      l.href === link.href && l.label === link.label
     ))
   );
 
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Increased height */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
             alt="EzCare Connect Logo"
-            width={140} 
-            height={35} 
+            width={140}
+            height={35}
             priority
             className="h-8 md:h-9 w-auto"
           />
         </Link>
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-          {navLinks.map((link) => {
+          {navLinks.map((link, index) => {
             const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1);
             return (
               <Link
-                key={`${link.href}-${link.label}`} 
+                key={`${link.href}-${link.label}-${index}`} // More unique key
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
                   isActive
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-foreground/70 hover:text-primary hover:bg-primary/5' 
+                  ? 'text-primary bg-primary/10'
+                  : 'text-foreground/70 hover:text-primary hover:bg-primary/5'
                 )}
               >
                 {link.icon && <link.icon className="h-4 w-4 opacity-90" />}
@@ -123,14 +121,10 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle /> 
+          <ThemeToggle />
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="icon" className="relative rounded-full">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0.5 right-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground transform translate-x-1/3 -translate-y-1/3 bg-destructive rounded-full">3</span>
-                <span className="sr-only">Notifications</span>
-              </Button>
+              {/* Notification Bell Removed */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
@@ -155,7 +149,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   {userRole === 'lab_worker' && (
                      <DropdownMenuItem asChild><Link href="/lab/profile">Lab Profile</Link></DropdownMenuItem>
                   )}
-                  {/* Removed pharmacist profile/settings link */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -165,7 +158,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-2"> 
+            <div className="flex items-center gap-2">
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
@@ -175,6 +168,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
+             {/* Placeholder for potential mobile menu trigger if needed, or can be removed if not used */}
            </div>
         </div>
       </div>
