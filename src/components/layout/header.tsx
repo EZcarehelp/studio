@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/shared/theme-toggle'; // Added import
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'pharmacist' | null;
 
@@ -44,7 +44,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
 
-  const pharmacistNavLinks = [
+  const pharmacistNavLinks = [ 
     { href: '/pharmacist/dashboard', label: 'Dashboard' },
     { href: '/patient/store', label: 'Store Mgt.' }, 
   ];
@@ -87,13 +87,14 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
-      l.href === link.href && l.label === link.label
+      l.href === link.href && l.label === link.label // Ensure unique link by href and label
     ))
   );
 
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Consistent height */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
@@ -107,10 +108,10 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
           {navLinks.map((link) => {
-            const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href));
+            const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1);
             return (
               <Link
-                key={`${link.href}-${link.label}`} 
+                key={`${link.href}-${link.label}`} // Unique key
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
@@ -126,7 +127,8 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <ThemeToggle /> {/* Added ThemeToggle component */}
           {isAuthenticated ? (
             <>
               <Button variant="ghost" size="icon" className="relative rounded-full">
@@ -170,7 +172,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2"> {/* Ensured consistent gap for auth buttons */}
               <Button variant="outline" asChild size="sm" className="rounded-md">
                 <Link href="/auth?tab=login">Login</Link>
               </Button>
@@ -180,6 +182,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
+             {/* Placeholder for mobile menu trigger if needed, or can be removed if MobileNav handles its own trigger */}
           </div>
         </div>
       </div>
