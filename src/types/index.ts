@@ -1,4 +1,6 @@
 
+import { z } from 'zod'; // Ensure Zod is imported here
+
 export interface Doctor {
   id: string;
   name: string;
@@ -12,10 +14,10 @@ export interface Doctor {
   location?: string;
   bio?: string;
   licenseNumber?: string;
-  clinicHours?: string; 
+  clinicHours?: string;
   onlineConsultationEnabled?: boolean;
-  weeklyAvailability?: { 
-    [day: string]: boolean; 
+  weeklyAvailability?: {
+    [day: string]: boolean;
   };
   dataAiHint?: string;
 }
@@ -27,21 +29,21 @@ export interface Medicine {
   price: number; // INR
   rating: number; // 0-5
   imageUrl: string;
-  category: string; 
-  affiliateLink: string; 
+  category: string;
+  affiliateLink: string;
   dataAiHint?: string;
 }
 
 export interface ChatMessage {
   id: string;
-  senderId: string; 
+  senderId: string;
   receiverId: string;
   text?: string;
-  timestamp: number; 
+  timestamp: number;
   isRead?: boolean;
-  type: 'text' | 'prescription' | 'image'; 
-  prescriptionDetails?: Prescription; 
-  imageUrl?: string; 
+  type: 'text' | 'prescription' | 'image';
+  prescriptionDetails?: Prescription;
+  imageUrl?: string;
 }
 
 export interface Prescription {
@@ -72,13 +74,13 @@ export interface UserProfile {
   phone: string;
   role: 'patient' | 'doctor' | 'lab_worker' | 'pharmacist';
   avatarUrl?: string;
-  location?: string; 
+  location?: string;
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
-  doctorDetails?: Partial<Doctor>; 
+  doctorDetails?: Partial<Doctor>;
   pharmacyDetails?: Partial<PharmacyProfile>;
-  labAffiliation?: string; // Added for Lab Worker
+  labAffiliation?: string;
 }
 
 export interface PharmacyProfile {
@@ -86,10 +88,9 @@ export interface PharmacyProfile {
   pharmacyName: string;
   licenseNumber: string;
   gstNumber?: string;
-  bankDetails?: any; 
-  latitude?: number; // For map integration
-  longitude?: number; // For map integration
-  // other pharmacy specific details
+  bankDetails?: any;
+  latitude?: number;
+  longitude?: number;
 }
 
 
@@ -105,9 +106,9 @@ export interface Address {
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'upi'; 
+  type: 'card' | 'upi';
   last4?: string;
-  expiry?: string; 
+  expiry?: string;
   isDefault?: boolean;
 }
 
@@ -115,49 +116,63 @@ export interface LabTest {
   id: string;
   name: string;
   description: string;
-  price?: number; 
+  price?: number;
 }
 
 export interface LabReport {
   id: string;
   patientId: string;
-  patientName?: string; 
+  patientName?: string;
   testId: string;
-  testName?: string; 
-  reportImageUrl?: string; 
-  reportDataUri?: string; 
-  dateUploaded: number; 
+  testName?: string;
+  reportImageUrl?: string;
+  reportDataUri?: string;
+  dateUploaded: number;
   notesByLabWorker?: string;
   status: 'pending_analysis' | 'analysis_complete' | 'error';
-  dietPlan?: string; 
-  keyFindings?: string[]; 
-  dataAiHint?: string; 
+  dietPlan?: string;
+  keyFindings?: string[];
+  dataAiHint?: string;
 }
 
-export type RemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
+export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general'; // Renamed to avoid conflict
+export const remedyTypeZodEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<OriginalRemedyType>;
+
+export const AiAyurvedicRemedyOutputSchema = z.object({
+  remedyName: z.string().describe("The common name of the Ayurvedic remedy, or a title for the suggestion if it's general advice."),
+  type: remedyTypeZodEnum.describe("The category type of the remedy based on its primary use or ingredients. Use 'general' if no specific category fits well."),
+  description: z.string().describe("A brief description of what the remedy is for or what the advice addresses."),
+  ingredients: z.array(z.string()).optional().describe("A list of ingredients required for the remedy. Omit if it's general advice not involving specific preparations."),
+  preparation: z.string().optional().describe("Step-by-step preparation instructions. Omit if it's general advice."),
+  usage: z.string().optional().describe("How and when to use the remedy or apply the advice. Include dosage if applicable for a remedy."),
+  notes: z.string().optional().describe("Any additional notes, warnings, or tips related to the remedy/advice."),
+  disclaimer: z.string().default("This is for informational purposes only and not medical advice. Consult with a healthcare professional for any health concerns or before making any changes to your health regimen.").describe("A standard disclaimer.")
+});
+export type AiAyurvedicRemedyOutput = z.infer<typeof AiAyurvedicRemedyOutputSchema>;
+
 
 export interface AyurvedicRemedy {
   id: string;
   name: string;
-  type: RemedyType;
-  tags: string[]; 
+  type: OriginalRemedyType; // Use the renamed type
+  tags: string[];
   description: string;
   ingredients: string[];
-  preparation: string; 
-  usage?: string; 
-  imageUrl?: string; 
-  source?: string; 
-  isFavorite?: boolean; 
+  preparation: string;
+  usage?: string;
+  imageUrl?: string;
+  source?: string;
+  isFavorite?: boolean;
   dataAiHint?: string;
 }
 
 export interface NewsArticle {
   id: string;
   title: string;
-  snippet: string; 
-  imageUrl: string; 
+  snippet: string;
+  imageUrl: string;
   sourceName: string;
-  publishedAt: string; 
+  publishedAt: string;
   articleUrl: string;
   dataAiHint?: string;
 }
@@ -168,14 +183,14 @@ export interface Pharmacy {
   id: string;
   name: string;
   address: string;
-  distance: string; // e.g., "0.5 km"
+  distance: string;
   stockStatus: StockStatus;
-  deliveryTime?: string; // e.g., "30 min", "1 hr"
+  deliveryTime?: string;
   pickupAvailable: boolean;
-  timings: string; // e.g., "9 AM - 10 PM", "24x7"
+  timings: string;
   latitude?: number;
   longitude?: number;
   imageUrl?: string;
   dataAiHint?: string;
-  rating?: number; // Added optional rating
+  rating?: number;
 }

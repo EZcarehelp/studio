@@ -5,13 +5,13 @@
  *
  * - aiAyurvedicRemedy - A function that handles the remedy suggestion process.
  * - AiAyurvedicRemedyInput - The input type for the aiAyurvedicRemedy function.
- * - AiAyurvedicRemedyOutputSchema - The Zod schema for the output.
  * - AiAyurvedicRemedyOutput - The return type for the aiAyurvedicRemedy function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { RemedyType } from '@/types';
+// Import the Zod schema and the output type from src/types/index.ts
+import { AiAyurvedicRemedyOutputSchema, type AiAyurvedicRemedyOutput } from '@/types';
 
 const AiAyurvedicRemedyInputSchema = z.object({
   query: z.string().min(3).max(200).describe('User\'s request for an Ayurvedic remedy, e.g., "remedy for dry cough" or "how to improve digestion".'),
@@ -19,20 +19,7 @@ const AiAyurvedicRemedyInputSchema = z.object({
 });
 export type AiAyurvedicRemedyInput = z.infer<typeof AiAyurvedicRemedyInputSchema>;
 
-const remedyTypeEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<RemedyType>;
-
-
-export const AiAyurvedicRemedyOutputSchema = z.object({
-  remedyName: z.string().describe("The common name of the Ayurvedic remedy, or a title for the suggestion if it's general advice."),
-  type: remedyTypeEnum.describe("The category type of the remedy based on its primary use or ingredients. Use 'general' if no specific category fits well."),
-  description: z.string().describe("A brief description of what the remedy is for or what the advice addresses."),
-  ingredients: z.array(z.string()).optional().describe("A list of ingredients required for the remedy. Omit if it's general advice not involving specific preparations."),
-  preparation: z.string().optional().describe("Step-by-step preparation instructions. Omit if it's general advice."),
-  usage: z.string().optional().describe("How and when to use the remedy or apply the advice. Include dosage if applicable for a remedy."),
-  notes: z.string().optional().describe("Any additional notes, warnings, or tips related to the remedy/advice."),
-  disclaimer: z.string().default("This is for informational purposes only and not medical advice. Consult with a healthcare professional for any health concerns or before making any changes to your health regimen.").describe("A standard disclaimer.")
-});
-export type AiAyurvedicRemedyOutput = z.infer<typeof AiAyurvedicRemedyOutputSchema>;
+// AiAyurvedicRemedyOutputSchema and AiAyurvedicRemedyOutput are now imported from @/types
 
 export async function aiAyurvedicRemedy(input: AiAyurvedicRemedyInput): Promise<AiAyurvedicRemedyOutput> {
   return aiAyurvedicRemedyFlow(input);
@@ -41,7 +28,7 @@ export async function aiAyurvedicRemedy(input: AiAyurvedicRemedyInput): Promise<
 const prompt = ai.definePrompt({
   name: 'aiAyurvedicRemedyPrompt',
   input: {schema: AiAyurvedicRemedyInputSchema},
-  output: {schema: AiAyurvedicRemedyOutputSchema},
+  output: {schema: AiAyurvedicRemedyOutputSchema}, // Use the imported Zod schema
   prompt: `You are an AI assistant knowledgeable in traditional Ayurvedic remedies. A user will describe an ailment or ask for general wellness advice (e.g., "{{query}}").
 Provide a simple, safe, and common Ayurvedic remedy or piece of advice if appropriate.
 If providing a specific remedy, include its name, a brief description, its type (herbal, digestion, inflammation, calming, or general), ingredients, preparation instructions, and usage.
@@ -53,7 +40,7 @@ Format your response strictly according to the provided JSON schema.
 User's query: {{{query}}}
 `,
   config: {
-    temperature: 0.6, // Allow for some variation but keep it factual.
+    temperature: 0.6, 
      safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -79,14 +66,13 @@ const aiAyurvedicRemedyFlow = ai.defineFlow(
   {
     name: 'aiAyurvedicRemedyFlow',
     inputSchema: AiAyurvedicRemedyInputSchema,
-    outputSchema: AiAyurvedicRemedyOutputSchema,
+    outputSchema: AiAyurvedicRemedyOutputSchema, // Use the imported Zod schema
   },
   async (input) => {
     const {output} = await prompt(input);
     if (!output) {
         throw new Error("The AI model did not return a valid remedy suggestion.");
     }
-    // Ensure disclaimer is present, even if model forgets
     if (!output.disclaimer) {
         output.disclaimer = "This is for informational purposes only and not medical advice. Consult with a healthcare professional for any health concerns or before making any changes to your health regimen.";
     }

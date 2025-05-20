@@ -10,7 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { AiAyurvedicRemedyOutputSchema, type AiAyurvedicRemedyOutput } from '@/ai/flows/ai-ayurvedic-remedy-flow';
+// Import the Zod schema and the type from src/types/index.ts
+import { AiAyurvedicRemedyOutputSchema, type AiAyurvedicRemedyOutput } from '@/types';
 
 const EzCareChatbotInputSchema = z.object({
   query: z.string().describe("User's query for symptom analysis or remedy suggestion."),
@@ -20,7 +21,7 @@ export type EzCareChatbotInput = z.infer<typeof EzCareChatbotInputSchema>;
 const EzCareChatbotOutputSchema = z.object({
   type: z.enum(['analysis', 'remedy', 'clarification', 'error']).describe("The type of response from the chatbot."),
   analysis: z.string().optional().describe("Symptom analysis, if applicable. Include links to medical sources."),
-  remedy: AiAyurvedicRemedyOutputSchema.optional().describe("Ayurvedic remedy suggestion, if applicable."),
+  remedy: AiAyurvedicRemedyOutputSchema.optional().describe("Ayurvedic remedy suggestion, if applicable."), // Use the imported Zod schema
   message: z.string().optional().describe("A general message or clarification question from the chatbot."),
   errorMessage: z.string().optional().describe("Error message, if any.")
 });
@@ -52,7 +53,7 @@ export async function ezCareChatbotFlow(input: EzCareChatbotInput): Promise<EzCa
 const mainChatbotPrompt = ai.definePrompt({
   name: 'ezCareChatbotPrompt',
   input: {schema: EzCareChatbotInputSchema},
-  output: {schema: EzCareChatbotOutputSchema},
+  output: {schema: EzCareChatbotOutputSchema}, // This output schema uses the imported remedy schema indirectly
   prompt: `You are EzCare Chatbot, a friendly and empathetic AI healthcare assistant.
 Your primary goal is to help users by either analyzing their symptoms or suggesting Ayurvedic home remedies.
 
@@ -92,7 +93,7 @@ General Instructions for all responses:
 
 `,
   config: {
-    temperature: 0.7, // Allow for more conversational and varied responses
+    temperature: 0.7,
      safetySettings: [
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
