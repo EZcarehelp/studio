@@ -4,6 +4,7 @@ import { z } from 'zod';
 export interface Doctor {
   id: string;
   name: string;
+  username?: string; // Added username
   specialty: string;
   experience: number; // years
   rating: number; // 0-5
@@ -70,30 +71,18 @@ export interface Appointment {
 export interface UserProfile {
   id: string;
   name: string;
+  username?: string; // Added username
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor' | 'lab_worker'; // Pharmacist role removed
+  role: 'patient' | 'doctor' | 'lab_worker';
   avatarUrl?: string;
   location?: string;
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
   doctorDetails?: Partial<Doctor>;
-  // pharmacyDetails?: Partial<PharmacyProfile>; // Removed
   labAffiliation?: string;
 }
-
-// PharmacyProfile is no longer needed
-// export interface PharmacyProfile {
-//   id: string;
-//   pharmacyName: string;
-//   licenseNumber: string;
-//   gstNumber?: string;
-//   bankDetails?: any;
-//   latitude?: number;
-//   longitude?: number;
-// }
-
 
 export interface Address {
   id: string;
@@ -177,22 +166,3 @@ export interface NewsArticle {
   articleUrl: string;
   dataAiHint?: string;
 }
-
-// StockStatus and Pharmacy types are no longer needed as Find Nearby Pharmacies feature is removed
-// export type StockStatus = 'in-stock' | 'limited-stock' | 'out-of-stock';
-
-// export interface Pharmacy {
-//   id: string;
-//   name: string;
-//   address: string;
-//   distance: string;
-//   stockStatus: StockStatus;
-//   deliveryTime?: string;
-//   pickupAvailable: boolean;
-//   timings: string;
-//   latitude?: number;
-//   longitude?: number;
-//   imageUrl?: string;
-//   dataAiHint?: string;
-//   rating?: number;
-// }

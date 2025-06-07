@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addPatient, addLabWorker } from '@/lib/firebase/firestore'; 
+import { addDoctor, addPatient, addLabWorker, isUsernameUnique } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
 
 export default function AuthPage() {
@@ -37,13 +37,11 @@ export default function AuthPage() {
       role = 'lab_worker';
     }
 
-
     if (role === 'doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'lab_worker') {
       router.push('/lab/dashboard');
-    }
-     else {
+    } else {
       router.push('/patient/dashboard');
     }
   };
@@ -54,72 +52,84 @@ export default function AuthPage() {
     const name = formData.get('fullName') as string;
     const phone = formData.get('phone') as string;
     const email = formData.get('email-signup') as string; 
-    const locationInput = formData.get('location') as string; 
+    const locationInput = formData.get('location') as string;
+    const username = formData.get('username') as string;
+
+    // Username validation
+    if (!username) {
+      toast({ variant: "destructive", title: "Username Required", description: "Please enter a username." });
+      return;
+    }
+    const usernameRegex = /^[a-zA-Z0-9._]{3,30}$/;
+    if (!usernameRegex.test(username)) {
+      toast({ variant: "destructive", title: "Invalid Username", description: "Username must be 3-30 characters and can only contain letters, numbers, periods (.), and underscores (_)." });
+      return;
+    }
+
+    // Check username uniqueness (case-insensitive)
+    const isUnique = await isUsernameUnique(username.toLowerCase());
+    if (!isUnique) {
+      toast({ variant: "destructive", title: "Username Taken", description: "This username is already in use. Please choose another." });
+      return;
+    }
+    
+    const finalUsername = username.toLowerCase(); // Store username in lowercase
 
     console.log("Signing up as", userType);
     
-    if (userType === 'doctor') {
-      const specialty = formData.get('specialization') as string;
-      const experience = parseInt(formData.get('experience') as string, 10);
-      const licenseNumber = formData.get('licenseNumber') as string;
+    try {
+      if (userType === 'doctor') {
+        const specialty = formData.get('specialization') as string;
+        const experience = parseInt(formData.get('experience') as string, 10);
+        const licenseNumber = formData.get('licenseNumber') as string;
 
-      const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint' | 'createdAt'> = {
-        name,
-        specialty,
-        experience,
-        consultationFee: 1000, 
-        location: locationInput, 
-        licenseNumber,
-        clinicHours: "Mon-Fri: 9 AM - 5 PM", 
-        onlineConsultationEnabled: true,
-        isVerified: true, 
-      };
-      try {
+        const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint' | 'createdAt'> & { username: string } = {
+          name,
+          username: finalUsername,
+          specialty,
+          experience,
+          consultationFee: 1000, 
+          location: locationInput, 
+          licenseNumber,
+          clinicHours: "Mon-Fri: 9 AM - 5 PM", 
+          onlineConsultationEnabled: true,
+          isVerified: true, 
+        };
         await addDoctor(doctorData); 
         toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live and discoverable.` });
         router.push('/doctor/dashboard'); 
-      } catch (error) {
-        console.error("Doctor signup error:", error);
-        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create doctor account." });
-      }
-    } else if (userType === 'lab_worker') {
-      const labAffiliation = formData.get('labId') as string; 
-      const labWorkerData = {
-        name,
-        phone,
-        email,
-        role: 'lab_worker' as const,
-        location: locationInput,
-        labAffiliation,
-      };
-      try {
-        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt'> & { labAffiliation: string });
+      } else if (userType === 'lab_worker') {
+        const labAffiliation = formData.get('labId') as string; 
+        const labWorkerData = {
+          name,
+          username: finalUsername,
+          phone,
+          email,
+          // role: 'lab_worker' as const, // Role is set in addLabWorker function
+          location: locationInput,
+          labAffiliation,
+        };
+        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt' | 'role'> & { labAffiliation: string, username: string });
         toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created.` });
         router.push('/lab/dashboard');
-      } catch (error) {
-        console.error("Lab worker signup error:", error);
-        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create lab worker account." });
-      }
-    }
-     else { // Patient
-      const patientData = {
-        name,
-        phone,
-        email,
-        role: 'patient' as const,
-        location: locationInput, // Or remove if not collected for patients
-      };
-      try {
-        await addPatient(patientData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt'>);
+      } else { // Patient
+        const patientData = {
+          name,
+          username: finalUsername,
+          phone,
+          email,
+          // role: 'patient' as const, // Role is set in addPatient function
+          location: locationInput,
+        };
+        await addPatient(patientData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt' | 'role'> & { username: string });
         toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
         router.push('/patient/dashboard');
-      } catch (error) {
-        console.error("Patient signup error:", error);
-        toast({ variant: "destructive", title: "Signup Failed", description: "Could not create patient account." });
       }
+    } catch (error) {
+        console.error(`${userType} signup error:`, error);
+        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'Please try again.'}` });
     }
   };
-
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
@@ -141,7 +151,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare Connect account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
+              <CardDescription>Access your EzCare account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
@@ -195,6 +205,11 @@ export default function AuthPage() {
                 <div className="space-y-2">
                   <Label htmlFor="name-signup">Full Name</Label>
                   <Input id="name-signup" name="fullName" placeholder="Enter your full name" required />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="username-signup">Username</Label>
+                  <Input id="username-signup" name="username" placeholder="e.g., ezcare_user (a-z, 0-9, _, .)" required />
+                  <p className="text-xs text-muted-foreground">3-30 characters. No special symbols except '.' and '_'.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-signup">Email Address</Label>
