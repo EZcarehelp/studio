@@ -80,8 +80,14 @@ export default function AuthPage() {
     try {
       if (userType === 'doctor') {
         const specialty = formData.get('specialization') as string;
-        const experience = parseInt(formData.get('experience') as string, 10);
+        const experienceStr = formData.get('experience') as string;
         const licenseNumber = formData.get('licenseNumber') as string;
+
+        if (!experienceStr || isNaN(parseInt(experienceStr, 10)) || parseInt(experienceStr, 10) < 0) {
+            toast({ variant: "destructive", title: "Invalid Input", description: "Years of experience must be a valid non-negative number." });
+            return;
+        }
+        const experience = parseInt(experienceStr, 10);
 
         const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint' | 'createdAt'> & { username: string } = {
           name,
@@ -105,7 +111,6 @@ export default function AuthPage() {
           username: finalUsername,
           phone,
           email,
-          // role: 'lab_worker' as const, // Role is set in addLabWorker function
           location: locationInput,
           labAffiliation,
         };
@@ -118,7 +123,6 @@ export default function AuthPage() {
           username: finalUsername,
           phone,
           email,
-          // role: 'patient' as const, // Role is set in addPatient function
           location: locationInput,
         };
         await addPatient(patientData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt' | 'role'> & { username: string });
@@ -126,8 +130,15 @@ export default function AuthPage() {
         router.push('/patient/dashboard');
       }
     } catch (error) {
-        console.error(`${userType} signup error:`, error);
-        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'Please try again.'}` });
+        console.error(`Error during ${userType} signup:`, error);
+        if (error instanceof Error) {
+            console.error("Error Name:", error.name);
+            console.error("Error Message:", error.message);
+            console.error("Error Stack:", error.stack);
+        } else {
+            console.error("Caught a non-Error object:", error);
+        }
+        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'An unexpected error occurred. Please check console for details.'}` });
     }
   };
 
@@ -243,7 +254,7 @@ export default function AuthPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="experience">Years of Experience</Label>
-                      <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required />
+                      <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required min="0"/>
                     </div>
                     <p className="text-xs text-muted-foreground">Your profile will be live immediately.</p>
                   </>
@@ -277,3 +288,4 @@ export default function AuthPage() {
     </div>
   );
 }
+
