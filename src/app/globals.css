@@ -72,59 +72,59 @@ body {
   }
 
   .dark {
-    /* New Dark Mode Theme (Inspired by user image) */
-    --background: 0 0% 7%;    /* Very Dark Gray #121212 */
-    --foreground: 0 0% 93%;   /* Off-White #EDEDED */
+    /* Dark Mode inspired by "Microdose Inc" UI */
+    --background: 0 0% 8%;          /* Very dark gray, almost black */
+    --foreground: 0 0% 92%;         /* Light gray, almost white */
 
-    --card: 0 0% 10%;          /* Dark Gray #1A1A1A */
-    --card-foreground: 0 0% 93%; /* Off-White #EDEDED */
+    --card: 0 0% 12%;                /* Slightly lighter dark gray for cards */
+    --card-foreground: 0 0% 92%;     /* Light gray text on cards */
 
-    --popover: 0 0% 10%;       /* Dark Gray #1A1A1A */
-    --popover-foreground: 0 0% 93%; /* Off-White #EDEDED */
+    --popover: 0 0% 12%;             /* Popover background */
+    --popover-foreground: 0 0% 92%;  /* Popover text */
 
-    --primary: 0 0% 93%;       /* Off-White #EDEDED (for buttons like "Subscribe") */
-    --primary-foreground: 0 0% 10%; /* Dark Gray #1A1A1A (text on primary buttons) */
+    --primary: 0 0% 95%;             /* Off-white for primary buttons (like "Upgrade plan") */
+    --primary-foreground: 0 0% 10%;  /* Dark text for primary buttons */
 
-    --secondary: 145 60% 65%;  /* Lighter Emerald (slightly adjusted from old dark) */
-    --secondary-foreground: 0 0% 10%; /* Dark Gray #1A1A1A (for contrast on lighter secondary) */
+    --secondary: 0 0% 20%;           /* Dark gray for secondary buttons (like "Current plan") */
+    --secondary-foreground: 0 0% 80%;/* Light gray text for secondary buttons */
 
-    --muted: 0 0% 13%;         /* Darker Muted Gray #212121 */
-    --muted-foreground: 0 0% 50%; /* Medium Gray #808080 */
+    --muted: 0 0% 15%;               /* Darker gray for less prominent backgrounds/inputs */
+    --muted-foreground: 0 0% 60%;    /* Medium gray for placeholder text, subtle details */
 
-    --accent: 30 60% 50%;      /* Brownish Orange #BF6930 (for tags like "Upcoming Drop") */
-    --accent-foreground: 0 0% 100%; /* White (text on accent) */
+    --accent: 210 70% 55%;           /* Blueish accent (e.g., for focus rings, highlights) */
+    --accent-foreground: 0 0% 100%;  /* White text on accent */
 
-    --success: 120 60% 30%;   /* Darker Green #299929 */
-    --success-foreground: 0 0% 93%; /* Off-White #EDEDED */
+    --success: 120 60% 45%;          /* Green for success states/icons */
+    --success-foreground: 0 0% 95%;  /* Light text on success */
 
-    --destructive: 348 83% 47%; /* Crimson #DC143C */
+    --destructive: 0 72% 51%;       /* Standard Red */
     --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 0 0% 14%;        /* Subtle Border #242424 */
-    --input: 0 0% 10%;         /* Dark Gray #1A1A1A (same as card) */
-    --ring: 224 76% 70%;       /* Lighter Royal Blue (existing, for focus visibility) */
+    --border: 0 0% 18%;              /* Subtle dark border */
+    --input: 0 0% 15%;               /* Background of input fields */
+    --ring: 210 70% 55%;             /* Blueish accent for focus rings */
+    
+    /* Sidebar variables for "Microdose Inc" dark theme */
+    --sidebar-background: 0 0% 10%;      /* Dark gray, slightly lighter than main bg */
+    --sidebar-foreground: 0 0% 85%;      /* Main text color in sidebar */
+    --sidebar-primary: 0 0% 18%;         /* Background for active/selected sidebar item */
+    --sidebar-primary-foreground: 0 0% 95%; /* Text color for active sidebar item */
+    --sidebar-accent: 0 0% 25%;          /* Background for hovered sidebar items */
+    --sidebar-accent-foreground: 0 0% 95%;/* Text color for hovered sidebar items */
+    --sidebar-border: 0 0% 15%;          /* Border color within or around sidebar */
+    --sidebar-ring: 210 70% 55%;         /* Focus ring color in sidebar */
 
-    /* Sidebar variables for new dark mode */
-    --sidebar-background: 0 0% 10%; /* Dark Gray #1A1A1A */
-    --sidebar-foreground: 0 0% 93%; /* Off-White #EDEDED */
-    --sidebar-primary: 0 0% 93%;       /* Off-White */
-    --sidebar-primary-foreground: 0 0% 10%; /* Dark Gray */
-    --sidebar-accent: 30 60% 50%;      /* Brownish Orange */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 0 0% 14%;        /* Subtle Border */
-    --sidebar-ring: 224 76% 70%;       /* Lighter Royal Blue */
-
-    /* Remedy Colors Dark Mode - New Theme */
-    --remedy-herbal-bg: 120 10% 12%;        /* Dark Desaturated Green #1D211D */
-    --remedy-herbal-fg: 0 0% 80%;          /* Light Gray #CCCCCC */
-    --remedy-digestion-bg: 40 10% 12%;     /* Dark Desaturated Brown-Yellow #21201D */
-    --remedy-digestion-fg: 0 0% 80%;
-    --remedy-inflammation-bg: 20 10% 12%;  /* Dark Desaturated Red-Orange #211E1D */
-    --remedy-inflammation-fg: 0 0% 80%;
-    --remedy-calming-bg: 240 5% 12%;       /* Dark Desaturated Blue-Purple #1E1D21 */
-    --remedy-calming-fg: 0 0% 80%;
-    --remedy-general-bg: 0 0% 11%;        /* Slightly Off-Black #1C1C1C */
-    --remedy-general-fg: 0 0% 80%;
+    /* Remedy Colors Dark Mode - Adjusted for very dark theme */
+    --remedy-herbal-bg: 120 5% 10%;        /* Very Dark Desaturated Green */
+    --remedy-herbal-fg: 0 0% 85%;          /* Light Gray */
+    --remedy-digestion-bg: 40 5% 10%;      /* Very Dark Desaturated Brown-Yellow */
+    --remedy-digestion-fg: 0 0% 85%;
+    --remedy-inflammation-bg: 20 5% 10%;   /* Very Dark Desaturated Red-Orange */
+    --remedy-inflammation-fg: 0 0% 85%;
+    --remedy-calming-bg: 240 3% 10%;       /* Very Dark Desaturated Blue-Purple */
+    --remedy-calming-fg: 0 0% 85%;
+    --remedy-general-bg: 0 0% 9%;         /* Slightly Off-Black, darker than cards */
+    --remedy-general-fg: 0 0% 85%;
   }
 }
 
@@ -180,25 +180,41 @@ body {
     @apply text-foreground/90;
   }
   .dark .prose a {
-    @apply text-primary hover:text-secondary;
+    /* In new dark theme, primary is off-white, secondary is dark. For links, we might want accent. */
+    @apply text-[hsl(var(--accent))] hover:opacity-80;
   }
   .dark .prose strong {
     @apply text-foreground font-semibold;
   }
    .dark .prose blockquote {
-    @apply border-l-primary pl-4 italic text-muted-foreground;
+    @apply border-l-[hsl(var(--accent))] pl-4 italic text-muted-foreground;
   }
 }
 
 @layer components {
   .btn-premium {
+    /* Default light theme: primary to secondary gradient */
     @apply bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-90 transition-opacity;
   }
+  .dark .btn-premium {
+    /* Dark theme: primary (off-white) solid button with dark text */
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
+  .dark .text-gradient {
+     /* For dark mode, gradient might be from foreground to accent or similar bright color */
+    @apply bg-gradient-to-r from-foreground to-[hsl(var(--accent))] bg-clip-text text-transparent;
+  }
+
   .card-gradient {
     @apply bg-gradient-to-b from-card via-card to-muted/30;
+  }
+  .dark .card-gradient {
+    /* Dark mode card gradient: subtle, from card to slightly darker or same */
+    @apply bg-gradient-to-b from-card via-card to-[hsl(var(--card)-5%_alpha_0.7)];
   }
   
   /* Custom remedy type background and text utility classes for Tailwind */
