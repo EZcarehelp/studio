@@ -7,21 +7,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, AlertTriangle, Bot, UserCircle, Send, Paperclip, XCircle, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, CalendarDays, Save, Mic, Settings2, LogOut, User } from 'lucide-react';
+import NextImage from 'next/image'; // Renamed to avoid conflict if Lucide's Image is used
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import NextImage from 'next/image'; // Renamed to avoid conflict with Lucide's Image icon
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { AyurvedicRemedy } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link'; // Added Link for sidebar
 
 const chatQuerySchema = z.object({
-  query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000), // Min 1 if image is also an option
+  query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000),
 });
 
 type ChatQueryFormData = z.infer<typeof chatQuerySchema>;
@@ -29,13 +29,19 @@ type ChatQueryFormData = z.infer<typeof chatQuerySchema>;
 interface DisplayMessage {
   id: string;
   sender: 'user' | 'bot';
-  content: string; // User query or bot's main text response
+  content: string;
   remedy?: AyurvedicRemedy;
   prescriptionInsight?: PrescriptionInsight;
-  uploadedImagePreviewUrl?: string; // For user messages showing their uploaded image
+  uploadedImagePreviewUrl?: string;
   timestamp: number;
   isError?: boolean;
 }
+
+// Mock user data for avatar in header (replace with actual auth context later)
+const mockUser = {
+  name: "Demo User",
+  avatarUrl: "https://placehold.co/100x100.png",
+};
 
 export default function EzCareChatbotPage() {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
@@ -50,9 +56,7 @@ export default function EzCareChatbotPage() {
 
   const form = useForm<ChatQueryFormData>({
     resolver: zodResolver(chatQuerySchema),
-    defaultValues: {
-      query: '',
-    },
+    defaultValues: { query: '' },
   });
 
   useEffect(() => {
@@ -61,15 +65,21 @@ export default function EzCareChatbotPage() {
     }
   }, [messages]);
   
-  useEffect(() => {
+  const initializeChat = () => {
     setMessages([
       {
         id: 'initial-bot-message',
         sender: 'bot',
-        content: "Hello! I'm EzCare Chatbot. Describe your symptoms, ask for a home remedy, or upload a prescription image for analysis. This tool is for informational purposes and does not substitute professional medical advice.",
+        content: "Hello! I'm EzCare AI. Describe your symptoms, ask for a home remedy, or upload a prescription image for analysis. This tool is for informational purposes and does not substitute professional medical advice.",
         timestamp: Date.now(),
       }
     ]);
+    form.reset();
+    clearSelectedImage();
+  };
+
+  useEffect(() => {
+    initializeChat();
   }, []);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -84,9 +94,9 @@ export default function EzCareChatbotPage() {
       reader.onloadend = () => {
         const dataUri = reader.result as string;
         setPrescriptionImageDataUri(dataUri);
-        setImagePreviewForUpload(dataUri); // For immediate preview
+        setImagePreviewForUpload(dataUri);
         if (!form.getValues('query')) {
-             form.setValue('query', 'Analyze this prescription.'); // Set default query if none
+             form.setValue('query', 'Analyze this prescription.');
         }
       };
       reader.readAsDataURL(file);
@@ -98,7 +108,7 @@ export default function EzCareChatbotPage() {
     setPrescriptionImageDataUri(null);
     setImagePreviewForUpload(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset file input
+      fileInputRef.current.value = "";
     }
   };
 
@@ -113,7 +123,7 @@ export default function EzCareChatbotPage() {
       id: `user-${Date.now()}`,
       sender: 'user',
       content: data.query,
-      uploadedImagePreviewUrl: prescriptionImageDataUri || undefined, // Show uploaded image in user's message
+      uploadedImagePreviewUrl: prescriptionImageDataUri || undefined,
       timestamp: Date.now(),
     };
     setMessages(prevMessages => [...prevMessages, userMessage]);
@@ -123,7 +133,7 @@ export default function EzCareChatbotPage() {
       inputData.prescriptionImage = prescriptionImageDataUri;
     }
 
-    form.reset(); 
+    form.reset({ query: '' }); // Clear only query field
     clearSelectedImage();
 
     try {
@@ -200,23 +210,52 @@ export default function EzCareChatbotPage() {
 
   const canSubmit = form.formState.isValid || !!prescriptionImageDataUri;
 
-  return (
-    <div className="flex flex-col h-[calc(100vh-9rem)] max-h-[calc(100vh-9rem)] md:h-[calc(100vh-5.5rem)] md:max-h-[calc(100vh-5.5rem)] max-w-3xl mx-auto w-full">
-      <Card className="flex flex-col flex-grow shadow-xl rounded-lg overflow-hidden">
-        <CardHeader className="p-4 border-b bg-muted/30 sticky top-0 z-10">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10 border-2 border-primary">
-              <AvatarFallback><Bot className="h-6 w-6 text-primary" /></AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle className="text-lg text-gradient">EzCare Chatbot 🤖</CardTitle>
-              <CardDescription className="text-xs">Online | Ask about symptoms, remedies, or upload a prescription</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
+  const sidebarItems = [
+    { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
+    { label: "Appointments", icon: CalendarDays, href: "/patient/appointments" }, // Example link
+    { label: "Saved Answers", icon: Save, href: "#" }, // Placeholder
+    { label: "Settings", icon: Settings, href: "/patient/settings" }, // Example link
+  ];
 
-        <ScrollArea className="flex-grow p-4" viewportRef={scrollAreaViewportRef}>
-          <div className="space-y-4">
+  return (
+    <div className="flex h-[calc(100vh-var(--header-height,4.5rem))] md:h-[calc(100vh-var(--header-height,5.5rem))] w-full bg-background dark:bg-[#1E1E2F]">
+      {/* Sidebar */}
+      <aside className="hidden md:flex md:w-[260px] flex-col bg-gray-100 dark:bg-[#111827] p-3 space-y-2 border-r border-gray-200 dark:border-gray-700">
+        {sidebarItems.map((item, index) => (
+          item.href ? (
+            <Link key={index} href={item.href}>
+              <Button variant="ghost" className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+                <item.icon className="mr-3 h-5 w-5" /> {item.label}
+              </Button>
+            </Link>
+          ) : (
+            <Button key={index} variant="ghost" onClick={item.action} className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+              <item.icon className="mr-3 h-5 w-5" /> {item.label}
+            </Button>
+          )
+        ))}
+      </aside>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar for Chat Window */}
+        <header className="h-[56px] px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F] shrink-0">
+          <div className="flex items-center space-x-2">
+             <NextImage src="/logo.svg" alt="EzCare Logo" width={28} height={28} className="h-7 w-auto" />
+            <h1 className="text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            {/* Placeholder for settings or user avatar if specific to chat */}
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint="user avatar"/>
+              <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
+            </Avatar>
+          </div>
+        </header>
+
+        {/* Message Area */}
+        <ScrollArea className="flex-grow p-4 md:p-6 bg-background dark:bg-[#1E1E2F]" viewportRef={scrollAreaViewportRef}>
+          <div className="space-y-3"> {/* Spacing between messages: 12px -> space-y-3 */}
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -226,102 +265,105 @@ export default function EzCareChatbotPage() {
                 )}
               >
                 {msg.sender === 'bot' && (
-                  <Avatar className="h-8 w-8 self-start">
-                     <AvatarFallback className="bg-primary/20"><Bot className="h-5 w-5 text-primary" /></AvatarFallback>
+                  <Avatar className="h-8 w-8 self-start shrink-0"> {/* 32px avatar */}
+                     <AvatarFallback className="bg-primary/20 dark:bg-gray-700"><Bot className="h-5 w-5 text-primary dark:text-gray-300" /></AvatarFallback>
                   </Avatar>
                 )}
                 <div
                   className={cn(
-                    "max-w-[70%] p-3 rounded-xl shadow-sm",
+                    "max-w-[70%] p-4 rounded-xl shadow-sm text-base", // Bubble padding 16px (p-4), font-size 16px (text-base)
                     msg.sender === 'user'
-                      ? "bg-primary text-primary-foreground rounded-br-none"
-                      : "bg-muted text-foreground rounded-bl-none",
-                    msg.isError ? "bg-destructive/20 text-destructive border border-destructive/30" : ""
+                      ? "bg-primary text-primary-foreground dark:bg-[#2A2A3B] dark:text-white rounded-br-none"
+                      : "bg-muted text-foreground dark:bg-[#34344A] dark:text-white rounded-bl-none",
+                    msg.isError ? "bg-destructive/20 text-destructive dark:bg-red-700/50 dark:text-red-200 border border-destructive/30 dark:border-red-600" : ""
                   )}
                 >
                   {msg.uploadedImagePreviewUrl && msg.sender === 'user' && (
-                    <div className="mb-2 border border-primary-foreground/30 rounded-md overflow-hidden">
+                    <div className="mb-2 border border-primary-foreground/30 dark:border-gray-600 rounded-md overflow-hidden">
                         <NextImage src={msg.uploadedImagePreviewUrl} alt="Uploaded prescription preview" width={200} height={150} style={{ objectFit: 'contain' }} className="max-h-[150px] w-auto"/>
                     </div>
                   )}
                   {msg.remedy ? (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary hover:prose-a:text-secondary
-                      prose-strong:text-foreground 
+                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-strong:text-foreground dark:prose-strong:text-white
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
-                      prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic">
-                      <p>{msg.content}</p>
-                      <h4 className="font-semibold mt-2 mb-1">{msg.remedy.name} ({msg.remedy.type})</h4>
-                      <p className="text-xs opacity-90">{msg.remedy.description}</p>
+                      prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
+                      dark:text-gray-300">
+                      <p className="dark:text-white">{msg.content}</p>
+                      <h4 className="font-semibold mt-2 mb-1 dark:text-white">{msg.remedy.name} ({msg.remedy.type})</h4>
+                      <p className="text-xs opacity-90 dark:text-gray-400">{msg.remedy.description}</p>
                       {msg.remedy.ingredients && msg.remedy.ingredients.length > 0 && (
                         <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5">Ingredients:</p>
-                          <ul className="text-xs list-disc list-inside pl-1 space-y-0.5 opacity-80">
+                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Ingredients:</p>
+                          <ul className="text-xs list-disc list-inside pl-1 space-y-0.5 opacity-80 dark:text-gray-400">
                             {msg.remedy.ingredients.map((item, index) => <li key={index}>{item}</li>)}
                           </ul>
                         </>
                       )}
                       {msg.remedy.preparation && (
                          <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5">Preparation:</p>
-                          <p className="text-xs opacity-80 whitespace-pre-line">{msg.remedy.preparation}</p>
+                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Preparation:</p>
+                          <p className="text-xs opacity-80 whitespace-pre-line dark:text-gray-400">{msg.remedy.preparation}</p>
                          </>
                       )}
                       {msg.remedy.usage && (
                         <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5">Usage/Notes:</p>
-                          <p className="text-xs opacity-80 whitespace-pre-line">{msg.remedy.usage}</p>
+                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Usage/Notes:</p>
+                          <p className="text-xs opacity-80 whitespace-pre-line dark:text-gray-400">{msg.remedy.usage}</p>
                         </>
                       )}
                       {msg.remedy.source && (
-                        <p className="text-xs opacity-70 mt-2 border-t pt-1.5 italic">{msg.remedy.source}</p>
+                        <p className="text-xs opacity-70 mt-2 border-t pt-1.5 italic dark:text-gray-500 dark:border-gray-700">{msg.remedy.source}</p>
                       )}
                     </div>
                   ) : msg.prescriptionInsight ? (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                         prose-headings:font-semibold prose-h4:my-1.5 prose-p:my-0.5
                         prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
-                        prose-strong:font-medium prose-strong:text-foreground">
-                       {msg.prescriptionInsight.summary && <p className="font-semibold">{msg.prescriptionInsight.summary}</p>}
-                       {msg.content !== msg.prescriptionInsight.summary && <p>{msg.content}</p>}
+                        prose-strong:font-medium prose-strong:text-foreground dark:prose-strong:text-white
+                         dark:text-gray-300">
+                       {msg.prescriptionInsight.summary && <p className="font-semibold dark:text-white">{msg.prescriptionInsight.summary}</p>}
+                       {msg.content !== msg.prescriptionInsight.summary && <p className="dark:text-white">{msg.content}</p>}
                        
                        {msg.prescriptionInsight.analyzedMedicines.map((med, index) => (
-                         <div key={index} className="mt-2 py-1.5 border-t border-muted-foreground/20 first:border-t-0 first:mt-0">
-                           <h4 className="font-semibold text-foreground">{med.name}</h4>
+                         <div key={index} className="mt-2 py-1.5 border-t border-muted-foreground/20 dark:border-gray-700 first:border-t-0 first:mt-0">
+                           <h4 className="font-semibold text-foreground dark:text-white">{med.name}</h4>
                            <p><strong>Purpose:</strong> {med.purpose}</p>
                            <p><strong>Benefits:</strong> {med.benefits}</p>
                            <p><strong>Proper Usage:</strong> {med.properUsage}</p>
                          </div>
                        ))}
                        {msg.prescriptionInsight.generalAdvice && <p className="mt-2"><strong>General Advice:</strong> {msg.prescriptionInsight.generalAdvice}</p>}
-                       <p className="text-xs opacity-70 mt-2 pt-1.5 border-t border-muted-foreground/30 italic">{msg.prescriptionInsight.disclaimer}</p>
+                       <p className="text-xs opacity-70 mt-2 pt-1.5 border-t border-muted-foreground/30 dark:border-gray-700 italic dark:text-gray-500">{msg.prescriptionInsight.disclaimer}</p>
                     </div>
                   ) : (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary hover:prose-a:text-secondary
-                      prose-strong:text-foreground 
+                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-strong:text-foreground dark:prose-strong:text-white 
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
-                      prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic">
+                      prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
+                      dark:text-gray-300">
                       <ReactMarkdown
                           components={{
-                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" />
+                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline" />
                           }}
                       >{msg.content}</ReactMarkdown>
                     </div>
                   )}
                   <p className={cn(
                       "text-xs mt-1.5 text-right",
-                      msg.sender === 'user' ? "text-primary-foreground/70" : "text-muted-foreground/70"
+                      msg.sender === 'user' ? "text-primary-foreground/70 dark:text-gray-400" : "text-muted-foreground/70 dark:text-gray-400"
                     )}
                   >
                     {format(msg.timestamp, "p")}
                   </p>
                 </div>
                  {msg.sender === 'user' && (
-                  <Avatar className="h-8 w-8 self-start">
-                     <AvatarFallback className="bg-secondary/20"><UserCircle className="h-5 w-5 text-secondary" /></AvatarFallback>
+                  <Avatar className="h-8 w-8 self-start shrink-0"> {/* 32px avatar */}
+                     <AvatarFallback className="bg-secondary/20 dark:bg-gray-700"><UserCircle className="h-5 w-5 text-secondary dark:text-gray-300" /></AvatarFallback>
                   </Avatar>
                 )}
               </div>
@@ -329,19 +371,20 @@ export default function EzCareChatbotPage() {
              {isLoading && (
               <div className="flex justify-start space-x-2 items-center">
                  <Avatar className="h-8 w-8 self-start">
-                   <AvatarFallback className="bg-primary/20"><Bot className="h-5 w-5 text-primary" /></AvatarFallback>
+                   <AvatarFallback className="bg-primary/20 dark:bg-gray-700"><Bot className="h-5 w-5 text-primary dark:text-gray-300" /></AvatarFallback>
                  </Avatar>
-                <div className="bg-muted text-foreground rounded-xl rounded-bl-none p-3 shadow-sm">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <div className="bg-muted text-foreground dark:bg-[#34344A] dark:text-white rounded-xl rounded-bl-none p-3 shadow-sm">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground dark:text-gray-400" />
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
 
-        <div className="border-t p-3 bg-background/90 backdrop-blur-sm sticky bottom-0">
+        {/* Input Bar */}
+        <div className="min-h-[60px] max-h-[120px] px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F]">
           {imagePreviewForUpload && (
-            <div className="mb-2 p-2 border rounded-md relative max-w-[150px]">
+            <div className="mb-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md relative max-w-[150px] bg-gray-50 dark:bg-gray-800">
               <NextImage src={imagePreviewForUpload} alt="Preview" width={100} height={75} style={{objectFit: 'contain'}} className="rounded max-h-[75px] w-auto" />
               <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive/80 text-destructive-foreground hover:bg-destructive" onClick={clearSelectedImage}>
                 <XCircle className="h-4 w-4" />
@@ -352,9 +395,13 @@ export default function EzCareChatbotPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2">
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="prescriptionUpload" />
-              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground hover:text-primary">
-                <Paperclip className="h-5 w-5" />
+              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">
+                <Paperclip className="h-[24px] w-[24px]" />
                 <span className="sr-only">Attach prescription</span>
+              </Button>
+               <Button variant="ghost" size="icon" type="button" className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">
+                <Mic className="h-[24px] w-[24px]" />
+                <span className="sr-only">Voice input (placeholder)</span>
               </Button>
               <FormField
                 control={form.control}
@@ -365,7 +412,7 @@ export default function EzCareChatbotPage() {
                       <Textarea
                         id="query"
                         placeholder={imagePreviewForUpload ? "Optional: Add a question about the prescription..." : "Describe symptoms or ask for a remedy..."}
-                        className="min-h-[40px] max-h-[120px] resize-none text-sm rounded-full px-4 py-2.5"
+                        className="min-h-[40px] max-h-[100px] resize-none text-base rounded-full px-4 py-2.5 bg-gray-100 dark:bg-[#2A2A3B] dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-blue-500"
                         rows={1}
                         {...field}
                         onKeyDown={(e) => {
@@ -382,7 +429,7 @@ export default function EzCareChatbotPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="btn-premium rounded-full" size="icon" disabled={isLoading || !canSubmit}>
+              <Button type="submit" className="btn-premium rounded-full w-10 h-10 p-0 flex items-center justify-center" size="icon" disabled={isLoading || !canSubmit}>
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
@@ -393,8 +440,9 @@ export default function EzCareChatbotPage() {
             </form>
           </Form>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
 
+    
