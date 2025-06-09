@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,17 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, AlertTriangle, Bot, UserCircle, Send } from 'lucide-react';
+import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
+import { Loader2, AlertTriangle, Bot, UserCircle, Send, Paperclip, XCircle, Image as ImageIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import NextImage from 'next/image'; // Renamed to avoid conflict with Lucide's Image icon
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { AyurvedicRemedy } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 const chatQuerySchema = z.object({
-  query: z.string().min(3, { message: "Please describe your symptoms or query in at least 3 characters." }).max(2000),
+  query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000), // Min 1 if image is also an option
 });
 
 type ChatQueryFormData = z.infer<typeof chatQuerySchema>;
@@ -27,8 +29,10 @@ type ChatQueryFormData = z.infer<typeof chatQuerySchema>;
 interface DisplayMessage {
   id: string;
   sender: 'user' | 'bot';
-  content: string;
-  remedy?: AyurvedicRemedy; // For bot messages containing remedy
+  content: string; // User query or bot's main text response
+  remedy?: AyurvedicRemedy;
+  prescriptionInsight?: PrescriptionInsight;
+  uploadedImagePreviewUrl?: string; // For user messages showing their uploaded image
   timestamp: number;
   isError?: boolean;
 }
@@ -36,7 +40,13 @@ interface DisplayMessage {
 export default function EzCareChatbotPage() {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPrescriptionFile, setSelectedPrescriptionFile] = useState<File | null>(null);
+  const [prescriptionImageDataUri, setPrescriptionImageDataUri] = useState<string | null>(null);
+  const [imagePreviewForUpload, setImagePreviewForUpload] = useState<string | null>(null);
+  
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const form = useForm<ChatQueryFormData>({
     resolver: zodResolver(chatQuerySchema),
@@ -56,57 +66,109 @@ export default function EzCareChatbotPage() {
       {
         id: 'initial-bot-message',
         sender: 'bot',
-        content: "Hello! I'm EzCare Chatbot. Describe your symptoms for analysis, or ask me for a home remedy suggestion. This tool is for informational purposes and does not substitute professional medical advice.",
+        content: "Hello! I'm EzCare Chatbot. Describe your symptoms, ask for a home remedy, or upload a prescription image for analysis. This tool is for informational purposes and does not substitute professional medical advice.",
         timestamp: Date.now(),
       }
     ]);
   }, []);
 
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({ variant: "destructive", title: "File too large", description: "Please upload an image smaller than 5MB." });
+        return;
+      }
+      setSelectedPrescriptionFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUri = reader.result as string;
+        setPrescriptionImageDataUri(dataUri);
+        setImagePreviewForUpload(dataUri); // For immediate preview
+        if (!form.getValues('query')) {
+             form.setValue('query', 'Analyze this prescription.'); // Set default query if none
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearSelectedImage = () => {
+    setSelectedPrescriptionFile(null);
+    setPrescriptionImageDataUri(null);
+    setImagePreviewForUpload(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset file input
+    }
+  };
 
   const onSubmit: SubmitHandler<ChatQueryFormData> = async (data) => {
+    if (!data.query.trim() && !prescriptionImageDataUri) {
+      toast({ variant: "destructive", title: "Input required", description: "Please type a message or upload a prescription image." });
+      return;
+    }
     setIsLoading(true);
 
     const userMessage: DisplayMessage = {
       id: `user-${Date.now()}`,
       sender: 'user',
       content: data.query,
+      uploadedImagePreviewUrl: prescriptionImageDataUri || undefined, // Show uploaded image in user's message
       timestamp: Date.now(),
     };
     setMessages(prevMessages => [...prevMessages, userMessage]);
+    
+    const inputData: EzCareChatbotInput = { query: data.query };
+    if (prescriptionImageDataUri) {
+      inputData.prescriptionImage = prescriptionImageDataUri;
+    }
+
     form.reset(); 
+    clearSelectedImage();
 
     try {
-      const inputData: EzCareChatbotInput = { query: data.query };
       const result: EzCareChatbotOutput = await ezCareChatbotFlow(inputData);
       
       let botContent = "";
       let botRemedy: AyurvedicRemedy | undefined = undefined;
+      let botPrescriptionInsight: PrescriptionInsight | undefined = undefined;
       let isError = false;
 
-      if (result.type === 'analysis' && result.analysis) {
-        botContent = result.analysis;
-      } else if (result.type === 'remedy' && result.remedy) {
-        botContent = `Here's a remedy suggestion for "${result.remedy.remedyName}":`; // Main message
-        botRemedy = { // Map AiAyurvedicRemedyOutput to AyurvedicRemedy
-            id: `remedy-${Date.now()}`,
-            name: result.remedy.remedyName,
-            type: result.remedy.type,
-            tags: [result.remedy.type],
-            description: result.remedy.description,
-            ingredients: result.remedy.ingredients || [],
-            preparation: result.remedy.preparation || "",
-            usage: result.remedy.usage || result.remedy.notes,
-            source: result.remedy.disclaimer,
-            isFavorite: false, // Default value
-        };
-      } else if (result.type === 'clarification' && result.message) {
-        botContent = result.message;
-      } else if (result.type === 'error' && result.errorMessage) {
-        botContent = `Sorry, I encountered an error: ${result.errorMessage}`;
-        isError = true;
-      } else {
-        botContent = "I'm not sure how to respond to that. Can you try rephrasing?";
-        isError = true;
+      switch (result.type) {
+        case 'analysis':
+          botContent = result.analysis || "Could not retrieve analysis.";
+          break;
+        case 'remedy':
+          botContent = `Here's a remedy suggestion for "${result.remedy?.remedyName || 'your query'}":`;
+          if (result.remedy) {
+            botRemedy = {
+                id: `remedy-${Date.now()}`,
+                name: result.remedy.remedyName,
+                type: result.remedy.type,
+                tags: [result.remedy.type],
+                description: result.remedy.description,
+                ingredients: result.remedy.ingredients || [],
+                preparation: result.remedy.preparation || "",
+                usage: result.remedy.usage || result.remedy.notes,
+                source: result.remedy.disclaimer,
+                isFavorite: false,
+            };
+          }
+          break;
+        case 'prescription_insight':
+          botContent = result.prescriptionInsight?.summary || "Here's an analysis of the prescription:";
+          botPrescriptionInsight = result.prescriptionInsight;
+          break;
+        case 'clarification':
+          botContent = result.message || "Could you please clarify?";
+          break;
+        case 'error':
+          botContent = `Sorry, I encountered an error: ${result.errorMessage || 'Unknown error'}`;
+          isError = true;
+          break;
+        default:
+          botContent = "I'm not sure how to respond to that. Can you try rephrasing?";
+          isError = true;
       }
       
       const botMessage: DisplayMessage = {
@@ -114,6 +176,7 @@ export default function EzCareChatbotPage() {
         sender: 'bot',
         content: botContent,
         remedy: botRemedy,
+        prescriptionInsight: botPrescriptionInsight,
         timestamp: Date.now(),
         isError: isError,
       };
@@ -135,6 +198,8 @@ export default function EzCareChatbotPage() {
     }
   };
 
+  const canSubmit = form.formState.isValid || !!prescriptionImageDataUri;
+
   return (
     <div className="flex flex-col h-[calc(100vh-9rem)] max-h-[calc(100vh-9rem)] md:h-[calc(100vh-5.5rem)] md:max-h-[calc(100vh-5.5rem)] max-w-3xl mx-auto w-full">
       <Card className="flex flex-col flex-grow shadow-xl rounded-lg overflow-hidden">
@@ -145,7 +210,7 @@ export default function EzCareChatbotPage() {
             </Avatar>
             <div>
               <CardTitle className="text-lg text-gradient">EzCare Chatbot 🤖</CardTitle>
-              <CardDescription className="text-xs">Online | Responds instantly</CardDescription>
+              <CardDescription className="text-xs">Online | Ask about symptoms, remedies, or upload a prescription</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -174,6 +239,11 @@ export default function EzCareChatbotPage() {
                     msg.isError ? "bg-destructive/20 text-destructive border border-destructive/30" : ""
                   )}
                 >
+                  {msg.uploadedImagePreviewUrl && msg.sender === 'user' && (
+                    <div className="mb-2 border border-primary-foreground/30 rounded-md overflow-hidden">
+                        <NextImage src={msg.uploadedImagePreviewUrl} alt="Uploaded prescription preview" width={200} height={150} style={{ objectFit: 'contain' }} className="max-h-[150px] w-auto"/>
+                    </div>
+                  )}
                   {msg.remedy ? (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
@@ -181,7 +251,7 @@ export default function EzCareChatbotPage() {
                       prose-strong:text-foreground 
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
                       prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic">
-                      <p>{msg.content}</p> {/* Main intro message for remedy */}
+                      <p>{msg.content}</p>
                       <h4 className="font-semibold mt-2 mb-1">{msg.remedy.name} ({msg.remedy.type})</h4>
                       <p className="text-xs opacity-90">{msg.remedy.description}</p>
                       {msg.remedy.ingredients && msg.remedy.ingredients.length > 0 && (
@@ -204,9 +274,28 @@ export default function EzCareChatbotPage() {
                           <p className="text-xs opacity-80 whitespace-pre-line">{msg.remedy.usage}</p>
                         </>
                       )}
-                      {msg.remedy.source && ( // Disclaimer usually in source for remedies
+                      {msg.remedy.source && (
                         <p className="text-xs opacity-70 mt-2 border-t pt-1.5 italic">{msg.remedy.source}</p>
                       )}
+                    </div>
+                  ) : msg.prescriptionInsight ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert 
+                        prose-headings:font-semibold prose-h4:my-1.5 prose-p:my-0.5
+                        prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
+                        prose-strong:font-medium prose-strong:text-foreground">
+                       {msg.prescriptionInsight.summary && <p className="font-semibold">{msg.prescriptionInsight.summary}</p>}
+                       {msg.content !== msg.prescriptionInsight.summary && <p>{msg.content}</p>}
+                       
+                       {msg.prescriptionInsight.analyzedMedicines.map((med, index) => (
+                         <div key={index} className="mt-2 py-1.5 border-t border-muted-foreground/20 first:border-t-0 first:mt-0">
+                           <h4 className="font-semibold text-foreground">{med.name}</h4>
+                           <p><strong>Purpose:</strong> {med.purpose}</p>
+                           <p><strong>Benefits:</strong> {med.benefits}</p>
+                           <p><strong>Proper Usage:</strong> {med.properUsage}</p>
+                         </div>
+                       ))}
+                       {msg.prescriptionInsight.generalAdvice && <p className="mt-2"><strong>General Advice:</strong> {msg.prescriptionInsight.generalAdvice}</p>}
+                       <p className="text-xs opacity-70 mt-2 pt-1.5 border-t border-muted-foreground/30 italic">{msg.prescriptionInsight.disclaimer}</p>
                     </div>
                   ) : (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
@@ -251,8 +340,22 @@ export default function EzCareChatbotPage() {
         </ScrollArea>
 
         <div className="border-t p-3 bg-background/90 backdrop-blur-sm sticky bottom-0">
+          {imagePreviewForUpload && (
+            <div className="mb-2 p-2 border rounded-md relative max-w-[150px]">
+              <NextImage src={imagePreviewForUpload} alt="Preview" width={100} height={75} style={{objectFit: 'contain'}} className="rounded max-h-[75px] w-auto" />
+              <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive/80 text-destructive-foreground hover:bg-destructive" onClick={clearSelectedImage}>
+                <XCircle className="h-4 w-4" />
+                <span className="sr-only">Clear image</span>
+              </Button>
+            </div>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2">
+              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="prescriptionUpload" />
+              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground hover:text-primary">
+                <Paperclip className="h-5 w-5" />
+                <span className="sr-only">Attach prescription</span>
+              </Button>
               <FormField
                 control={form.control}
                 name="query"
@@ -261,14 +364,14 @@ export default function EzCareChatbotPage() {
                     <FormControl>
                       <Textarea
                         id="query"
-                        placeholder="Describe symptoms or ask for a remedy..."
+                        placeholder={imagePreviewForUpload ? "Optional: Add a question about the prescription..." : "Describe symptoms or ask for a remedy..."}
                         className="min-h-[40px] max-h-[120px] resize-none text-sm rounded-full px-4 py-2.5"
                         rows={1}
                         {...field}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            if (form.formState.isValid) {
+                            if (canSubmit) {
                                 form.handleSubmit(onSubmit)();
                             }
                           }
@@ -279,7 +382,7 @@ export default function EzCareChatbotPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="btn-premium rounded-full" size="icon" disabled={isLoading || !form.formState.isValid}>
+              <Button type="submit" className="btn-premium rounded-full" size="icon" disabled={isLoading || !canSubmit}>
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
@@ -294,3 +397,4 @@ export default function EzCareChatbotPage() {
     </div>
   );
 }
+
