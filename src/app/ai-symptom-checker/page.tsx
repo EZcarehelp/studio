@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, CalendarDays, Mic, User } from 'lucide-react'; // Removed Save
-import NextImage from 'next/image'; // Renamed to avoid conflict if Lucide's Image is used
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User } from 'lucide-react'; // Removed Save, CalendarDays
+import NextImage from 'next/image'; 
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { AyurvedicRemedy } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link'; // Added Link for sidebar
+import Link from 'next/link';
 
 const chatQuerySchema = z.object({
   query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000),
@@ -37,7 +37,6 @@ interface DisplayMessage {
   isError?: boolean;
 }
 
-// Mock user data for avatar in header (replace with actual auth context later)
 const mockUser = {
   name: "Demo User",
   avatarUrl: "https://placehold.co/100x100.png",
@@ -85,7 +84,7 @@ export default function EzCareChatbotPage() {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) { 
         toast({ variant: "destructive", title: "File too large", description: "Please upload an image smaller than 5MB." });
         return;
       }
@@ -133,7 +132,7 @@ export default function EzCareChatbotPage() {
       inputData.prescriptionImage = prescriptionImageDataUri;
     }
 
-    form.reset({ query: '' }); // Clear only query field
+    form.reset({ query: '' }); 
     clearSelectedImage();
 
     try {
@@ -212,9 +211,8 @@ export default function EzCareChatbotPage() {
 
   const sidebarItems = [
     { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
-    { label: "Appointments", icon: CalendarDays, href: "/patient/appointments" }, // Example link
-    // { label: "Saved Answers", icon: Save, href: "#" }, // Removed as per request
-    { label: "Settings", icon: Settings, href: "/patient/settings" }, // Example link
+    // { label: "Appointments", icon: CalendarDays, href: "/patient/appointments" }, // Removed as per request
+    { label: "Settings", icon: Settings, href: "/patient/settings" }, 
   ];
 
   return (
@@ -245,7 +243,6 @@ export default function EzCareChatbotPage() {
             <h1 className="text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
           </div>
           <div className="flex items-center space-x-2">
-            {/* Placeholder for settings or user avatar if specific to chat */}
             <Avatar className="h-8 w-8">
               <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint="user avatar"/>
               <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
@@ -255,7 +252,7 @@ export default function EzCareChatbotPage() {
 
         {/* Message Area */}
         <ScrollArea className="flex-grow p-4 md:p-6 bg-background dark:bg-[#1E1E2F]" viewportRef={scrollAreaViewportRef}>
-          <div className="space-y-3"> {/* Spacing between messages: 12px -> space-y-3 */}
+          <div className="space-y-3"> 
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -265,13 +262,13 @@ export default function EzCareChatbotPage() {
                 )}
               >
                 {msg.sender === 'bot' && (
-                  <Avatar className="h-8 w-8 self-start shrink-0"> {/* 32px avatar */}
+                  <Avatar className="h-8 w-8 self-start shrink-0"> 
                      <AvatarFallback className="bg-primary/20 dark:bg-gray-700"><Bot className="h-5 w-5 text-primary dark:text-gray-300" /></AvatarFallback>
                   </Avatar>
                 )}
                 <div
                   className={cn(
-                    "max-w-[70%] p-4 rounded-xl shadow-sm text-base", // Bubble padding 16px (p-4), font-size 16px (text-base)
+                    "max-w-[70%] p-4 rounded-xl shadow-sm text-base", 
                     msg.sender === 'user'
                       ? "bg-primary text-primary-foreground dark:bg-[#2A2A3B] dark:text-white rounded-br-none"
                       : "bg-muted text-foreground dark:bg-[#34344A] dark:text-white rounded-bl-none",
@@ -362,7 +359,7 @@ export default function EzCareChatbotPage() {
                   </p>
                 </div>
                  {msg.sender === 'user' && (
-                  <Avatar className="h-8 w-8 self-start shrink-0"> {/* 32px avatar */}
+                  <Avatar className="h-8 w-8 self-start shrink-0"> 
                      <AvatarFallback className="bg-secondary/20 dark:bg-gray-700"><UserCircle className="h-5 w-5 text-secondary dark:text-gray-300" /></AvatarFallback>
                   </Avatar>
                 )}
