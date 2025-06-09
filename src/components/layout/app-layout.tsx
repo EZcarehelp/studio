@@ -67,7 +67,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">
         {children}
       </main>
-      {isAuthenticated && isAuthResolved && <MobileNav userRole={userRole} />}
+      {isAuthResolved && <MobileNav userRole={userRole} />}
     </div>
   );
 }
