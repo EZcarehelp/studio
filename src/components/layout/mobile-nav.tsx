@@ -15,7 +15,7 @@ const defaultNavItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
   { href: '/patient/store', label: 'Store', icon: Pill },
-  { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
+  // { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf }, // Removed from here
   { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
   { href: '/health-news', label: 'News', icon: Rss },
 ];

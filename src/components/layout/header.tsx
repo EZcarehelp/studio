@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react'; // Removed Bell
+import { UserCircle, LogOut, Leaf, Rss, MessageSquare, Pill, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   const patientNavLinks = [
     { href: '/patient/find-doctors', label: 'Find Doctors' },
     { href: '/patient/lab-tests', label: 'Lab Tests' },
-    { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
+    // { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf }, // Removed from here
   ];
 
   const doctorNavLinks = [
@@ -73,7 +73,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   } else {
      navLinks = [...navLinks,
         { href: '/patient/find-doctors', label: 'Find Doctors' },
-        { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf },
+        // { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf }, // Removed from here
     ];
   }
 

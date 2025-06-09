@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User } from 'lucide-react'; // Removed Save, CalendarDays
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf } from 'lucide-react';
 import NextImage from 'next/image'; 
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -211,7 +211,7 @@ export default function EzCareChatbotPage() {
 
   const sidebarItems = [
     { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
-    // { label: "Appointments", icon: CalendarDays, href: "/patient/appointments" }, // Removed as per request
+    { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
     { label: "Settings", icon: Settings, href: "/patient/settings" }, 
   ];
 
