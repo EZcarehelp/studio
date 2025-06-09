@@ -30,7 +30,7 @@ export type PrescriptionInsight = z.infer<typeof PrescriptionInsightSchema>;
 
 const EzCareChatbotInputSchema = z.object({
   query: z.string().describe("User's query for symptom analysis, remedy suggestion, or context for prescription analysis."),
-  prescriptionImage?: z.string().optional().describe("A prescription image as a data URI, if the user uploads one for analysis. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
+  prescriptionImage: z.string().optional().describe("A prescription image as a data URI, if the user uploads one for analysis. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 export type EzCareChatbotInput = z.infer<typeof EzCareChatbotInputSchema>;
 
