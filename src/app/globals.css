@@ -72,59 +72,59 @@ body {
   }
 
   .dark {
-    /* Luxury Theme - Dark Mode (Practo Inspired) */
-    --background: 0 0% 4%;    /* Jet Black #0A0A0A */
-    --foreground: 48 33% 95%; /* Pearl #F8F6F0 */
+    /* New Dark Mode Theme (Inspired by user image) */
+    --background: 0 0% 7%;    /* Very Dark Gray #121212 */
+    --foreground: 0 0% 93%;   /* Off-White #EDEDED */
 
-    --card: 0 0% 11%;          /* Soft Black #1C1C1C */
-    --card-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
+    --card: 0 0% 10%;          /* Dark Gray #1A1A1A */
+    --card-foreground: 0 0% 93%; /* Off-White #EDEDED */
 
-    --popover: 0 0% 11%;       /* Soft Black #1C1C1C */
-    --popover-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
+    --popover: 0 0% 10%;       /* Dark Gray #1A1A1A */
+    --popover-foreground: 0 0% 93%; /* Off-White #EDEDED */
 
-    --primary: 224 76% 70%;    /* Lighter Royal Blue */
-    --primary-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
+    --primary: 0 0% 93%;       /* Off-White #EDEDED (for buttons like "Subscribe") */
+    --primary-foreground: 0 0% 10%; /* Dark Gray #1A1A1A (text on primary buttons) */
 
-    --secondary: 145 60% 70%;  /* Lighter Emerald */
-    --secondary-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
+    --secondary: 145 60% 65%;  /* Lighter Emerald (slightly adjusted from old dark) */
+    --secondary-foreground: 0 0% 10%; /* Dark Gray #1A1A1A (for contrast on lighter secondary) */
 
-    --muted: 0 0% 18%;         /* Graphite #2F2F2F */
-    --muted-foreground: 0 0% 75%; /* Silver #C0C0C0 */
+    --muted: 0 0% 13%;         /* Darker Muted Gray #212121 */
+    --muted-foreground: 0 0% 50%; /* Medium Gray #808080 */
 
-    --accent: 145 60% 70%;     /* Lighter Emerald */
-    --accent-foreground: 0 0% 4%; /* Jet Black #0A0A0A */
+    --accent: 30 60% 50%;      /* Brownish Orange #BF6930 (for tags like "Upcoming Drop") */
+    --accent-foreground: 0 0% 100%; /* White (text on accent) */
 
-    --success: 122 92% 20%;   /* Dark Emerald #046307 (as BG) */
-    --success-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
+    --success: 120 60% 30%;   /* Darker Green #299929 */
+    --success-foreground: 0 0% 93%; /* Off-White #EDEDED */
 
     --destructive: 348 83% 47%; /* Crimson #DC143C */
-    --destructive-foreground: 0 0% 100%; /* Pure White #FFFFFF */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 214 5% 28%;      /* Steel Gray #43464B */
-    --input: 214 5% 28%;       /* Steel Gray #43464B */
-    --ring: 224 76% 70%;       /* Lighter Royal Blue */
+    --border: 0 0% 14%;        /* Subtle Border #242424 */
+    --input: 0 0% 10%;         /* Dark Gray #1A1A1A (same as card) */
+    --ring: 224 76% 70%;       /* Lighter Royal Blue (existing, for focus visibility) */
 
-    /* Sidebar variables for dark mode - luxury */
-    --sidebar-background: 0 0% 11%; /* Soft Black #1C1C1C */
-    --sidebar-foreground: 48 33% 95%; /* Pearl #F8F6F0 */
-    --sidebar-primary: 224 76% 70%; /* Lighter Royal Blue */
-    --sidebar-primary-foreground: 0 0% 4%; /* Jet Black */
-    --sidebar-accent: 145 60% 70%; /* Lighter Emerald */
-    --sidebar-accent-foreground: 0 0% 4%; /* Jet Black */
-    --sidebar-border: 214 5% 28%; /* Steel Gray */
-    --sidebar-ring: 224 76% 70%; /* Lighter Royal Blue */
+    /* Sidebar variables for new dark mode */
+    --sidebar-background: 0 0% 10%; /* Dark Gray #1A1A1A */
+    --sidebar-foreground: 0 0% 93%; /* Off-White #EDEDED */
+    --sidebar-primary: 0 0% 93%;       /* Off-White */
+    --sidebar-primary-foreground: 0 0% 10%; /* Dark Gray */
+    --sidebar-accent: 30 60% 50%;      /* Brownish Orange */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 0 0% 14%;        /* Subtle Border */
+    --sidebar-ring: 224 76% 70%;       /* Lighter Royal Blue */
 
-    /* Remedy Colors Dark Mode - Luxury (from user's list / previous luxury theme) */
-    --remedy-herbal-bg: 134 29% 29%; /* Hunter Green #355E3B */
-    --remedy-herbal-fg: 47 14% 62%; /* Sage #B2AC88 */
-    --remedy-digestion-bg: 27 15% 45%; /* Mocha #837060 */
-    --remedy-digestion-fg: 45 31% 63%; /* Sand #C2B280 */
-    --remedy-inflammation-bg: 19 87% 39%; /* Rust #B7410E */
-    --remedy-inflammation-fg: 30 56% 92%; /* Linen #FAF0E6 */
-    --remedy-calming-bg: 265 36% 49%; /* Royal Purple #7851A9 */
-    --remedy-calming-fg: 240 67% 94%; /* Lavender #E6E6FA */
-    --remedy-general-bg: 214 5% 28%; /* Steel Gray #43464B */
-    --remedy-general-fg: 60 20% 90%; /* Platinum #E5E4E2 */
+    /* Remedy Colors Dark Mode - New Theme */
+    --remedy-herbal-bg: 120 10% 12%;        /* Dark Desaturated Green #1D211D */
+    --remedy-herbal-fg: 0 0% 80%;          /* Light Gray #CCCCCC */
+    --remedy-digestion-bg: 40 10% 12%;     /* Dark Desaturated Brown-Yellow #21201D */
+    --remedy-digestion-fg: 0 0% 80%;
+    --remedy-inflammation-bg: 20 10% 12%;  /* Dark Desaturated Red-Orange #211E1D */
+    --remedy-inflammation-fg: 0 0% 80%;
+    --remedy-calming-bg: 240 5% 12%;       /* Dark Desaturated Blue-Purple #1E1D21 */
+    --remedy-calming-fg: 0 0% 80%;
+    --remedy-general-bg: 0 0% 11%;        /* Slightly Off-Black #1C1C1C */
+    --remedy-general-fg: 0 0% 80%;
   }
 }
 
