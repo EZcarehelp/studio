@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, CalendarDays, Save, Mic, Settings2, LogOut, User } from 'lucide-react';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, CalendarDays, Mic, User } from 'lucide-react'; // Removed Save
 import NextImage from 'next/image'; // Renamed to avoid conflict if Lucide's Image is used
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -213,7 +213,7 @@ export default function EzCareChatbotPage() {
   const sidebarItems = [
     { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
     { label: "Appointments", icon: CalendarDays, href: "/patient/appointments" }, // Example link
-    { label: "Saved Answers", icon: Save, href: "#" }, // Placeholder
+    // { label: "Saved Answers", icon: Save, href: "#" }, // Removed as per request
     { label: "Settings", icon: Settings, href: "/patient/settings" }, // Example link
   ];
 
