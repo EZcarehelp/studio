@@ -1,10 +1,10 @@
 
-import { z } from 'zod'; 
+import { z } from 'zod';
 
 export interface Doctor {
   id: string;
   name: string;
-  username?: string; // Added username
+  username?: string;
   specialty: string;
   experience: number; // years
   rating: number; // 0-5
@@ -71,7 +71,7 @@ export interface Appointment {
 export interface UserProfile {
   id: string;
   name: string;
-  username?: string; // Added username
+  username?: string;
   email?: string;
   phone: string;
   role: 'patient' | 'doctor' | 'lab_worker';
@@ -109,23 +109,41 @@ export interface LabTest {
   price?: number;
 }
 
+// Schema for AI Lab Report Analysis Output
+export const AiLabReportAnalysisOutputSchema = z.object({
+  medicalSummary: z.string().describe("A brief, easy-to-understand summary of key findings from the report (e.g., 'Hemoglobin slightly low', 'Blood sugar within normal range'). Aim for 2-3 sentences."),
+  keyParameterAnalyses: z.array(z.object({
+    parameter: z.string().describe("The medical parameter observed (e.g., 'Hemoglobin', 'Glucose', 'LDL Cholesterol')."),
+    value: z.string().describe("The reported value of the parameter, including units if visible (e.g., '10.5 g/dL', '95 mg/dL')."),
+    interpretation: z.string().describe("A brief interpretation of this value (e.g., 'Slightly Low', 'Normal', 'High', 'Within Reference Range').")
+  })).optional().describe("Detailed list of 2-5 most important or abnormal findings with their values and interpretation. Focus on values outside normal ranges if identifiable, or key health indicators."),
+  actionableSuggestions: z.array(z.string()).describe("A list of 2-4 actionable health suggestions or lifestyle advice based on the report (e.g., 'Increase intake of iron-rich foods like spinach and lentils', 'Consider a 20-minute brisk walk daily', 'Ensure adequate hydration by drinking 8 glasses of water.')."),
+  warningsOrWatchouts: z.array(z.string()).optional().describe("Important warnings, symptoms to watch out for, or when to consult a doctor based on the report (e.g., 'Consult a doctor if you experience persistent fatigue or dizziness', 'Monitor blood pressure regularly as advised by your physician.')."),
+  nextStepRecommendation: z.string().optional().describe("A primary recommended next step for the patient, e.g., 'Book a follow-up appointment with your doctor to discuss these results', 'Consider consulting a dietitian for a personalized meal plan based on these findings'.")
+});
+export type AiLabReportAnalysisOutput = z.infer<typeof AiLabReportAnalysisOutputSchema>;
+
+
 export interface LabReport {
   id: string;
-  patientId: string;
-  patientName?: string;
-  testId: string;
-  testName?: string;
-  reportImageUrl?: string;
-  reportDataUri?: string;
-  dateUploaded: number;
-  notesByLabWorker?: string;
-  status: 'pending_analysis' | 'analysis_complete' | 'error';
-  dietPlan?: string;
-  keyFindings?: string[];
+  patientId: string; // ID of the patient (internal system ID)
+  patientUsername?: string; // EzCare username of the patient this report is for
+  patientName?: string; // Name of the patient, if available
+  testId: string; // ID of the lab test type
+  testName?: string; // Name of the lab test type
+  reportImageUrl?: string; // URL if stored in cloud
+  reportDataUri?: string; // Base64 data URI for AI processing or direct upload
+  dateUploaded: number; // Timestamp of upload
+  uploadedByLabWorkerId?: string; // ID of the lab worker who uploaded
+  labName?: string; // Name of the lab (could be from lab worker's affiliation)
+  messageFromLab?: string; // Optional message from lab worker to patient
+  status: 'pending_upload' | 'uploaded' | 'analysis_pending' | 'analysis_complete' | 'analysis_error'; // More granular status
+  aiAnalysis?: AiLabReportAnalysisOutput; // Stores the output from the AI
   dataAiHint?: string;
 }
 
-export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general'; 
+
+export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
 export const remedyTypeZodEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<OriginalRemedyType>;
 
 export const AiAyurvedicRemedyOutputSchema = z.object({
@@ -144,7 +162,7 @@ export type AiAyurvedicRemedyOutput = z.infer<typeof AiAyurvedicRemedyOutputSche
 export interface AyurvedicRemedy {
   id: string;
   name: string;
-  type: OriginalRemedyType; 
+  type: OriginalRemedyType;
   tags: string[];
   description: string;
   ingredients: string[];
@@ -166,3 +184,5 @@ export interface NewsArticle {
   articleUrl: string;
   dataAiHint?: string;
 }
+
+    
