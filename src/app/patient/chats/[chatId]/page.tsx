@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useParams } from 'next/navigation';
@@ -86,7 +87,7 @@ export default function ChatDetailPage() {
   if (!chatId) return <div className="flex items-center justify-center h-full"><p>Loading chat...</p></div>;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--header-height,10rem))] max-h-[calc(100vh-var(--header-height,8rem))] md:max-h-[calc(100vh-var(--header-height,10rem))] bg-background rounded-lg shadow-xl overflow-hidden">
+    <div className="flex flex-col h-full max-w-3xl mx-auto w-full bg-background rounded-lg shadow-xl overflow-hidden">
       {/* Chat Header */}
       <CardHeader className="border-b p-3 flex flex-row items-center space-x-3 sticky top-0 bg-background/90 backdrop-blur-sm z-10">
         <Button variant="ghost" size="icon" asChild className="mr-1 rounded-full">
