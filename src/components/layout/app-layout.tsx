@@ -64,7 +64,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           window.location.pathname = '/auth'; 
         }
       }} />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem]">
+      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem] pb-20 md:pb-8"> {/* Added pb-20 for mobile */}
         {children}
       </main>
       {isAuthResolved && <MobileNav userRole={userRole} />}
