@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Rss, Settings, Pill } from 'lucide-react';
+import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Settings, Pill } from 'lucide-react'; // Rss removed
 import { usePathname } from 'next/navigation';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
@@ -15,9 +15,8 @@ const defaultNavItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
   { href: '/patient/store', label: 'Store', icon: Pill },
-  // { href: '/patient/ayurvedic-remedies', label: 'Remedies', icon: Leaf }, // Removed from here
   { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
-  { href: '/health-news', label: 'News', icon: Rss },
+  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
 ];
 
 const patientNavItems = [
@@ -32,14 +31,14 @@ const doctorNavItems = [
   { href: '/doctor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/doctor/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/doctor/patients', label: 'Patients', icon: Users },
-  { href: '/health-news', label: 'News', icon: Rss },
+  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
   { href: '/doctor/settings', label: 'Settings', icon: Settings }, 
 ];
 
 const labWorkerNavItems = [
   { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
-  { href: '/health-news', label: 'News', icon: Rss },
+  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
   { href: '/lab/profile', label: 'Profile', icon: Settings },
 ];
 
