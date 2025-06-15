@@ -9,7 +9,7 @@ body {
 
 @layer base {
   :root {
-    /* AesthetiCare Inspired Light Mode */
+    /* AesthetiCare Inspired Light Mode - Updated with new Blue */
     --background: 0 0% 97%;       /* Very Light Gray / Off-White */
     --foreground: 0 0% 25%;       /* Dark Gray / Charcoal */
 
@@ -19,7 +19,7 @@ body {
     --popover: 0 0% 100%;         /* White */
     --popover-foreground: 0 0% 25%; /* Dark Gray */
 
-    --primary: 170 65% 40%;       /* Teal/Turquoise */
+    --primary: 203 100% 38%;       /* NEW BLUE #0077C2 */
     --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 210 15% 92%;    /* Light Cool Gray (for subtle backgrounds/hovers) */
@@ -28,7 +28,7 @@ body {
     --muted: 0 0% 94%;            /* Lighter Gray (for dividers, subtle backgrounds) */
     --muted-foreground: 0 0% 45%; /* Medium Gray (for less important text) */
 
-    --accent: 170 65% 40%;        /* Teal/Turquoise (same as primary) */
+    --accent: 203 100% 38%;        /* NEW BLUE #0077C2 */
     --accent-foreground: 0 0% 100%; /* White */
     
     --success: 145 55% 48%;        /* Soft Green */
@@ -39,7 +39,7 @@ body {
 
     --border: 0 0% 88%;           /* Light Gray Border */
     --input: 0 0% 100%;           /* White input background */
-    --ring: 170 65% 45%;          /* Teal/Turquoise (for focus rings) */
+    --ring: 203 100% 38%;          /* NEW BLUE #0077C2 (for focus rings) */
 
     --chart-1: 170 60% 50%; 
     --chart-2: 170 40% 60%;
@@ -48,31 +48,31 @@ body {
     --chart-5: 210 55% 70%;
     --radius: 0.5rem;
 
-    /* Sidebar variables - adjusted for new light theme, can be further refined */
-    --sidebar-background: 0 0% 95%; /* Slightly darker than main bg, or can be white */
-    --sidebar-foreground: 0 0% 25%; /* Dark Gray */
+    /* Sidebar variables - kept original for now, can be themed separately if needed */
+    --sidebar-background: 0 0% 95%; 
+    --sidebar-foreground: 0 0% 25%; 
     --sidebar-primary: 170 65% 40%;   /* Teal */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 170 55% 50%;  /* Slightly lighter Teal for sidebar accents */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 0 0% 85%;    /* Light Gray Border for sidebar */
-    --sidebar-ring: 170 65% 45%;   /* Teal Ring */
+    --sidebar-primary-foreground: 0 0% 100%; 
+    --sidebar-accent: 170 55% 50%;  
+    --sidebar-accent-foreground: 0 0% 100%; 
+    --sidebar-border: 0 0% 85%;    
+    --sidebar-ring: 170 65% 45%;   
 
     /* Remedy Colors - Keeping existing luxury for now, can be updated later if needed */
-    --remedy-herbal-bg: 47 14% 62%; /* Sage #B2AC88 */
-    --remedy-herbal-fg: 122 92% 20%; /* Dark Emerald #046307 */
-    --remedy-digestion-bg: 45 31% 63%; /* Sand #C2B280 */
-    --remedy-digestion-fg: 357 38% 16%; /* Chocolate #381819 */
-    --remedy-inflammation-bg: 12 72% 62%; /* Terracotta #E2725B */
-    --remedy-inflammation-fg: 60 100% 97%; /* Ivory #FFFFF0 */
-    --remedy-calming-bg: 240 67% 94%; /* Lavender #E6E6FA */
-    --remedy-calming-fg: 321 68% 20%; /* Deep Plum #580F41 */
-    --remedy-general-bg: 37 13% 71%; /* Greige #BEB6AD */
-    --remedy-general-fg: 0 0% 21%; /* Charcoal #343434 */
+    --remedy-herbal-bg: 47 14% 62%; 
+    --remedy-herbal-fg: 122 92% 20%; 
+    --remedy-digestion-bg: 45 31% 63%; 
+    --remedy-digestion-fg: 357 38% 16%; 
+    --remedy-inflammation-bg: 12 72% 62%; 
+    --remedy-inflammation-fg: 60 100% 97%; 
+    --remedy-calming-bg: 240 67% 94%; 
+    --remedy-calming-fg: 321 68% 20%; 
+    --remedy-general-bg: 37 13% 71%; 
+    --remedy-general-fg: 0 0% 21%; 
   }
 
   .dark {
-    /* Dark Mode inspired by "Microdose Inc" UI */
+    /* Dark Mode inspired by "Microdose Inc" UI - Updated with new Blue accent */
     --background: 0 0% 8%;          /* Very dark gray, almost black */
     --foreground: 0 0% 92%;         /* Light gray, almost white */
 
@@ -91,7 +91,7 @@ body {
     --muted: 0 0% 15%;               /* Darker gray for less prominent backgrounds/inputs */
     --muted-foreground: 0 0% 60%;    /* Medium gray for placeholder text, subtle details */
 
-    --accent: 210 70% 55%;           /* Blueish accent (e.g., for focus rings, highlights) */
+    --accent: 203 100% 38%;           /* NEW BLUE #0077C2 (e.g., for focus rings, highlights) */
     --accent-foreground: 0 0% 100%;  /* White text on accent */
 
     --success: 120 60% 45%;          /* Green for success states/icons */
@@ -102,28 +102,28 @@ body {
 
     --border: 0 0% 18%;              /* Subtle dark border */
     --input: 0 0% 15%;               /* Background of input fields */
-    --ring: 210 70% 55%;             /* Blueish accent for focus rings */
+    --ring: 203 100% 38%;             /* NEW BLUE #0077C2 for focus rings */
     
-    /* Sidebar variables for "Microdose Inc" dark theme */
-    --sidebar-background: 0 0% 10%;      /* Dark gray, slightly lighter than main bg */
-    --sidebar-foreground: 0 0% 85%;      /* Main text color in sidebar */
-    --sidebar-primary: 0 0% 18%;         /* Background for active/selected sidebar item */
-    --sidebar-primary-foreground: 0 0% 95%; /* Text color for active sidebar item */
-    --sidebar-accent: 0 0% 25%;          /* Background for hovered sidebar items */
-    --sidebar-accent-foreground: 0 0% 95%;/* Text color for hovered sidebar items */
-    --sidebar-border: 0 0% 15%;          /* Border color within or around sidebar */
-    --sidebar-ring: 210 70% 55%;         /* Focus ring color in sidebar */
+    /* Sidebar variables for "Microdose Inc" dark theme - Kept original */
+    --sidebar-background: 0 0% 10%;      
+    --sidebar-foreground: 0 0% 85%;      
+    --sidebar-primary: 0 0% 18%;         
+    --sidebar-primary-foreground: 0 0% 95%; 
+    --sidebar-accent: 0 0% 25%;          
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 15%;          
+    --sidebar-ring: 210 70% 55%;         /* Original blueish ring for sidebar focus */
 
     /* Remedy Colors Dark Mode - Adjusted for very dark theme */
-    --remedy-herbal-bg: 120 5% 10%;        /* Very Dark Desaturated Green */
-    --remedy-herbal-fg: 0 0% 85%;          /* Light Gray */
-    --remedy-digestion-bg: 40 5% 10%;      /* Very Dark Desaturated Brown-Yellow */
+    --remedy-herbal-bg: 120 5% 10%;        
+    --remedy-herbal-fg: 0 0% 85%;          
+    --remedy-digestion-bg: 40 5% 10%;      
     --remedy-digestion-fg: 0 0% 85%;
-    --remedy-inflammation-bg: 20 5% 10%;   /* Very Dark Desaturated Red-Orange */
+    --remedy-inflammation-bg: 20 5% 10%;   
     --remedy-inflammation-fg: 0 0% 85%;
-    --remedy-calming-bg: 240 3% 10%;       /* Very Dark Desaturated Blue-Purple */
+    --remedy-calming-bg: 240 3% 10%;       
     --remedy-calming-fg: 0 0% 85%;
-    --remedy-general-bg: 0 0% 9%;         /* Slightly Off-Black, darker than cards */
+    --remedy-general-bg: 0 0% 9%;         
     --remedy-general-fg: 0 0% 85%;
   }
 }
@@ -153,7 +153,7 @@ body {
     @apply text-foreground/90;
   }
   .prose a {
-    @apply text-primary hover:text-secondary;
+    @apply text-primary hover:text-secondary; /* Secondary hover might need review if it doesn't fit new primary */
   }
   .prose strong {
     @apply text-foreground font-semibold;
@@ -180,14 +180,13 @@ body {
     @apply text-foreground/90;
   }
   .dark .prose a {
-    /* In new dark theme, primary is off-white, secondary is dark. For links, we might want accent. */
-    @apply text-[hsl(var(--accent))] hover:opacity-80;
+    @apply text-[hsl(var(--accent))] hover:opacity-80; /* Uses new dark accent blue */
   }
   .dark .prose strong {
     @apply text-foreground font-semibold;
   }
    .dark .prose blockquote {
-    @apply border-l-[hsl(var(--accent))] pl-4 italic text-muted-foreground;
+    @apply border-l-[hsl(var(--accent))] pl-4 italic text-muted-foreground; /* Uses new dark accent blue */
   }
 }
 

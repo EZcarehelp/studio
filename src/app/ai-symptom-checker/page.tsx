@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf } from 'lucide-react';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays } from 'lucide-react';
 import NextImage from 'next/image'; 
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -283,7 +283,7 @@ export default function EzCareChatbotPage() {
                   {msg.remedy ? (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-a:text-primary dark:prose-a:text-[hsl(var(--accent))] hover:prose-a:text-secondary
                       prose-strong:text-foreground dark:prose-strong:text-white
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
                       prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
@@ -338,14 +338,14 @@ export default function EzCareChatbotPage() {
                   ) : (
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-a:text-primary dark:prose-a:text-[hsl(var(--accent))] hover:prose-a:text-secondary
                       prose-strong:text-foreground dark:prose-strong:text-white 
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
                       prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
                       dark:text-gray-300">
                       <ReactMarkdown
                           components={{
-                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline" />
+                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-[hsl(var(--accent))] hover:underline" />
                           }}
                       >{msg.content}</ReactMarkdown>
                     </div>
@@ -392,11 +392,11 @@ export default function EzCareChatbotPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2">
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="prescriptionUpload" />
-              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">
+              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-[hsl(var(--accent))]">
                 <Paperclip className="h-[24px] w-[24px]" />
                 <span className="sr-only">Attach prescription</span>
               </Button>
-               <Button variant="ghost" size="icon" type="button" className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">
+               <Button variant="ghost" size="icon" type="button" className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-[hsl(var(--accent))]">
                 <Mic className="h-[24px] w-[24px]" />
                 <span className="sr-only">Voice input (placeholder)</span>
               </Button>
@@ -409,7 +409,7 @@ export default function EzCareChatbotPage() {
                       <Textarea
                         id="query"
                         placeholder={imagePreviewForUpload ? "Optional: Add a question about the prescription..." : "Describe symptoms or ask for a remedy..."}
-                        className="min-h-[40px] max-h-[100px] resize-none text-base rounded-full px-4 py-2.5 bg-gray-100 dark:bg-[#2A2A3B] dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-blue-500"
+                        className="min-h-[40px] max-h-[100px] resize-none text-base rounded-full px-4 py-2.5 bg-gray-100 dark:bg-[#2A2A3B] dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus-visible:ring-ring dark:focus-visible:ring-ring"
                         rows={1}
                         {...field}
                         onKeyDown={(e) => {

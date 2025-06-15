@@ -372,10 +372,17 @@ export default function PatientMedicalRecordsPage() {
             )}
           </CardContent>
            <CardFooter>
-            <p className="text-xs text-muted-foreground flex items-start">
-                <Info size={20} className="mr-1.5 shrink-0 mt-0.5"/>
-                <span>AI-generated analysis is for informational purposes only and not a substitute for professional medical advice. Always consult with qualified healthcare professionals for diagnosis and treatment. Unauthorized access to reports is logged.</span>
-            </p>
+             <Card className="mt-8 border-primary/30 bg-primary/10 dark:border-[hsl(var(--accent))]/30 dark:bg-[hsl(var(--accent))]/20 rounded-lg w-full">
+                <CardHeader className="flex flex-row items-center gap-3 pb-3">
+                <ShieldAlert className="h-6 w-6 text-primary dark:text-[hsl(var(--accent))]" />
+                <CardTitle className="text-primary dark:text-[hsl(var(--accent))] text-base">Important Note</CardTitle>
+                </CardHeader>
+                <CardContent>
+                <p className="text-sm text-primary dark:text-[hsl(var(--accent))]/90">
+                    AI-generated analysis is for informational purposes only and not a substitute for professional medical advice. Always consult with qualified healthcare professionals for diagnosis and treatment. Unauthorized access to reports is logged.
+                </p>
+                </CardContent>
+            </Card>
           </CardFooter>
         </Card>
       )}
