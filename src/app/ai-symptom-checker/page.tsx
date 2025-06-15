@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss } from 'lucide-react'; // Added Rss
-import NextImage from 'next/image'; 
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss } from 'lucide-react';
+import NextImage from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -53,6 +53,11 @@ export default function EzCareChatbotPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const finalTranscriptFromSpeechRef = useRef<string>('');
+
+
   const form = useForm<ChatQueryFormData>({
     resolver: zodResolver(chatQuerySchema),
     defaultValues: { query: '' },
@@ -80,6 +85,104 @@ export default function EzCareChatbotPage() {
   useEffect(() => {
     initializeChat();
   }, []);
+
+  // Initialize SpeechRecognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognitionAPI) {
+        const recognition = new SpeechRecognitionAPI();
+        recognition.continuous = false; // Stop after first pause
+        recognition.interimResults = true; // Get interim results for potential live feedback (not used for final text)
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+          setIsListening(true);
+          toast({ title: "Listening...", description: "Speak now." });
+        };
+
+        recognition.onresult = (event) => {
+          let currentFinalTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              currentFinalTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          if (currentFinalTranscript) {
+            finalTranscriptFromSpeechRef.current = currentFinalTranscript.trim();
+            const existingQuery = form.getValues('query');
+            const newText = (existingQuery ? existingQuery + ' ' : '') + currentFinalTranscript.trim();
+            form.setValue('query', newText, { shouldValidate: true });
+          }
+        };
+
+        recognition.onerror = (event) => {
+          let errorMessage = "Voice input error.";
+          if (event.error === 'no-speech') {
+            errorMessage = "No speech was detected. Please try again.";
+          } else if (event.error === 'audio-capture') {
+            errorMessage = "Microphone problem. Please check your microphone.";
+          } else if (event.error === 'not-allowed') {
+            errorMessage = "Microphone access denied. Please allow microphone access in your browser settings.";
+          } else if (event.error === 'network') {
+              errorMessage = "Network error during speech recognition.";
+          }
+          toast({ variant: "destructive", title: "Voice Input Error", description: errorMessage });
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+           // If recognition ends and we got some final transcript, consider it a success.
+          // If it ends and finalTranscriptFromSpeechRef.current is empty, 'no-speech' error should have handled it.
+          finalTranscriptFromSpeechRef.current = ''; // Reset for next attempt
+        };
+        recognitionRef.current = recognition;
+      } else {
+        toast({ variant: "destructive", title: "Voice Input Not Supported", description: "Your browser does not support voice input." });
+      }
+    }
+
+    return () => { // Cleanup
+      if (recognitionRef.current) {
+        recognitionRef.current.onstart = null;
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.stop();
+      }
+    };
+  }, [form, toast]);
+
+
+  const handleMicClick = () => {
+    if (!recognitionRef.current) {
+      toast({ variant: "destructive", title: "Voice Input Not Supported", description: "Your browser does not support voice input. Please type your message." });
+      return;
+    }
+    finalTranscriptFromSpeechRef.current = ''; // Reset
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false); // Explicitly set, as onend might be async
+    } else {
+      try {
+        // Optional: Clear field or append. Current logic appends.
+        // form.setValue('query', '', { shouldValidate: true }); // To clear before new voice input
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error("Error starting speech recognition:", error);
+        let msg = "Could not start voice input. Please ensure microphone access is allowed.";
+        if (error instanceof DOMException && error.name === "NotAllowedError") {
+            msg = "Microphone access was denied. Please enable it in your browser settings.";
+        }
+        toast({ variant: "destructive", title: "Voice Input Error", description: msg });
+        setIsListening(false);
+      }
+    }
+  };
+
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -212,7 +315,7 @@ export default function EzCareChatbotPage() {
   const sidebarItems = [
     { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
     { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
-    { label: "Health News", icon: Rss, href: "/health-news" }, // Added Health News
+    { label: "Health News", icon: Rss, href: "/health-news" },
     { label: "Settings", icon: Settings, href: "/patient/settings" }, 
   ];
 
@@ -397,9 +500,19 @@ export default function EzCareChatbotPage() {
                 <Paperclip className="h-[24px] w-[24px]" />
                 <span className="sr-only">Attach prescription</span>
               </Button>
-               <Button variant="ghost" size="icon" type="button" className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-[hsl(var(--accent))]">
+               <Button 
+                variant="ghost" 
+                size="icon" 
+                type="button" 
+                onClick={handleMicClick} 
+                className={cn(
+                  "rounded-full hover:text-primary dark:hover:text-[hsl(var(--accent))]",
+                  isListening ? "text-destructive dark:text-red-400 animate-pulse" : "text-muted-foreground dark:text-gray-400"
+                )}
+                disabled={!recognitionRef.current}
+              >
                 <Mic className="h-[24px] w-[24px]" />
-                <span className="sr-only">Voice input (placeholder)</span>
+                <span className="sr-only">{isListening ? "Stop Listening" : "Start Voice Input"}</span>
               </Button>
               <FormField
                 control={form.control}
@@ -442,5 +555,3 @@ export default function EzCareChatbotPage() {
     </div>
   );
 }
-
-    
