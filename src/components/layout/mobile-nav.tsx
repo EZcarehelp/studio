@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Settings, Pill } from 'lucide-react'; // Rss removed
+import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Settings, Pill, Stethoscope, FlaskConical } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
@@ -13,32 +13,31 @@ interface MobileNavProps {
 
 const defaultNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
+  { href: '/patient/find-doctors', label: 'Book Doctor', icon: Stethoscope },
+  { href: '/patient/lab-tests', label: 'Book Lab', icon: FlaskConical },
   { href: '/patient/store', label: 'Store', icon: Pill },
   { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
-  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
 ];
 
 const patientNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Doctors', icon: Search },
+  { href: '/patient/find-doctors', label: 'Book Doctor', icon: Stethoscope },
+  { href: '/patient/lab-tests', label: 'Book Lab', icon: FlaskConical },
   { href: '/patient/store', label: 'Store', icon: Pill },
-  { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle }, 
-  { href: '/patient/settings', label: 'Settings', icon: Settings }, 
+  { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
+  { href: '/patient/settings', label: 'Settings', icon: Settings },
 ];
 
 const doctorNavItems = [
   { href: '/doctor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/doctor/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/doctor/patients', label: 'Patients', icon: Users },
-  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
-  { href: '/doctor/settings', label: 'Settings', icon: Settings }, 
+  { href: '/doctor/settings', label: 'Settings', icon: Settings },
 ];
 
 const labWorkerNavItems = [
   { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
-  // { href: '/health-news', label: 'News', icon: Rss }, // News link removed
   { href: '/lab/profile', label: 'Profile', icon: Settings },
 ];
 
@@ -55,7 +54,6 @@ export function MobileNav({ userRole }: MobileNavProps) {
   } else if (userRole === 'lab_worker') {
     navItemsToShow = labWorkerNavItems;
   } else {
-    // For unauthenticated users or general pages not tied to a specific role dashboard
     navItemsToShow = defaultNavItems;
   }
 

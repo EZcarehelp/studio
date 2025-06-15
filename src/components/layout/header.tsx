@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings } from 'lucide-react'; // Rss removed
+import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -28,9 +28,9 @@ interface HeaderProps {
 export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   const pathname = usePathname();
 
-  const patientNavLinks = [
-    { href: '/patient/find-doctors', label: 'Find Doctors' },
-    { href: '/patient/lab-tests', label: 'Lab Tests' },
+  // Define patient specific links that are NOT part of the "Book" dropdown
+  const otherPatientNavLinks = [
+    // Example: { href: '/patient/profile', label: 'My Profile' },
   ];
 
   const doctorNavLinks = [
@@ -46,18 +46,17 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
-     // { href: '/health-news', label: 'Health News', icon: Rss }, // Health News link removed
      { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
      { href: '/patient/store', label: 'Store', icon: Pill },
   ];
 
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth';
+  let settingsLink = '/auth'; // Default settings link
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
-      navLinks = [...navLinks, ...patientNavLinks];
+      navLinks = [...navLinks, ...otherPatientNavLinks]; 
       settingsLink = '/patient/settings';
       profileLabel = "My Settings";
     } else if (userRole === 'doctor') {
@@ -69,11 +68,9 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       settingsLink = '/lab/profile';
       profileLabel = "Lab Profile";
     }
-  } else {
-     navLinks = [...navLinks,
-        { href: '/patient/find-doctors', label: 'Find Doctors' },
-    ];
   }
+  // For unauthenticated users, navLinks remains commonBaseLinks.
+  // The "Book" dropdown will be added separately.
 
   // Remove duplicate links (e.g. if a patient link is also in commonBaseLinks)
   navLinks = navLinks.filter((link, index, self) =>
@@ -102,7 +99,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1);
             return (
               <Link
-                key={`${link.href}-${link.label}-${index}`} // More unique key
+                key={`${link.href}-${link.label}-${index}`} 
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
@@ -116,13 +113,44 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </Link>
             );
           })}
+
+          {/* "Book" Dropdown Menu for Patients and Unauthenticated Users */}
+          {((isAuthenticated && userRole === 'patient') || !isAuthenticated) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "text-sm font-medium transition-colors duration-150 ease-in-out flex items-center gap-1.5 px-3 py-1.5 rounded-md",
+                    (pathname.startsWith('/patient/find-doctors') || pathname.startsWith('/patient/lab-tests'))
+                    ? 'text-primary bg-primary/10'
+                    : 'text-foreground/70 hover:text-primary hover:bg-primary/5'
+                  )}
+                >
+                  Book
+                  <ChevronDown className="h-4 w-4 opacity-90" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/patient/find-doctors" className="flex items-center w-full cursor-pointer">
+                    <Stethoscope className="mr-2 h-4 w-4" /> Book Doctor
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/patient/lab-tests" className="flex items-center w-full cursor-pointer">
+                    <FlaskConical className="mr-2 h-4 w-4" /> Book Lab Test
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
           {isAuthenticated ? (
             <>
-              {/* Notification Bell Removed */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
@@ -134,18 +162,18 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   <DropdownMenuLabel>My Account ({userRole || 'Guest'})</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={settingsLink} className="flex items-center w-full">
+                    <Link href={settingsLink} className="flex items-center w-full cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" /> {profileLabel}
                     </Link>
                   </DropdownMenuItem>
                   {userRole === 'patient' && (
-                     <DropdownMenuItem asChild><Link href="/patient/appointments">My Appointments</Link></DropdownMenuItem>
+                     <DropdownMenuItem asChild><Link href="/patient/appointments" className="cursor-pointer">My Appointments</Link></DropdownMenuItem>
                   )}
                    {userRole === 'doctor' && (
-                     <DropdownMenuItem asChild><Link href="/doctor/schedule">Schedule</Link></DropdownMenuItem>
+                     <DropdownMenuItem asChild><Link href="/doctor/schedule" className="cursor-pointer">Schedule</Link></DropdownMenuItem>
                   )}
                   {userRole === 'lab_worker' && (
-                     <DropdownMenuItem asChild><Link href="/lab/profile">Lab Profile</Link></DropdownMenuItem>
+                     <DropdownMenuItem asChild><Link href="/lab/profile" className="cursor-pointer">Lab Profile</Link></DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
@@ -166,7 +194,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
-             {/* Placeholder for potential mobile menu trigger if needed, or can be removed if not used */}
            </div>
         </div>
       </div>
