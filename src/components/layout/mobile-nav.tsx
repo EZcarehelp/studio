@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Settings, Pill, Stethoscope, FlaskConical } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
@@ -13,19 +14,19 @@ interface MobileNavProps {
 
 const defaultNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Book Doctor', icon: Stethoscope },
-  { href: '/patient/lab-tests', label: 'Book Lab', icon: FlaskConical },
-  { href: '/patient/store', label: 'Store', icon: Pill },
-  { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
+  { href: '/patient/find-doctors', label: 'Doctors', icon: Stethoscope },
+  { href: '/patient/store', label: 'Pharmacy', icon: Pill },
+  { href: '/patient/lab-tests', label: 'Lab Tests', icon: FlaskConical },
+  { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageCircle },
 ];
 
 const patientNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Book Doctor', icon: Stethoscope },
-  { href: '/patient/lab-tests', label: 'Book Lab', icon: FlaskConical },
-  { href: '/patient/store', label: 'Store', icon: Pill },
-  { href: '/ai-symptom-checker', label: 'Chatbot', icon: MessageCircle },
-  { href: '/patient/settings', label: 'Settings', icon: Settings },
+  { href: '/patient/find-doctors', label: 'Doctors', icon: Stethoscope },
+  { href: '/patient/store', label: 'Pharmacy', icon: Pill },
+  { href: '/patient/lab-tests', label: 'Lab Tests', icon: FlaskConical },
+  { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageCircle },
+  // { href: '/patient/settings', label: 'Settings', icon: Settings }, // Settings usually in a profile menu
 ];
 
 const doctorNavItems = [
@@ -54,6 +55,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
   } else if (userRole === 'lab_worker') {
     navItemsToShow = labWorkerNavItems;
   } else {
+    // Unauthenticated users
     navItemsToShow = defaultNavItems;
   }
 
@@ -63,9 +65,16 @@ export function MobileNav({ userRole }: MobileNavProps) {
         {navItemsToShow.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href) && item.href.length > 1);
           return (
-            <Link key={item.label} href={item.href} className="flex flex-col items-center justify-center text-center flex-1 p-1 group">
-              <item.icon className={`h-5 w-5 mb-0.5 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-              <span className={`text-xs transition-colors ${isActive ? 'text-primary font-medium' : 'text-muted-foreground group-hover:text-primary/80'}`}>
+            <Link 
+                key={item.label} 
+                href={item.href} 
+                className={cn(
+                    "flex flex-col items-center justify-center text-center flex-1 p-1 group",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"
+                )}
+            >
+              <item.icon className={`h-5 w-5 mb-0.5 transition-colors`} />
+              <span className={`text-xs transition-colors ${isActive ? 'font-medium' : ''}`}>
                 {item.label}
               </span>
             </Link>

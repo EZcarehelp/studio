@@ -8,8 +8,8 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss } from 'lucide-react';
+import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight, type ReportContext } from '@/ai/flows/ez-care-chatbot-flow';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info } from 'lucide-react';
 import NextImage from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import type { AyurvedicRemedy } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation'; // For reading query params
 
 const chatQuerySchema = z.object({
   query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000),
@@ -52,10 +53,14 @@ export default function EzCareChatbotPage() {
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const searchParams = useSearchParams(); // Hook to read query parameters
 
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const finalTranscriptFromSpeechRef = useRef<string>('');
+
+  // State for lab report context
+  const [activeReportContext, setActiveReportContext] = useState<ReportContext | null>(null);
 
 
   const form = useForm<ChatQueryFormData>({
@@ -63,122 +68,115 @@ export default function EzCareChatbotPage() {
     defaultValues: { query: '' },
   });
 
+  // Effect to read report context from URL query parameters
+  useEffect(() => {
+    const reportDataUri = searchParams.get('reportContextDataUri');
+    const reportSummary = searchParams.get('reportContextSummary');
+    const reportName = searchParams.get('reportName');
+
+    if (reportDataUri || reportSummary || reportName) {
+      const context: ReportContext = {
+        imageDataUri: reportDataUri ? decodeURIComponent(reportDataUri) : undefined,
+        textSummary: reportSummary ? decodeURIComponent(reportSummary) : undefined,
+        reportName: reportName ? decodeURIComponent(reportName) : undefined,
+      };
+      setActiveReportContext(context);
+      toast({
+        title: "Lab Report Context Loaded",
+        description: `Now discussing: ${context.reportName || 'Selected Report'}. Ask your questions!`,
+        duration: 5000,
+      });
+       // Optionally, pre-fill the query if it makes sense
+       if (!form.getValues('query')) {
+        form.setValue('query', `Regarding my ${context.reportName || 'recent lab report'}, `);
+      }
+    }
+  }, [searchParams, toast, form]);
+
+
   useEffect(() => {
     if (scrollAreaViewportRef.current) {
       scrollAreaViewportRef.current.scrollTop = scrollAreaViewportRef.current.scrollHeight;
     }
   }, [messages]);
   
-  const initializeChat = () => {
+  const initializeChat = (keepContext = false) => {
+    const initialMessageContent = activeReportContext && keepContext
+      ? `Hello! I'm EzCare AI. I see you're looking at "${activeReportContext.reportName}". How can I help you with it? You can also describe other symptoms or ask for a remedy.`
+      : "Hello! I'm EzCare AI. Describe your symptoms, ask for a home remedy, or upload a prescription image for analysis. This tool is for informational purposes and does not substitute professional medical advice.";
+
     setMessages([
       {
         id: 'initial-bot-message',
         sender: 'bot',
-        content: "Hello! I'm EzCare AI. Describe your symptoms, ask for a home remedy, or upload a prescription image for analysis. This tool is for informational purposes and does not substitute professional medical advice.",
+        content: initialMessageContent,
         timestamp: Date.now(),
       }
     ]);
-    form.reset();
+    form.reset({ query: activeReportContext && keepContext ? `Regarding my ${activeReportContext.reportName || 'recent lab report'}, ` : '' });
     clearSelectedImage();
+    if (!keepContext) {
+      setActiveReportContext(null); // Clear report context if not keeping it
+    }
   };
 
   useEffect(() => {
-    initializeChat();
-  }, []);
+    initializeChat(!!activeReportContext); // Initialize chat, keeping context if it exists
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeReportContext]); // Re-initialize if activeReportContext changes (e.g., new report selected)
 
-  // Initialize SpeechRecognition
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognitionAPI) {
         const recognition = new SpeechRecognitionAPI();
-        recognition.continuous = false; // Stop after first pause
-        recognition.interimResults = true; // Get interim results for potential live feedback (not used for final text)
+        recognition.continuous = false;
+        recognition.interimResults = true; 
         recognition.lang = 'en-US';
 
-        recognition.onstart = () => {
-          setIsListening(true);
-          toast({ title: "Listening...", description: "Speak now." });
-        };
-
+        recognition.onstart = () => setIsListening(true);
         recognition.onresult = (event) => {
           let currentFinalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              currentFinalTranscript += event.results[i][0].transcript;
-            }
+            if (event.results[i].isFinal) currentFinalTranscript += event.results[i][0].transcript;
           }
-
           if (currentFinalTranscript) {
             finalTranscriptFromSpeechRef.current = currentFinalTranscript.trim();
             const existingQuery = form.getValues('query');
-            const newText = (existingQuery ? existingQuery + ' ' : '') + currentFinalTranscript.trim();
-            form.setValue('query', newText, { shouldValidate: true });
+            form.setValue('query', (existingQuery ? existingQuery + ' ' : '') + finalTranscriptFromSpeechRef.current, { shouldValidate: true });
           }
         };
-
         recognition.onerror = (event) => {
-          let errorMessage = "Voice input error.";
-          if (event.error === 'no-speech') {
-            errorMessage = "No speech was detected. Please try again.";
-          } else if (event.error === 'audio-capture') {
-            errorMessage = "Microphone problem. Please check your microphone.";
-          } else if (event.error === 'not-allowed') {
-            errorMessage = "Microphone access denied. Please allow microphone access in your browser settings.";
-          } else if (event.error === 'network') {
-              errorMessage = "Network error during speech recognition.";
-          }
-          toast({ variant: "destructive", title: "Voice Input Error", description: errorMessage });
+          let msg = "Voice input error.";
+          if (event.error === 'no-speech') msg = "No speech detected.";
+          else if (event.error === 'audio-capture') msg = "Microphone problem.";
+          else if (event.error === 'not-allowed') msg = "Microphone access denied.";
+          else if (event.error === 'network') msg = "Network error during speech recognition.";
+          toast({ variant: "destructive", title: "Voice Input Error", description: msg });
           setIsListening(false);
         };
-
         recognition.onend = () => {
-          setIsListening(false);
-           // If recognition ends and we got some final transcript, consider it a success.
-          // If it ends and finalTranscriptFromSpeechRef.current is empty, 'no-speech' error should have handled it.
-          finalTranscriptFromSpeechRef.current = ''; // Reset for next attempt
+            setIsListening(false);
+            finalTranscriptFromSpeechRef.current = '';
         };
         recognitionRef.current = recognition;
       } else {
-        toast({ variant: "destructive", title: "Voice Input Not Supported", description: "Your browser does not support voice input." });
+        toast({ variant: "destructive", title: "Voice Input Not Supported" });
       }
     }
-
-    return () => { // Cleanup
-      if (recognitionRef.current) {
-        recognitionRef.current.onstart = null;
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
-        recognitionRef.current.stop();
-      }
-    };
+    return () => recognitionRef.current?.stop();
   }, [form, toast]);
 
 
   const handleMicClick = () => {
-    if (!recognitionRef.current) {
-      toast({ variant: "destructive", title: "Voice Input Not Supported", description: "Your browser does not support voice input. Please type your message." });
-      return;
-    }
-    finalTranscriptFromSpeechRef.current = ''; // Reset
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false); // Explicitly set, as onend might be async
-    } else {
+    if (!recognitionRef.current) return toast({ variant: "destructive", title: "Voice Input Not Supported" });
+    if (isListening) recognitionRef.current.stop();
+    else {
       try {
-        // Optional: Clear field or append. Current logic appends.
-        // form.setValue('query', '', { shouldValidate: true }); // To clear before new voice input
         recognitionRef.current.start();
       } catch (error) {
-        console.error("Error starting speech recognition:", error);
-        let msg = "Could not start voice input. Please ensure microphone access is allowed.";
-        if (error instanceof DOMException && error.name === "NotAllowedError") {
-            msg = "Microphone access was denied. Please enable it in your browser settings.";
-        }
-        toast({ variant: "destructive", title: "Voice Input Error", description: msg });
-        setIsListening(false);
+        toast({ variant: "destructive", title: "Voice Input Error", description: "Could not start voice input. Check permissions." });
       }
     }
   };
@@ -197,9 +195,7 @@ export default function EzCareChatbotPage() {
         const dataUri = reader.result as string;
         setPrescriptionImageDataUri(dataUri);
         setImagePreviewForUpload(dataUri);
-        if (!form.getValues('query')) {
-             form.setValue('query', 'Analyze this prescription.');
-        }
+        if (!form.getValues('query')) form.setValue('query', 'Analyze this prescription.');
       };
       reader.readAsDataURL(file);
     }
@@ -209,14 +205,12 @@ export default function EzCareChatbotPage() {
     setSelectedPrescriptionFile(null);
     setPrescriptionImageDataUri(null);
     setImagePreviewForUpload(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onSubmit: SubmitHandler<ChatQueryFormData> = async (data) => {
     if (!data.query.trim() && !prescriptionImageDataUri) {
-      toast({ variant: "destructive", title: "Input required", description: "Please type a message or upload a prescription image." });
+      toast({ variant: "destructive", title: "Input required" });
       return;
     }
     setIsLoading(true);
@@ -230,13 +224,15 @@ export default function EzCareChatbotPage() {
     };
     setMessages(prevMessages => [...prevMessages, userMessage]);
     
-    const inputData: EzCareChatbotInput = { query: data.query };
-    if (prescriptionImageDataUri) {
-      inputData.prescriptionImage = prescriptionImageDataUri;
-    }
+    const inputData: EzCareChatbotInput = { 
+        query: data.query,
+        ...(prescriptionImageDataUri && { prescriptionImage: prescriptionImageDataUri }),
+        ...(activeReportContext && { currentReportContext: activeReportContext }),
+    };
 
     form.reset({ query: '' }); 
     clearSelectedImage();
+    // Do not clear activeReportContext here, it persists for the session unless user starts a new chat without context
 
     try {
       const result: EzCareChatbotOutput = await ezCareChatbotFlow(inputData);
@@ -271,6 +267,9 @@ export default function EzCareChatbotPage() {
           botContent = result.prescriptionInsight?.summary || "Here's an analysis of the prescription:";
           botPrescriptionInsight = result.prescriptionInsight;
           break;
+        case 'report_insight': // Handle new type
+          botContent = result.reportInsightMessage || "I've analyzed the report context.";
+          break;
         case 'clarification':
           botContent = result.message || "Could you please clarify?";
           break;
@@ -296,7 +295,7 @@ export default function EzCareChatbotPage() {
 
     } catch (err) {
       console.error("Chatbot error:", err);
-      const errorMessageText = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      const errorMessageText = err instanceof Error ? err.message : "An unexpected error occurred.";
       const errorMessage: DisplayMessage = {
         id: `error-${Date.now()}`,
         sender: 'bot',
@@ -313,15 +312,15 @@ export default function EzCareChatbotPage() {
   const canSubmit = form.formState.isValid || !!prescriptionImageDataUri;
 
   const sidebarItems = [
-    { label: "New Chat", icon: MessageSquarePlus, action: initializeChat },
+    { label: "New Chat", icon: MessageSquarePlus, action: () => initializeChat(false) }, // New chat clears context
     { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
     { label: "Health News", icon: Rss, href: "/health-news" },
+    { label: "My Medical Records", icon: CalendarDays, href: "/patient/medical-records" },
     { label: "Settings", icon: Settings, href: "/patient/settings" }, 
   ];
 
   return (
     <div className="flex h-[calc(100vh-var(--header-height,4.5rem))] md:h-[calc(100vh-var(--header-height,5.5rem))] w-full bg-background dark:bg-[#1E1E2F]">
-      {/* Sidebar */}
       <aside className="hidden md:flex md:w-[260px] flex-col bg-gray-100 dark:bg-[#111827] p-3 space-y-2 border-r border-gray-200 dark:border-gray-700">
         {sidebarItems.map((item, index) => (
           item.href ? (
@@ -338,14 +337,22 @@ export default function EzCareChatbotPage() {
         ))}
       </aside>
 
-      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar for Chat Window */}
         <header className="h-[56px] px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F] shrink-0">
           <div className="flex items-center space-x-2">
              <NextImage src="/logo.svg" alt="EzCare Logo" width={28} height={28} className="h-7 w-auto" />
             <h1 className="text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
           </div>
+           {activeReportContext?.reportName && (
+            <div className="text-xs text-muted-foreground border border-dashed border-primary/50 dark:border-accent/50 px-2 py-1 rounded-md flex items-center gap-1.5">
+              <Info size={14} className="text-primary dark:text-accent"/>
+              Context: {activeReportContext.reportName.length > 30 ? activeReportContext.reportName.substring(0,27) + "..." : activeReportContext.reportName}
+              <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full" onClick={() => { setActiveReportContext(null); initializeChat(false); toast({title: "Report context cleared."})}}>
+                <XCircle size={14} />
+                <span className="sr-only">Clear report context</span>
+              </Button>
+            </div>
+          )}
           <div className="flex items-center space-x-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint="user avatar"/>
@@ -354,7 +361,6 @@ export default function EzCareChatbotPage() {
           </div>
         </header>
 
-        {/* Message Area */}
         <ScrollArea className="flex-grow p-4 md:p-6 bg-background dark:bg-[#1E1E2F]" viewportRef={scrollAreaViewportRef}>
           <div className="space-y-3"> 
             {messages.map((msg) => (
@@ -482,7 +488,6 @@ export default function EzCareChatbotPage() {
           </div>
         </ScrollArea>
 
-        {/* Input Bar */}
         <div className="min-h-[60px] max-h-[120px] px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F]">
           {imagePreviewForUpload && (
             <div className="mb-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md relative max-w-[150px] bg-gray-50 dark:bg-gray-800">
@@ -522,7 +527,13 @@ export default function EzCareChatbotPage() {
                     <FormControl>
                       <Textarea
                         id="query"
-                        placeholder={imagePreviewForUpload ? "Optional: Add a question about the prescription..." : "Describe symptoms or ask for a remedy..."}
+                        placeholder={
+                            activeReportContext 
+                                ? `Ask about "${activeReportContext.reportName || 'this report'}"...`
+                                : imagePreviewForUpload 
+                                    ? "Optional: Add a question about the prescription..." 
+                                    : "Describe symptoms or ask for a remedy..."
+                        }
                         className="min-h-[40px] max-h-[100px] resize-none text-base rounded-full px-4 py-2.5 bg-gray-100 dark:bg-[#2A2A3B] dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus-visible:ring-ring dark:focus-visible:ring-ring"
                         rows={1}
                         {...field}

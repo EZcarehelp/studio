@@ -35,6 +35,15 @@ export interface Medicine {
   dataAiHint?: string;
 }
 
+// For Chatbot context when discussing a specific report
+export const ReportContextSchema = z.object({
+  reportName: z.string().optional().describe("The name or title of the lab report being discussed, e.g., 'Blood Sugar Report - June 10th'."),
+  imageDataUri: z.string().optional().describe("The data URI of the lab report image, if available and relevant for visual analysis by the AI."),
+  textSummary: z.string().optional().describe("A text summary of the lab report, which could be from a previous AI analysis or notes from the lab.")
+}).optional();
+export type ReportContext = z.infer<typeof ReportContextSchema>;
+
+
 export interface ChatMessage {
   id: string;
   senderId: string;
@@ -185,4 +194,20 @@ export interface NewsArticle {
   dataAiHint?: string;
 }
 
-    
+// Pharmacy related types
+export type StockStatus = 'in-stock' | 'limited-stock' | 'out-of-stock';
+
+export interface Pharmacy {
+  id: string;
+  name: string;
+  address: string;
+  distance: string; // e.g. "0.5 km"
+  stockStatus: StockStatus;
+  deliveryTime?: string; // e.g. "30 min", "1 hr"
+  pickupAvailable: boolean;
+  timings?: string; // e.g. "9 AM - 10 PM"
+  imageUrl?: string;
+  dataAiHint?: string;
+  latitude?: number;
+  longitude?: number;
+}

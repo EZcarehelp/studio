@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UploadCloud, FileText, CheckCircle, User, MessageSquare, Send } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle, User, MessageSquare, Send, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { LabTest } from '@/types';
 import Link from 'next/link';
@@ -67,13 +67,13 @@ export default function UploadLabReportPage() {
 
     setIsSending(true);
     
-    // Mock "send" process
     console.log("Sending report for patient username:", patientUsername);
     console.log("Selected Test ID:", selectedTestId);
     console.log("File Name:", reportFile.name);
+    console.log("Report Data URI (first 50 chars):", reportDataUri.substring(0,50) + "...");
     console.log("Message to Patient:", messageToPatient);
     // In a real app:
-    // 1. Upload reportFile to secure storage (Firebase Storage, S3) get URL.
+    // 1. Upload reportFile/reportDataUri to secure storage (Firebase Storage, S3) get URL.
     // 2. Save report metadata (patientUsername, testId, fileURL, messageToPatient, labWorkerId, labName, timestamp) to Firestore.
     // 3. Optionally, trigger a notification to the patient.
     
@@ -82,7 +82,7 @@ export default function UploadLabReportPage() {
     toast({
       variant: 'success',
       title: 'Report Sent Successfully',
-      description: `Report "${reportFile.name}" has been sent to patient @${patientUsername}.`,
+      description: `Report "${reportFile.name}" has been sent to patient ${patientUsername}.`,
     });
 
     // Reset form
@@ -104,10 +104,10 @@ export default function UploadLabReportPage() {
         <CardHeader>
           <CardTitle className="text-2xl text-gradient flex items-center">
             <UploadCloud className="mr-3 h-7 w-7" />
-            Upload Lab Report
+            Upload & Send Lab Report
           </CardTitle>
           <CardDescription>
-            Fill in the patient's username, test details, upload the report, and send.
+            Fill in the patient's username, test details, upload the report (PDF/Image), and send.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -116,12 +116,12 @@ export default function UploadLabReportPage() {
               <Label htmlFor="patientUsername" className="flex items-center"><User className="w-4 h-4 mr-2 opacity-70"/>To (Patient's Username)</Label>
               <Input 
                 id="patientUsername" 
-                placeholder="Enter patient's EzCare username (e.g., @patient_jane)" 
+                placeholder="Enter patient's EzCare username (e.g., patient_jane)" 
                 value={patientUsername}
-                onChange={(e) => setPatientUsername(e.target.value.startsWith('@') ? e.target.value : `@${e.target.value}`)}
+                onChange={(e) => setPatientUsername(e.target.value.startsWith('@') ? e.target.value : e.target.value ? `@${e.target.value}`: '')}
                 required 
               />
-               <p className="text-xs text-muted-foreground">Ensure the username is correct. Report will be linked to this patient.</p>
+               <p className="text-xs text-muted-foreground">Ensure the username is correct (e.g., @username). Report will be linked to this patient.</p>
             </div>
 
             <div className="space-y-2">
@@ -139,7 +139,7 @@ export default function UploadLabReportPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="reportFile">Report File (PDF, JPG, PNG)</Label>
+              <Label htmlFor="reportFile">Report File (PDF, JPG, PNG - Max 10MB)</Label>
               <div className="flex items-center space-x-2">
                 <input 
                   id="reportFile" 
@@ -150,7 +150,7 @@ export default function UploadLabReportPage() {
                   className="hidden" 
                   required
                 />
-                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-grow justify-start">
+                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-grow justify-start text-muted-foreground">
                   <FileText className="mr-2 h-4 w-4" />
                   {reportFileName || "Choose file..."}
                 </Button>
@@ -171,7 +171,7 @@ export default function UploadLabReportPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button type="submit" className="w-full sm:w-auto btn-premium rounded-md" disabled={isSending}>
+            <Button type="submit" className="w-full sm:w-auto btn-premium rounded-md" disabled={isSending || !reportFile || !patientUsername || !selectedTestId}>
               {isSending ? (
                 <>
                   <Send className="mr-2 h-4 w-4 animate-pulse" />
@@ -191,18 +191,15 @@ export default function UploadLabReportPage() {
         </form>
       </Card>
       
-      {/* Placeholder for History Tab */}
       <Card className="mt-8">
         <CardHeader>
-            <CardTitle>Sent Reports History (Placeholder)</CardTitle>
-            <CardDescription>A list of reports you've sent will appear here.</CardDescription>
+            <CardTitle className="flex items-center"><History className="mr-2 h-5 w-5 text-primary" />Sent Reports History</CardTitle>
+            <CardDescription>A list of reports you've previously sent will appear here. (This feature is under development)</CardDescription>
         </CardHeader>
         <CardContent className="text-center text-muted-foreground py-8">
-            <p>Report history will be available soon.</p>
+            <p>Report history tracking will be available soon.</p>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    
