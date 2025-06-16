@@ -116,6 +116,10 @@ export interface LabTest {
   name: string;
   description: string;
   price?: number;
+  labName?: string; // Added
+  location?: string; // Added
+  rating?: number; // Added (0-5)
+  dataAiHint?: string; // Added for potential lab image
 }
 
 // Schema for AI Lab Report Analysis Output

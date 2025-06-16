@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown } from 'lucide-react';
+import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown, FileText } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -28,9 +28,8 @@ interface HeaderProps {
 export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   const pathname = usePathname();
 
-  // Define patient specific links that are NOT part of the "Book" dropdown
-  const otherPatientNavLinks = [
-    // Example: { href: '/patient/profile', label: 'My Profile' },
+  const patientSpecificLinks = [
+     { href: '/patient/medical-records', label: 'Medical Records', icon: FileText },
   ];
 
   const doctorNavLinks = [
@@ -51,12 +50,12 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   ];
 
   let navLinks = [...commonBaseLinks];
-  let settingsLink = '/auth'; // Default settings link
+  let settingsLink = '/auth'; 
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
-      navLinks = [...navLinks, ...otherPatientNavLinks]; 
+      navLinks = [...navLinks, ...patientSpecificLinks]; 
       settingsLink = '/patient/settings';
       profileLabel = "My Settings";
     } else if (userRole === 'doctor') {
@@ -69,10 +68,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       profileLabel = "Lab Profile";
     }
   }
-  // For unauthenticated users, navLinks remains commonBaseLinks.
-  // The "Book" dropdown will be added separately.
-
-  // Remove duplicate links (e.g. if a patient link is also in commonBaseLinks)
+  
   navLinks = navLinks.filter((link, index, self) =>
     index === self.findIndex((l) => (
       l.href === link.href && l.label === link.label
@@ -82,7 +78,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between"> {/* Increased height */}
+      <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
@@ -114,7 +110,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             );
           })}
 
-          {/* "Book" Dropdown Menu for Patients and Unauthenticated Users */}
           {((isAuthenticated && userRole === 'patient') || !isAuthenticated) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -2,9 +2,19 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, Search, MessageCircle, User, LayoutDashboard, CalendarDays, Users, Upload, Leaf, Settings, Pill, Stethoscope, FlaskConical } from 'lucide-react';
+import { Home, MessageSquare, User, LayoutDashboard, CalendarDays, Users, Upload, Settings, Pill, Stethoscope, FlaskConical, FileText, CalendarPlus } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import * as React from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Button } from '@/components/ui/button';
 
 type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
 
@@ -12,22 +22,25 @@ interface MobileNavProps {
   userRole: UserRole;
 }
 
-const defaultNavItems = [
+const commonNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Doctors', icon: Stethoscope },
-  { href: '/patient/store', label: 'Pharmacy', icon: Pill },
-  { href: '/patient/lab-tests', label: 'Lab Tests', icon: FlaskConical },
-  { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageCircle },
+  { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageSquare },
 ];
 
 const patientNavItems = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/patient/find-doctors', label: 'Doctors', icon: Stethoscope },
+  ...commonNavItems,
+  // "Book" item will be a Sheet trigger
   { href: '/patient/store', label: 'Pharmacy', icon: Pill },
-  { href: '/patient/lab-tests', label: 'Lab Tests', icon: FlaskConical },
-  { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageCircle },
-  // { href: '/patient/settings', label: 'Settings', icon: Settings }, // Settings usually in a profile menu
+  { href: '/patient/medical-records', label: 'Records', icon: FileText },
 ];
+
+const defaultNavItems = [ // For unauthenticated users
+  ...commonNavItems,
+  // "Book" item will be a Sheet trigger
+  { href: '/patient/store', label: 'Pharmacy', icon: Pill },
+  { href: '/auth?tab=login', label: 'Profile', icon: User }, // Link to login/signup
+];
+
 
 const doctorNavItems = [
   { href: '/doctor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -45,11 +58,14 @@ const labWorkerNavItems = [
 
 export function MobileNav({ userRole }: MobileNavProps) {
   const pathname = usePathname();
+  const [isBookSheetOpen, setIsBookSheetOpen] = React.useState(false);
 
   let navItemsToShow;
+  let showBookSheetTrigger = false;
 
   if (userRole === 'patient') {
     navItemsToShow = patientNavItems;
+    showBookSheetTrigger = true;
   } else if (userRole === 'doctor') {
     navItemsToShow = doctorNavItems;
   } else if (userRole === 'lab_worker') {
@@ -57,6 +73,7 @@ export function MobileNav({ userRole }: MobileNavProps) {
   } else {
     // Unauthenticated users
     navItemsToShow = defaultNavItems;
+    showBookSheetTrigger = true;
   }
 
   return (
@@ -80,6 +97,44 @@ export function MobileNav({ userRole }: MobileNavProps) {
             </Link>
           );
         })}
+
+        {showBookSheetTrigger && (
+           <Sheet open={isBookSheetOpen} onOpenChange={setIsBookSheetOpen}>
+            <SheetTrigger asChild>
+              <button 
+                className={cn(
+                    "flex flex-col items-center justify-center text-center flex-1 p-1 group",
+                    (pathname.startsWith('/patient/find-doctors') || pathname.startsWith('/patient/lab-tests')) ? "text-primary" : "text-muted-foreground hover:text-primary/80"
+                )}
+              >
+                <CalendarPlus className="h-5 w-5 mb-0.5 transition-colors" />
+                <span className={`text-xs transition-colors ${(pathname.startsWith('/patient/find-doctors') || pathname.startsWith('/patient/lab-tests')) ? 'font-medium' : ''}`}>
+                  Book
+                </span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-lg h-auto pb-6">
+              <SheetHeader className="mb-4">
+                <SheetTitle className="text-center text-lg">Booking Options</SheetTitle>
+                <SheetClose />
+              </SheetHeader>
+              <div className="grid grid-cols-2 gap-3">
+                <Link href="/patient/find-doctors" passHref legacyBehavior>
+                  <a onClick={() => setIsBookSheetOpen(false)} className="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer text-center card-gradient">
+                    <Stethoscope className="h-8 w-8 mb-2 text-primary" />
+                    <span className="text-sm font-medium">Book Doctor</span>
+                  </a>
+                </Link>
+                <Link href="/patient/lab-tests" passHref legacyBehavior>
+                  <a onClick={() => setIsBookSheetOpen(false)} className="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer text-center card-gradient">
+                    <FlaskConical className="h-8 w-8 mb-2 text-primary" />
+                    <span className="text-sm font-medium">Book Lab Test</span>
+                  </a>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </div>
     </nav>
   );
