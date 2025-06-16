@@ -1,18 +1,10 @@
 <svg width="200" height="70" viewBox="0 0 200 70" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
     .ez-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #3A4D8F; }
-    .c-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #FFFFFF; }
-    .are-text { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold; fill: #C5CAE9; }
-    .plus-text { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #3A4D8F; }
     .tagline-text { font-family: Arial, sans-serif; font-size: 12px; fill: #3A4D8F; }
   </style>
 
-  <text x="10" y="40" class="ez-text">EZ</text>
-  
-  <text x="60" y="40" class="c-text">C</text>
-  <text x="69" y="33" class="plus-text">+</text>
-  
-  <text x="85" y="40" class="are-text">ARE</text>
-  
-  <text x="60" y="58" class="tagline-text">care simplified</text>
+  <text x="10" y="40" class="ez-text">EZCARE</text>
+
+  <text x="10" y="58" class="tagline-text">care simplified</text>
 </svg>

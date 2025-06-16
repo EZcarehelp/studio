@@ -147,7 +147,7 @@ export default function AuthPage() {
       <Link href="/" className="flex items-center gap-2 mb-8">
          <Image
             src="/logo.svg" 
-            alt="EzCare Connect Logo"
+            alt="EzCare Simplified Logo"
             width={180} 
             height={63} 
             priority

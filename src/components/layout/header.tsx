@@ -82,7 +82,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
         <Link href="/" className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
-            alt="EzCare Connect Logo"
+            alt="EzCare Simplified Logo"
             width={140}
             height={35}
             priority

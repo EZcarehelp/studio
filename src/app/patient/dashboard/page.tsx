@@ -36,7 +36,7 @@ export default function PatientDashboardPage() {
       <Card className="shadow-lg rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-gradient">Welcome to Your Health Dashboard</CardTitle>
-          <CardDescription>Manage your health, appointments, and explore wellness tips with EzCare Connect.</CardDescription>
+          <CardDescription>Manage your health, appointments, and explore wellness tips with EzCare Simplified.</CardDescription>
         </CardHeader>
       </Card>
 
@@ -126,7 +126,7 @@ export default function PatientDashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-blue-600 dark:text-blue-300/90">
-            The AI-powered suggestions and analyses provided by EzCare Connect, including the EzCare Chatbot and diet plans, are for informational purposes only. They do not constitute medical advice, diagnosis, or treatment. Always consult with a qualified healthcare professional for any health concerns or before making any decisions related to your health or treatment.
+            The AI-powered suggestions and analyses provided by EzCare Simplified, including the EzCare Chatbot and diet plans, are for informational purposes only. They do not constitute medical advice, diagnosis, or treatment. Always consult with a qualified healthcare professional for any health concerns or before making any decisions related to your health or treatment.
           </p>
         </CardContent>
       </Card>

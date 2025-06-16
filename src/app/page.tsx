@@ -31,9 +31,9 @@ const featuredDoctors: Doctor[] = [
 ];
 
 const testimonials = [
-  { name: "Sarah L.", feedback: "EzCare Connect made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
+  { name: "Sarah L.", feedback: "EzCare Simplified made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
   { name: "John B.", feedback: "The EzCare Chatbot gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://placehold.co/100x100.png", rating: 4, dataAiHint: "user avatar" },
-  { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare!", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
+  { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare Simplified!", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
 ];
 
 
@@ -47,7 +47,7 @@ export default function HomePage() {
             Your Health, <span className="text-gradient">Simplified.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Connect with trusted doctors, order medicines, and manage your health all in one place with EzCare Connect.
+            Connect with trusted doctors, order medicines, and manage your health all in one place with EzCare Simplified.
           </p>
           {/* Search bar and Find Doctors button removed from here */}
         </div>
@@ -108,7 +108,7 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <section className="pb-8">
         <h2 className="text-2xl font-semibold mb-2 text-center">What Our Patients Say</h2>
-        <p className="text-muted-foreground mb-6 text-center">Real stories from satisfied users of EzCare Connect.</p>
+        <p className="text-muted-foreground mb-6 text-center">Real stories from satisfied users of EzCare Simplified.</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
             <Card key={index} className="shadow-lg card-gradient">

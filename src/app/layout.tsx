@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'EzCare Connect',
-  description: 'Comprehensive healthcare platform by EzCare',
+  title: 'EzCare Simplified',
+  description: 'Comprehensive healthcare platform by EzCare Simplified',
 };
 
 export default function RootLayout({

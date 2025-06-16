@@ -44,7 +44,7 @@ export default function PatientNotificationSettingsPage() {
             Notification Settings
           </CardTitle>
           <CardDescription>
-            Decide how and when you receive updates from EzCare Connect.
+            Decide how and when you receive updates from EzCare Simplified.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>

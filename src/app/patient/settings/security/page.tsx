@@ -97,14 +97,14 @@ export default function PatientSecuritySettingsPage() {
             <Button variant="outline" onClick={handleDownloadData} className="w-full justify-start text-left">
               <Download className="mr-2 h-4 w-4"/> Download Your Medical Data
             </Button>
-            <p className="text-xs text-muted-foreground mt-2">Request a copy of your health records and personal information stored on EzCare Connect.</p>
+            <p className="text-xs text-muted-foreground mt-2">Request a copy of your health records and personal information stored on EzCare Simplified.</p>
           </div>
           
           {/* Delete Account Section */}
           <div className="p-4 border border-destructive/50 rounded-md shadow-sm bg-destructive/5">
             <h3 className="font-semibold text-lg flex items-center mb-3 text-destructive"><UserX className="w-5 h-5 mr-2"/>Delete Account</h3>
             <p className="text-sm text-destructive/90 mb-3">
-                Permanently delete your EzCare Connect account and all associated data. This action cannot be undone.
+                Permanently delete your EzCare Simplified account and all associated data. This action cannot be undone.
             </p>
             <Button variant="destructive" onClick={handleDeleteAccount} className="w-full">
                Request Account Deletion
