@@ -116,10 +116,10 @@ export interface LabTest {
   name: string;
   description: string;
   price?: number;
-  labName?: string; // Added
-  location?: string; // Added
-  rating?: number; // Added (0-5)
-  dataAiHint?: string; // Added for potential lab image
+  labName?: string; 
+  location?: string; 
+  rating?: number; 
+  dataAiHint?: string; 
 }
 
 // Schema for AI Lab Report Analysis Output
@@ -130,9 +130,10 @@ export const AiLabReportAnalysisOutputSchema = z.object({
     value: z.string().describe("The reported value of the parameter, including units if visible (e.g., '10.5 g/dL', '95 mg/dL')."),
     interpretation: z.string().describe("A brief interpretation of this value (e.g., 'Slightly Low', 'Normal', 'High', 'Within Reference Range').")
   })).optional().describe("Detailed list of 2-5 most important or abnormal findings with their values and interpretation. Focus on values outside normal ranges if identifiable, or key health indicators."),
-  actionableSuggestions: z.array(z.string()).describe("A list of 2-4 actionable health suggestions or lifestyle advice based on the report (e.g., 'Increase intake of iron-rich foods like spinach and lentils', 'Consider a 20-minute brisk walk daily', 'Ensure adequate hydration by drinking 8 glasses of water.')."),
+  actionableSuggestions: z.array(z.string()).describe("A list of 2-4 actionable health suggestions or lifestyle advice based on the report (e.g., 'Increase intake of iron-rich foods like spinach and lentils', 'Consider a 20-minute brisk walk daily', 'Ensure adequate hydration by drinking 8 glasses of water.'). These should be specific where possible, linking back to report findings."),
   warningsOrWatchouts: z.array(z.string()).optional().describe("Important warnings, symptoms to watch out for, or when to consult a doctor based on the report (e.g., 'Consult a doctor if you experience persistent fatigue or dizziness', 'Monitor blood pressure regularly as advised by your physician.')."),
-  nextStepRecommendation: z.string().optional().describe("A primary recommended next step for the patient, e.g., 'Book a follow-up appointment with your doctor to discuss these results', 'Consider consulting a dietitian for a personalized meal plan based on these findings'.")
+  nextStepRecommendation: z.string().optional().describe("A primary recommended next step for the patient, e.g., 'Book a follow-up appointment with your doctor to discuss these results', 'Consider consulting a dietitian for a personalized meal plan based on these findings'."),
+  potentialFollowUpQuestions: z.array(z.string()).optional().describe("A list of 2-3 insightful follow-up questions the patient might ask their doctor based on the report analysis, to encourage further discussion and understanding (e.g., 'Given my slightly elevated X, should I be concerned about Y?', 'What are the common side effects of the suggested lifestyle change?')."),
 });
 export type AiLabReportAnalysisOutput = z.infer<typeof AiLabReportAnalysisOutputSchema>;
 
@@ -215,3 +216,4 @@ export interface Pharmacy {
   latitude?: number;
   longitude?: number;
 }
+

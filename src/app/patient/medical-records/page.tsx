@@ -4,7 +4,7 @@
 import { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Eye, Brain, Image as ImageIcon, AlertTriangle, FlaskConical, UploadCloud, Info, MessageSquare, CalendarPlus, ExternalLink, ShieldAlert } from "lucide-react";
+import { FileText, Download, Eye, Brain, Image as ImageIcon, AlertTriangle, FlaskConical, UploadCloud, Info, MessageSquare, CalendarPlus, ExternalLink, ShieldAlert, HelpCircle } from "lucide-react";
 import type { LabReport, AiLabReportAnalysisOutput } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { aiLabReportAnalysis } from '@/ai/flows/ai-lab-report-analysis-flow';
@@ -244,6 +244,7 @@ export default function PatientMedicalRecordsPage() {
                     onChange={handleFileChangeForAnalysis}
                     ref={fileInputRef} 
                     className="flex-grow text-sm"
+                    aria-label="Upload or change report image for analysis"
                 />
                  <Button 
                     type="button" 
@@ -251,6 +252,7 @@ export default function PatientMedicalRecordsPage() {
                     size="icon" 
                     onClick={() => fileInputRef.current?.click()}
                     title="Upload new image for analysis"
+                    aria-label="Trigger file upload for report image"
                 >
                     <UploadCloud className="h-4 w-4"/>
                 </Button>
@@ -263,6 +265,7 @@ export default function PatientMedicalRecordsPage() {
                 onClick={handleGetAIAnalysis} 
                 disabled={isAnalyzing || !uploadedImagePreviewForAnalysis}
                 className="w-full btn-premium rounded-md"
+                aria-live="polite"
               >
                 {isAnalyzing ? (
                   <> <Brain className="mr-2 h-4 w-4 animate-spin" /> Analyzing... </>
@@ -341,11 +344,24 @@ export default function PatientMedicalRecordsPage() {
                     </div>
                   </div>
                 )}
+
+                {aiAnalysisResult.potentialFollowUpQuestions && aiAnalysisResult.potentialFollowUpQuestions.length > 0 && (
+                  <div className="mt-4 pt-3 border-t">
+                    <h3 className="text-md font-semibold mb-1 text-primary flex items-center">
+                        <HelpCircle size={18} className="mr-1.5"/> Potential Follow-Up Questions for Your Doctor:
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-0.5 pl-4 bg-muted/50 p-3 rounded-md">
+                      {aiAnalysisResult.potentialFollowUpQuestions.map((question, index) => (
+                        <li key={index}>{question}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
            <CardFooter>
-             <Card className="mt-4 border-primary/30 bg-primary/10 dark:border-[hsl(var(--accent))]/30 dark:bg-[hsl(var(--accent))]/20 rounded-lg w-full">
+             <Card className="mt-4 border-primary/30 bg-primary/10 dark:border-[hsl(var(--accent))]/30 dark:bg-[hsl(var(--accent))]/20 rounded-lg w-full" role="alert">
                 <CardHeader className="flex flex-row items-center gap-3 pb-3">
                 <ShieldAlert className="h-6 w-6 text-primary dark:text-[hsl(var(--accent))]" />
                 <CardTitle className="text-primary dark:text-[hsl(var(--accent))] text-base">Important Note</CardTitle>
