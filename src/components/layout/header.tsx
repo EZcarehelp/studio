@@ -4,8 +4,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown, FileText, Shield } from 'lucide-react'; // Added Shield
-import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
+import { UserCircle, LogOut, Settings, Stethoscope, FlaskConical, ChevronDown, FileText, MessageSquare, Pill, Shield, LayoutDashboard } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,21 +16,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import type { UserProfile, Doctor } from '@/types';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'admin' | null;
+type AppUserProfile = (UserProfile | Doctor) & { roleActual?: UserProfile['role'] | 'doctor' };
 
 interface HeaderProps {
-  userRole: UserRole;
+  userProfile: AppUserProfile | null;
   isAuthenticated: boolean;
-  onSignOut: () => void; // This should handle the state update and redirect
+  isAdminSession: boolean;
+  onSignOut: () => void;
 }
 
-export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
+export function Header({ userProfile, isAuthenticated, isAdminSession, onSignOut }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter(); // Added router
-  const { toast } = useToast(); // Added toast
+  const userRole = isAdminSession ? 'admin' : userProfile?.roleActual;
 
+  const commonBaseLinks = [
+     { href: '/', label: 'Home' },
+     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
+     { href: '/patient/store', label: 'Store', icon: Pill },
+  ];
+  
   const patientSpecificLinks = [
      { href: '/patient/medical-records', label: 'Medical Records', icon: FileText },
   ];
@@ -46,22 +52,21 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
   
-  const adminNavLinks = [ // Admin specific links for main header if needed
-    { href: '/admin/dashboard', label: 'Admin Panel', icon: Shield },
-  ];
-
-
-  const commonBaseLinks = [
-     { href: '/', label: 'Home' },
-     { href: '/ai-symptom-checker', label: 'EzCare Chatbot', icon: MessageSquare },
-     { href: '/patient/store', label: 'Store', icon: Pill },
-  ];
+  const adminHeaderLink = { href: '/admin/dashboard', label: 'Admin Panel', icon: Shield };
 
   let navLinks = [];
   let settingsLink = '/auth'; 
   let profileLabel = "Profile";
+  let userName = userProfile?.name || "User";
+  let userEmail = userProfile?.email || "";
 
-  if (isAuthenticated) {
+  if (isAdminSession) {
+    navLinks = [adminHeaderLink];
+    settingsLink = '/admin/settings';
+    profileLabel = "Admin Settings";
+    userName = "Admin";
+    userEmail = "ezcarehelp@gmail.com";
+  } else if (isAuthenticated && userProfile) {
     if (userRole === 'patient') {
       navLinks = [...commonBaseLinks, ...patientSpecificLinks]; 
       settingsLink = '/patient/settings';
@@ -74,28 +79,19 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
       navLinks = [...commonBaseLinks, ...labWorkerNavLinks];
       settingsLink = '/lab/profile';
       profileLabel = "Lab Profile";
-    } else if (userRole === 'admin') {
-      // Admin uses its own layout primarily, but this ensures header consistency if ever shown
-      navLinks = [...adminNavLinks]; 
-      settingsLink = '/admin/settings'; // Placeholder for admin settings
-      profileLabel = "Admin Settings";
+    } else { // Fallback for authenticated user with unknown/missing role in profile
+        navLinks = [...commonBaseLinks];
+        settingsLink = '/'; // Or a generic settings page
+        profileLabel = "Settings";
     }
-  } else {
+  } else { // Not authenticated, not admin
       navLinks = [...commonBaseLinks];
   }
   
+  // Remove duplicates just in case
   navLinks = navLinks.filter((link, index, self) =>
-    index === self.findIndex((l) => (
-      l.href === link.href && l.label === link.label
-    ))
+    index === self.findIndex((l) => (l.href === link.href && l.label === link.label))
   );
-
-  // Handle sign out which updates state via prop and then redirects
-  const handleSignOutAndRedirect = () => {
-    onSignOut(); // This should update auth state in AppLayout
-    // Redirection is now handled by AppLayout's useEffect or explicit navigation where onSignOut is called
-  };
-
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
@@ -113,7 +109,6 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
           {navLinks.map((link, index) => {
-            // For admin, '/admin/dashboard' is the root. For others, '/' is.
             const baseHref = userRole === 'admin' ? '/admin/dashboard' : '/';
             const isActive = (link.href === baseHref && pathname === baseHref) || 
                              (link.href !== baseHref && pathname.startsWith(link.href) && link.href.length > 1);
@@ -134,7 +129,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             );
           })}
 
-          {((isAuthenticated && userRole === 'patient') || (!isAuthenticated && userRole !== 'admin')) && (
+          {((isAuthenticated && userRole === 'patient') || (!isAuthenticated && !isAdminSession)) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -173,32 +168,41 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <UserCircle className="h-6 w-6" />
+                    {userProfile?.avatarUrl || userProfile?.imageUrl ? (
+                        <Image src={userProfile.avatarUrl || userProfile.imageUrl!} alt={userName} width={28} height={28} className="rounded-full object-cover"/>
+                    ) : (
+                        <UserCircle className="h-6 w-6" />
+                    )}
                     <span className="sr-only">User Menu</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account ({userRole || 'Guest'})</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-64"> {/* Increased width for email */}
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{userName}</p>
+                      {userEmail && <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>}
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href={settingsLink} className="flex items-center w-full cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" /> {profileLabel}
                     </Link>
                   </DropdownMenuItem>
-                  {userRole === 'patient' && (
-                     <DropdownMenuItem asChild><Link href="/patient/appointments" className="cursor-pointer">My Appointments</Link></DropdownMenuItem>
+                   {userRole === 'patient' && (
+                     <DropdownMenuItem asChild><Link href="/patient/appointments" className="cursor-pointer w-full">My Appointments</Link></DropdownMenuItem>
                   )}
                    {userRole === 'doctor' && (
-                     <DropdownMenuItem asChild><Link href="/doctor/schedule" className="cursor-pointer">Schedule</Link></DropdownMenuItem>
+                     <DropdownMenuItem asChild><Link href="/doctor/schedule" className="cursor-pointer w-full">Schedule</Link></DropdownMenuItem>
                   )}
                   {userRole === 'lab_worker' && (
-                     <DropdownMenuItem asChild><Link href="/lab/profile" className="cursor-pointer">Lab Profile</Link></DropdownMenuItem>
+                     <DropdownMenuItem asChild><Link href="/lab/profile" className="cursor-pointer w-full">Lab Profile</Link></DropdownMenuItem>
                   )}
-                  {userRole === 'admin' && (
-                     <DropdownMenuItem asChild><Link href="/admin/dashboard" className="cursor-pointer">Admin Dashboard</Link></DropdownMenuItem>
+                  {userRole === 'admin' && ( // Admin can also access their dashboard this way
+                     <DropdownMenuItem asChild><Link href="/admin/dashboard" className="cursor-pointer w-full"><LayoutDashboard className="mr-2 h-4 w-4"/>Admin Dashboard</Link></DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOutAndRedirect} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                  <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -215,13 +219,8 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
               </Button>
             </div>
           )}
-           <div className="md:hidden">
-             {/* Placeholder for mobile menu trigger if Header is used for admin on mobile too */}
-           </div>
         </div>
       </div>
     </header>
   );
 }
-
-    

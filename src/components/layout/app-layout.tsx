@@ -4,80 +4,66 @@
 import type { ReactNode } from 'react';
 import { Header } from './header';
 import { MobileNav } from './mobile-nav';
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
-
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'admin' | null;
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthState } from '@/hooks/use-auth-state';
+import { auth } from '@/lib/firebase/config'; // Firebase auth instance
+import { Loader2 } from 'lucide-react';
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRole>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAuthResolved, setIsAuthResolved] = useState(false);
+  const router = useRouter();
+  const { authUser, userProfile, isLoading, isAdminSession } = useAuthState();
 
-  useEffect(() => {
-    let currentAuth = false;
-    let currentRole: UserRole = null;
-
-    if (pathname.startsWith('/patient')) {
-      currentRole = 'patient';
-      currentAuth = true;
-    } else if (pathname.startsWith('/doctor')) {
-      currentRole = 'doctor';
-      currentAuth = true;
-    } else if (pathname.startsWith('/lab')) {
-      currentRole = 'lab_worker';
-      currentAuth = true;
-    } else if (pathname.startsWith('/admin')) {
-      currentRole = 'admin';
-      currentAuth = true; // Assuming admin is always authenticated if on admin path for this mock
-    } else if (pathname === '/auth') {
-      currentRole = null;
-      currentAuth = false;
-    } else if (pathname === '/') {
-      currentAuth = false;
-      currentRole = null;
+  const handleSignOut = async () => {
+    try {
+      if (isAdminSession && typeof window !== 'undefined') {
+        localStorage.removeItem('isAdminLoggedIn');
+      } else {
+        await auth.signOut();
+      }
+      // The onAuthStateChanged listener in useAuthState will handle resetting user states.
+      router.push('/auth'); // Redirect to auth page after sign out
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      // Potentially show a toast message for sign-out error
     }
-    
-    setUserRole(currentRole);
-    setIsAuthenticated(currentAuth);
-    setIsAuthResolved(true);
-  }, [pathname]);
+  };
+  
+  const derivedUserRole = isAdminSession ? 'admin' : userProfile?.roleActual || null;
+  const isAuthenticated = !!authUser || isAdminSession;
 
-
-  const showMainLayout = !pathname.startsWith('/auth') && !pathname.startsWith('/admin');
-  const showAdminLayout = pathname.startsWith('/admin'); // Admin has its own layout
+  if (isLoading && !pathname.startsWith('/auth')) { // Don't show loader on auth page itself initially
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (pathname.startsWith('/auth')) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
 
-  if (showAdminLayout) {
+  if (derivedUserRole === 'admin' && pathname.startsWith('/admin')) {
     // Admin layout is self-contained within src/app/admin/layout.tsx
+    // Ensure admin children are passed, not the main app layout structure
     return <>{children}</>;
   }
   
   // For other general pages and authenticated user roles (patient, doctor, lab_worker)
-  if (showMainLayout) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
-          setIsAuthenticated(false);
-          setUserRole(null);
-          if (typeof window !== 'undefined') {
-            window.location.pathname = '/auth'; 
-          }
-        }} />
-        <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem] pb-20 md:pb-8">
-          {children}
-        </main>
-        {isAuthResolved && <MobileNav userRole={userRole} />}
-      </div>
-    );
-  }
-  
-  // Fallback for any other case (should ideally not be hit if routing is correct)
-  return <main className="min-h-screen flex flex-col">{children}</main>;
+  // or if admin is on a non-admin page (should be rare)
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header 
+        userProfile={userProfile} 
+        isAuthenticated={isAuthenticated} 
+        isAdminSession={isAdminSession}
+        onSignOut={handleSignOut} 
+      />
+      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem] pb-20 md:pb-8">
+        {children}
+      </main>
+      <MobileNav userProfile={userProfile} isAdminSession={isAdminSession} isAuthenticated={isAuthenticated} />
+    </div>
+  );
 }
-
-    
