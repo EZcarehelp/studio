@@ -17,6 +17,9 @@ import { useToast } from "@/hooks/use-toast";
 import { addDoctor, addPatient, addLabWorker, isUsernameUnique } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
 
+const ADMIN_EMAIL = "ezcarehelp@gmail.com";
+const ADMIN_PASSWORD = "VARUNARUN"; // In a real app, NEVER hardcode passwords on the client.
+
 export default function AuthPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -26,14 +29,24 @@ export default function AuthPage() {
   
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const emailValue = (event.currentTarget.elements.namedItem('email-login') as HTMLInputElement).value;
+    const passwordValue = (event.currentTarget.elements.namedItem('password-login') as HTMLInputElement).value;
+
+    if (emailValue === ADMIN_EMAIL && passwordValue === ADMIN_PASSWORD) {
+      toast({ title: "Admin Login Successful", description: "Redirecting to Admin Dashboard..." });
+      router.push('/admin/dashboard');
+      return;
+    }
+    
+    // Mock login for other roles based on email/phone hints
+    // This is NOT secure and for demo purposes only.
     console.log("Logging in...");
     toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
     
-    const phoneValue = (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement).value;
     let role = 'patient'; 
-    if (phoneValue.includes('doc')) {
+    if (emailValue.includes('doc@') || (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement)?.value.includes('doc')) {
       role = 'doctor';
-    } else if (phoneValue.includes('lab')) {
+    } else if (emailValue.includes('lab@') || (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement)?.value.includes('lab')) {
       role = 'lab_worker';
     }
 
@@ -55,6 +68,11 @@ export default function AuthPage() {
     const locationInput = formData.get('location') as string;
     const username = formData.get('username') as string;
 
+    if (email === ADMIN_EMAIL) {
+      toast({ variant: "destructive", title: "Registration Restricted", description: "This email address is reserved. Please use a different email." });
+      return;
+    }
+
     // Username validation
     if (!username) {
       toast({ variant: "destructive", title: "Username Required", description: "Please enter a username." });
@@ -66,14 +84,13 @@ export default function AuthPage() {
       return;
     }
 
-    // Check username uniqueness (case-insensitive)
     const isUnique = await isUsernameUnique(username.toLowerCase());
     if (!isUnique) {
       toast({ variant: "destructive", title: "Username Taken", description: "This username is already in use. Please choose another." });
       return;
     }
     
-    const finalUsername = username.toLowerCase(); // Store username in lowercase
+    const finalUsername = username.toLowerCase(); 
 
     console.log("Signing up as", userType);
     
@@ -99,10 +116,10 @@ export default function AuthPage() {
           licenseNumber,
           clinicHours: "Mon-Fri: 9 AM - 5 PM", 
           onlineConsultationEnabled: true,
-          isVerified: true, 
+          isVerified: true, // Auto-verified for now, admin panel would handle this
         };
         await addDoctor(doctorData); 
-        toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live and discoverable.` });
+        toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live. Approval pending by admin.` });
         router.push('/doctor/dashboard'); 
       } else if (userType === 'lab_worker') {
         const labAffiliation = formData.get('labId') as string; 
@@ -115,9 +132,9 @@ export default function AuthPage() {
           labAffiliation,
         };
         await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt' | 'role'> & { labAffiliation: string, username: string });
-        toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created.` });
+        toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created. Approval pending by admin.` });
         router.push('/lab/dashboard');
-      } else { // Patient
+      } else { 
         const patientData = {
           name,
           username: finalUsername,
@@ -131,14 +148,7 @@ export default function AuthPage() {
       }
     } catch (error) {
         console.error(`Error during ${userType} signup:`, error);
-        if (error instanceof Error) {
-            console.error("Error Name:", error.name);
-            console.error("Error Message:", error.message);
-            console.error("Error Stack:", error.stack);
-        } else {
-            console.error("Caught a non-Error object:", error);
-        }
-        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'An unexpected error occurred. Please check console for details.'}` });
+        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'An unexpected error occurred.'}` });
     }
   };
 
@@ -162,14 +172,18 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare account. <br />(Hint: use 'doc' or 'lab' in phone for roles)</CardDescription>
+              <CardDescription>Access your EzCare Simplified account. <br />(Hint: Use 'doc@', 'lab@' in email for roles)</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone-login">Phone Number</Label>
-                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" required aria-label="Phone number for login" />
+                  <Label htmlFor="email-login">Email Address</Label>
+                  <Input id="email-login" name="email-login" type="email" placeholder="Enter your email" required aria-label="Email address for login" />
                 </div>
+                {/* <div className="space-y-2">
+                  <Label htmlFor="phone-login">Phone Number (Optional)</Label>
+                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" aria-label="Phone number for login" />
+                </div> */}
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Password</Label>
                   <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required aria-label="Password for login" />
@@ -188,7 +202,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Create Account</CardTitle>
-              <CardDescription>Join EzCare today.</CardDescription>
+              <CardDescription>Join EzCare Simplified today.</CardDescription>
             </CardHeader>
             <form onSubmit={handleSignUp}>
               <CardContent className="space-y-4">
@@ -215,8 +229,8 @@ export default function AuthPage() {
                   </RadioGroup>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="name-signup">Full Name</Label>
-                  <Input id="name-signup" name="fullName" placeholder="Enter your full name" required aria-label="Full name for signup" />
+                  <Label htmlFor="fullName-signup">Full Name</Label>
+                  <Input id="fullName-signup" name="fullName" placeholder="Enter your full name" required aria-label="Full name for signup" />
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="username-signup">Username</Label>
@@ -246,32 +260,32 @@ export default function AuthPage() {
                 {userType === 'doctor' && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="license">License Number</Label>
-                      <Input id="license" name="licenseNumber" placeholder="Enter your medical license number" required aria-label="Medical license number for doctor signup" />
+                      <Label htmlFor="licenseNumber-signup">License Number</Label>
+                      <Input id="licenseNumber-signup" name="licenseNumber" placeholder="Enter your medical license number" required aria-label="Medical license number for doctor signup" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="specialization">Specialization</Label>
-                      <Input id="specialization" name="specialization" placeholder="e.g., Cardiologist" required aria-label="Specialization for doctor signup" />
+                      <Label htmlFor="specialization-signup">Specialization</Label>
+                      <Input id="specialization-signup" name="specialization" placeholder="e.g., Cardiologist" required aria-label="Specialization for doctor signup" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="experience">Years of Experience</Label>
-                      <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required min="0" aria-label="Years of experience for doctor signup"/>
+                      <Label htmlFor="experience-signup">Years of Experience</Label>
+                      <Input id="experience-signup" name="experience" type="number" placeholder="e.g., 5" required min="0" aria-label="Years of experience for doctor signup"/>
                     </div>
-                    <p className="text-xs text-muted-foreground">Your profile will be live immediately.</p>
+                    <p className="text-xs text-muted-foreground">Your profile may require admin approval to go live.</p>
                   </>
                 )}
                 {userType === 'lab_worker' && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="lab-id">Laboratory ID / Affiliation</Label>
-                      <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required aria-label="Laboratory ID or affiliation for lab worker signup" />
+                      <Label htmlFor="labId-signup">Laboratory ID / Affiliation</Label>
+                      <Input id="labId-signup" name="labId" placeholder="Enter your lab ID or affiliation" required aria-label="Laboratory ID or affiliation for lab worker signup" />
                     </div>
-                     <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
+                     <p className="text-xs text-muted-foreground">Your account may require admin approval.</p>
                   </>
                 )}
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" name="terms" required aria-labelledby="terms-label"/>
-                  <Label htmlFor="terms" id="terms-label" className="text-sm font-normal">
+                  <Checkbox id="terms-signup" name="terms" required aria-labelledby="terms-label"/>
+                  <Label htmlFor="terms-signup" id="terms-label" className="text-sm font-normal">
                     I agree to the <Link href="/terms" className="underline text-primary">Terms and Conditions</Link>
                   </Label>
                 </div>
@@ -289,3 +303,6 @@ export default function AuthPage() {
     </div>
   );
 }
+
+
+    

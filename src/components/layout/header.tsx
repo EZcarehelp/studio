@@ -4,8 +4,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown, FileText } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { UserCircle, LogOut, Leaf, MessageSquare, Pill, Settings, Stethoscope, FlaskConical, ChevronDown, FileText, Shield } from 'lucide-react'; // Added Shield
+import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,17 +16,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'admin' | null;
 
 interface HeaderProps {
   userRole: UserRole;
   isAuthenticated: boolean;
-  onSignOut: () => void;
+  onSignOut: () => void; // This should handle the state update and redirect
 }
 
 export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter(); // Added router
+  const { toast } = useToast(); // Added toast
 
   const patientSpecificLinks = [
      { href: '/patient/medical-records', label: 'Medical Records', icon: FileText },
@@ -42,6 +45,11 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     { href: '/lab/dashboard', label: 'Dashboard' },
     { href: '/lab/reports/upload', label: 'Upload Report' },
   ];
+  
+  const adminNavLinks = [ // Admin specific links for main header if needed
+    { href: '/admin/dashboard', label: 'Admin Panel', icon: Shield },
+  ];
+
 
   const commonBaseLinks = [
      { href: '/', label: 'Home' },
@@ -49,24 +57,31 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
      { href: '/patient/store', label: 'Store', icon: Pill },
   ];
 
-  let navLinks = [...commonBaseLinks];
+  let navLinks = [];
   let settingsLink = '/auth'; 
   let profileLabel = "Profile";
 
   if (isAuthenticated) {
     if (userRole === 'patient') {
-      navLinks = [...navLinks, ...patientSpecificLinks]; 
+      navLinks = [...commonBaseLinks, ...patientSpecificLinks]; 
       settingsLink = '/patient/settings';
       profileLabel = "My Settings";
     } else if (userRole === 'doctor') {
-      navLinks = [...navLinks, ...doctorNavLinks];
+      navLinks = [...commonBaseLinks, ...doctorNavLinks];
       settingsLink = '/doctor/settings';
       profileLabel = "Doctor Settings";
     } else if (userRole === 'lab_worker') {
-      navLinks = [...navLinks, ...labWorkerNavLinks];
+      navLinks = [...commonBaseLinks, ...labWorkerNavLinks];
       settingsLink = '/lab/profile';
       profileLabel = "Lab Profile";
+    } else if (userRole === 'admin') {
+      // Admin uses its own layout primarily, but this ensures header consistency if ever shown
+      navLinks = [...adminNavLinks]; 
+      settingsLink = '/admin/settings'; // Placeholder for admin settings
+      profileLabel = "Admin Settings";
     }
+  } else {
+      navLinks = [...commonBaseLinks];
   }
   
   navLinks = navLinks.filter((link, index, self) =>
@@ -75,11 +90,17 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
     ))
   );
 
+  // Handle sign out which updates state via prop and then redirects
+  const handleSignOutAndRedirect = () => {
+    onSignOut(); // This should update auth state in AppLayout
+    // Redirection is now handled by AppLayout's useEffect or explicit navigation where onSignOut is called
+  };
+
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg shadow-lg">
       <div className="container mx-auto px-4 h-[4.5rem] flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href={userRole === 'admin' ? "/admin/dashboard" : "/"} className="flex items-center gap-2 shrink-0">
            <Image
             src="/logo.svg"
             alt="EzCare Simplified Logo"
@@ -92,7 +113,10 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
           {navLinks.map((link, index) => {
-            const isActive = (link.href === '/' && pathname === '/') || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1);
+            // For admin, '/admin/dashboard' is the root. For others, '/' is.
+            const baseHref = userRole === 'admin' ? '/admin/dashboard' : '/';
+            const isActive = (link.href === baseHref && pathname === baseHref) || 
+                             (link.href !== baseHref && pathname.startsWith(link.href) && link.href.length > 1);
             return (
               <Link
                 key={`${link.href}-${link.label}-${index}`} 
@@ -110,7 +134,7 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             );
           })}
 
-          {((isAuthenticated && userRole === 'patient') || !isAuthenticated) && (
+          {((isAuthenticated && userRole === 'patient') || (!isAuthenticated && userRole !== 'admin')) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -170,8 +194,11 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
                   {userRole === 'lab_worker' && (
                      <DropdownMenuItem asChild><Link href="/lab/profile" className="cursor-pointer">Lab Profile</Link></DropdownMenuItem>
                   )}
+                  {userRole === 'admin' && (
+                     <DropdownMenuItem asChild><Link href="/admin/dashboard" className="cursor-pointer">Admin Dashboard</Link></DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                  <DropdownMenuItem onClick={handleSignOutAndRedirect} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -189,9 +216,12 @@ export function Header({ userRole, isAuthenticated, onSignOut }: HeaderProps) {
             </div>
           )}
            <div className="md:hidden">
+             {/* Placeholder for mobile menu trigger if Header is used for admin on mobile too */}
            </div>
         </div>
       </div>
     </header>
   );
 }
+
+    

@@ -7,7 +7,7 @@ import { MobileNav } from './mobile-nav';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null; // Pharmacist role removed
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'admin' | null;
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -28,46 +28,56 @@ export function AppLayout({ children }: { children: ReactNode }) {
     } else if (pathname.startsWith('/lab')) {
       currentRole = 'lab_worker';
       currentAuth = true;
-    } 
-    // Removed /pharmacist path logic
-     else if (pathname === '/auth') {
+    } else if (pathname.startsWith('/admin')) {
+      currentRole = 'admin';
+      currentAuth = true; // Assuming admin is always authenticated if on admin path for this mock
+    } else if (pathname === '/auth') {
       currentRole = null;
       currentAuth = false;
     } else if (pathname === '/') {
       currentAuth = false;
       currentRole = null;
     }
-    // If no specific role path is matched but it's not /auth or /, 
-    // it's likely a generic page like /health-news, treat as unauthenticated guest for layout purposes
-    // unless a global auth state indicates otherwise (not implemented yet).
     
     setUserRole(currentRole);
     setIsAuthenticated(currentAuth);
-    setIsAuthResolved(true); // Mark auth as resolved after first check
+    setIsAuthResolved(true);
   }, [pathname]);
 
 
-  const showLayout = !pathname.startsWith('/auth');
+  const showMainLayout = !pathname.startsWith('/auth') && !pathname.startsWith('/admin');
+  const showAdminLayout = pathname.startsWith('/admin'); // Admin has its own layout
 
-  if (!showLayout) {
+  if (pathname.startsWith('/auth')) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
+
+  if (showAdminLayout) {
+    // Admin layout is self-contained within src/app/admin/layout.tsx
+    return <>{children}</>;
+  }
   
-  // Consistent root structure for hydration
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
-        setIsAuthenticated(false);
-        setUserRole(null);
-        // A more robust navigation would use Next.js router push
-        if (typeof window !== 'undefined') {
-          window.location.pathname = '/auth'; 
-        }
-      }} />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem] pb-20 md:pb-8"> {/* Added pb-20 for mobile */}
-        {children}
-      </main>
-      {isAuthResolved && <MobileNav userRole={userRole} />}
-    </div>
-  );
+  // For other general pages and authenticated user roles (patient, doctor, lab_worker)
+  if (showMainLayout) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header userRole={userRole} isAuthenticated={isAuthenticated} onSignOut={() => {
+          setIsAuthenticated(false);
+          setUserRole(null);
+          if (typeof window !== 'undefined') {
+            window.location.pathname = '/auth'; 
+          }
+        }} />
+        <main className="flex-grow container mx-auto px-4 py-8 pt-20 md:pt-[5.5rem] pb-20 md:pb-8">
+          {children}
+        </main>
+        {isAuthResolved && <MobileNav userRole={userRole} />}
+      </div>
+    );
+  }
+  
+  // Fallback for any other case (should ideally not be hit if routing is correct)
+  return <main className="min-h-screen flex flex-col">{children}</main>;
 }
+
+    

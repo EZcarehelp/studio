@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, MessageSquare, User, LayoutDashboard, CalendarDays, Users, Upload, Settings, Pill, Stethoscope, FlaskConical, FileText, CalendarPlus } from 'lucide-react';
+import { Home, MessageSquare, User, LayoutDashboard, CalendarDays, Users, Upload, Settings, Pill, Stethoscope, FlaskConical, FileText, CalendarPlus, Shield, UserCheck } from 'lucide-react'; // Added UserCheck
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from '@/components/ui/button';
 
-type UserRole = 'patient' | 'doctor' | 'lab_worker' | null;
+type UserRole = 'patient' | 'doctor' | 'lab_worker' | 'admin' | null;
 
 interface MobileNavProps {
   userRole: UserRole;
@@ -34,11 +34,10 @@ const patientNavItems = [
   { href: '/patient/medical-records', label: 'Records', icon: FileText },
 ];
 
-const defaultNavItems = [ // For unauthenticated users
+const defaultNavItems = [ 
   ...commonNavItemsBase,
-    // Book is handled by Sheet Trigger now
   { href: '/patient/store', label: 'Pharmacy', icon: Pill },
-  { href: '/auth?tab=login', label: 'Profile', icon: User }, // Link to login/signup
+  { href: '/auth?tab=login', label: 'Profile', icon: User }, 
 ];
 
 
@@ -53,6 +52,14 @@ const labWorkerNavItems = [
   { href: '/lab/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/lab/reports/upload', label: 'Upload', icon: Upload },
   { href: '/lab/profile', label: 'Profile', icon: Settings },
+];
+
+// Admin nav items for mobile bottom bar if needed (can be same as some doctor/lab items or distinct)
+const adminMobileNavItems = [
+    { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/approvals', label: 'Approvals', icon: UserCheck },
+    { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/settings', label: 'Settings', icon: Settings }, // Placeholder
 ];
 
 
@@ -70,27 +77,40 @@ export function MobileNav({ userRole }: MobileNavProps) {
     navItemsToShow = doctorNavItems;
   } else if (userRole === 'lab_worker') {
     navItemsToShow = labWorkerNavItems;
-  } else {
+  } else if (userRole === 'admin') {
+    navItemsToShow = adminMobileNavItems; // Admin has specific mobile nav
+  }
+   else {
     navItemsToShow = defaultNavItems;
     showBookSheetTrigger = true;
   }
+  
+  // Admins should not see the "Book" sheet trigger
+  if (userRole === 'admin') {
+      showBookSheetTrigger = false;
+  }
+
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-40">
       <div className="flex justify-around items-center h-16">
         {navItemsToShow.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href) && item.href.length > 1);
+          // Special case for admin dashboard as root
+          const isAdminDashboardActive = userRole === 'admin' && item.href === '/admin/dashboard' && pathname === '/admin/dashboard';
+          const finalIsActive = isAdminDashboardActive || (userRole !== 'admin' && isActive);
+
           return (
             <Link 
                 key={item.label} 
                 href={item.href} 
                 className={cn(
                     "flex flex-col items-center justify-center text-center flex-1 p-1 group",
-                    isActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"
+                    finalIsActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"
                 )}
             >
               <item.icon className={`h-5 w-5 mb-0.5 transition-colors`} />
-              <span className={`text-xs transition-colors ${isActive ? 'font-medium' : ''}`}>
+              <span className={`text-xs transition-colors ${finalIsActive ? 'font-medium' : ''}`}>
                 {item.label}
               </span>
             </Link>
@@ -138,3 +158,4 @@ export function MobileNav({ userRole }: MobileNavProps) {
     </nav>
   );
 }
+
