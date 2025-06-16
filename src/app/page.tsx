@@ -30,13 +30,6 @@ const featuredDoctors: Doctor[] = [
   { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait" },
 ];
 
-const testimonials = [
-  { name: "Sarah L.", feedback: "EzCare Simplified made finding a specialist so easy! The appointment booking was seamless.", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
-  { name: "John B.", feedback: "The EzCare Chatbot gave me some helpful pointers before I consulted a doctor. Great platform!", avatarUrl: "https://placehold.co/100x100.png", rating: 4, dataAiHint: "user avatar" },
-  { name: "Priya K.", feedback: "I love having all my health needs in one place. Highly recommend EzCare Simplified!", avatarUrl: "https://placehold.co/100x100.png", rating: 5, dataAiHint: "user avatar" },
-];
-
-
 export default function HomePage() {
   return (
     <div className="space-y-12 md:space-y-16">
@@ -102,38 +95,6 @@ export default function HomePage() {
           <Button variant="outline" size="lg" asChild>
             <Link href="/patient/find-doctors">View All Doctors</Link>
           </Button>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="pb-8">
-        <h2 className="text-2xl font-semibold mb-2 text-center">What Our Patients Say</h2>
-        <p className="text-muted-foreground mb-6 text-center">Real stories from satisfied users of EzCare Simplified.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="shadow-lg card-gradient">
-              <CardContent className="pt-6">
-                <div className="flex items-center mb-4">
-                  <Image 
-                    src={testimonial.avatarUrl} 
-                    alt={testimonial.name} 
-                    width={48} 
-                    height={48} 
-                    className="rounded-full mr-4"
-                    data-ai-hint={testimonial.dataAiHint} 
-                  />
-                  <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <div className="flex text-yellow-500">
-                      {Array(testimonial.rating).fill(0).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                      {Array(5 - testimonial.rating).fill(0).map((_, i) => <Star key={i} className="w-4 h-4 text-muted-foreground" />)}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-muted-foreground italic">"{testimonial.feedback}"</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
     </div>
