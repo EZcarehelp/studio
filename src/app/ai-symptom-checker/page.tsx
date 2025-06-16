@@ -320,7 +320,7 @@ export default function EzCareChatbotPage() {
   ];
 
   return (
-    <div className="flex h-[calc(100vh-var(--header-height,4.5rem))] md:h-[calc(100vh-var(--header-height,5.5rem))] w-full bg-background dark:bg-[#1E1E2F]">
+    <div className="flex h-full w-full bg-background dark:bg-[#1E1E2F]">
       <aside className="hidden md:flex md:w-[260px] flex-col bg-gray-100 dark:bg-[#111827] p-3 space-y-2 border-r border-gray-200 dark:border-gray-700">
         {sidebarItems.map((item, index) => (
           item.href ? (
