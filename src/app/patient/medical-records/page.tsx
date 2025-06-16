@@ -4,7 +4,7 @@
 import { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Eye, Brain, Image as ImageIcon, AlertTriangle, FlaskConical, UploadCloud, Info, MessageSquare, CalendarPlus, ExternalLink } from "lucide-react";
+import { FileText, Download, Eye, Brain, Image as ImageIcon, AlertTriangle, FlaskConical, UploadCloud, Info, MessageSquare, CalendarPlus, ExternalLink, ShieldAlert } from "lucide-react";
 import type { LabReport, AiLabReportAnalysisOutput } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { aiLabReportAnalysis } from '@/ai/flows/ai-lab-report-analysis-flow';
@@ -362,3 +362,4 @@ export default function PatientMedicalRecordsPage() {
     </div>
   );
 }
+
