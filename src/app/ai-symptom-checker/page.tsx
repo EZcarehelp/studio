@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight, type ReportContext } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info } from 'lucide-react';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info, Menu } from 'lucide-react';
 import NextImage from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,7 +19,16 @@ import { format } from 'date-fns';
 import type { AyurvedicRemedy } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation'; // For reading query params
+import { useSearchParams } from 'next/navigation';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+
 
 const chatQuerySchema = z.object({
   query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000),
@@ -53,14 +62,14 @@ export default function EzCareChatbotPage() {
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const searchParams = useSearchParams(); // Hook to read query parameters
+  const searchParams = useSearchParams(); 
 
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const finalTranscriptFromSpeechRef = useRef<string>('');
 
-  // State for lab report context
   const [activeReportContext, setActiveReportContext] = useState<ReportContext | null>(null);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
 
 
   const form = useForm<ChatQueryFormData>({
@@ -68,7 +77,6 @@ export default function EzCareChatbotPage() {
     defaultValues: { query: '' },
   });
 
-  // Effect to read report context from URL query parameters
   useEffect(() => {
     const reportDataUri = searchParams.get('reportContextDataUri');
     const reportSummary = searchParams.get('reportContextSummary');
@@ -86,7 +94,6 @@ export default function EzCareChatbotPage() {
         description: `Now discussing: ${context.reportName || 'Selected Report'}. Ask your questions!`,
         duration: 5000,
       });
-       // Optionally, pre-fill the query if it makes sense
        if (!form.getValues('query')) {
         form.setValue('query', `Regarding my ${context.reportName || 'recent lab report'}, `);
       }
@@ -116,14 +123,14 @@ export default function EzCareChatbotPage() {
     form.reset({ query: activeReportContext && keepContext ? `Regarding my ${activeReportContext.reportName || 'recent lab report'}, ` : '' });
     clearSelectedImage();
     if (!keepContext) {
-      setActiveReportContext(null); // Clear report context if not keeping it
+      setActiveReportContext(null); 
     }
   };
 
   useEffect(() => {
-    initializeChat(!!activeReportContext); // Initialize chat, keeping context if it exists
+    initializeChat(!!activeReportContext); 
      // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeReportContext]); // Re-initialize if activeReportContext changes (e.g., new report selected)
+  }, [activeReportContext]); 
 
 
   useEffect(() => {
@@ -232,7 +239,6 @@ export default function EzCareChatbotPage() {
 
     form.reset({ query: '' }); 
     clearSelectedImage();
-    // Do not clear activeReportContext here, it persists for the session unless user starts a new chat without context
 
     try {
       const result: EzCareChatbotOutput = await ezCareChatbotFlow(inputData);
@@ -267,7 +273,7 @@ export default function EzCareChatbotPage() {
           botContent = result.prescriptionInsight?.summary || "Here's an analysis of the prescription:";
           botPrescriptionInsight = result.prescriptionInsight;
           break;
-        case 'report_insight': // Handle new type
+        case 'report_insight': 
           botContent = result.reportInsightMessage || "I've analyzed the report context.";
           break;
         case 'clarification':
@@ -312,15 +318,14 @@ export default function EzCareChatbotPage() {
   const canSubmit = form.formState.isValid || !!prescriptionImageDataUri;
 
   const sidebarItems = [
-    { label: "New Chat", icon: MessageSquarePlus, action: () => initializeChat(false) }, // New chat clears context
+    { label: "New Chat", icon: MessageSquarePlus, action: () => initializeChat(false) }, 
     { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
     { label: "Health News", icon: Rss, href: "/health-news" },
-    { label: "My Medical Records", icon: CalendarDays, href: "/patient/medical-records" },
-    { label: "Settings", icon: Settings, href: "/patient/settings" }, 
   ];
 
   return (
     <div className="flex h-full w-full bg-background dark:bg-[#1E1E2F]">
+      {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:w-[260px] flex-col bg-gray-100 dark:bg-[#111827] p-3 space-y-2 border-r border-gray-200 dark:border-gray-700">
         {sidebarItems.map((item, index) => (
           item.href ? (
@@ -338,15 +343,51 @@ export default function EzCareChatbotPage() {
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[56px] px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F] shrink-0">
-          <div className="flex items-center space-x-2">
-             <NextImage src="/logo.svg" alt="EzCare Logo" width={28} height={28} className="h-7 w-auto" />
-            <h1 className="text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
+        <header className="h-[56px] px-2 sm:px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F] shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            {/* Mobile Sidebar Trigger */}
+            <div className="md:hidden">
+              <Sheet open={isMobileSheetOpen} onOpenChange={setIsMobileSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[260px] p-0 pt-4">
+                  <SheetHeader className="px-3 pb-2 border-b">
+                    <SheetTitle className="text-left">EzCare Menu</SheetTitle>
+                    <SheetClose />
+                  </SheetHeader>
+                  <div className="p-3 space-y-1">
+                    {sidebarItems.map((item, index) => (
+                      item.href ? (
+                        <SheetClose asChild key={`${item.label}-mobile-${index}`}>
+                          <Link href={item.href}>
+                            <Button variant="ghost" className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+                              <item.icon className="mr-3 h-5 w-5" /> {item.label}
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                      ) : (
+                        <SheetClose asChild key={`${item.label}-mobile-${index}`}>
+                          <Button variant="ghost" onClick={item.action} className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+                            <item.icon className="mr-3 h-5 w-5" /> {item.label}
+                          </Button>
+                        </SheetClose>
+                      )
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <NextImage src="/logo.svg" alt="EzCare Logo" width={28} height={28} className="h-6 sm:h-7 w-auto" />
+            <h1 className="text-md sm:text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
           </div>
            {activeReportContext?.reportName && (
-            <div className="text-xs text-muted-foreground border border-dashed border-primary/50 dark:border-accent/50 px-2 py-1 rounded-md flex items-center gap-1.5">
+            <div className="hidden sm:flex text-xs text-muted-foreground border border-dashed border-primary/50 dark:border-accent/50 px-2 py-1 rounded-md items-center gap-1.5">
               <Info size={14} className="text-primary dark:text-accent"/>
-              Context: {activeReportContext.reportName.length > 30 ? activeReportContext.reportName.substring(0,27) + "..." : activeReportContext.reportName}
+              Context: {activeReportContext.reportName.length > 20 ? activeReportContext.reportName.substring(0,17) + "..." : activeReportContext.reportName}
               <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full" onClick={() => { setActiveReportContext(null); initializeChat(false); toast({title: "Report context cleared."})}}>
                 <XCircle size={14} />
                 <span className="sr-only">Clear report context</span>

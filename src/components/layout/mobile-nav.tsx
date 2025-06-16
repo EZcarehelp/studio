@@ -22,21 +22,21 @@ interface MobileNavProps {
   userRole: UserRole;
 }
 
-const commonNavItems = [
+const commonNavItemsBase = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/ai-symptom-checker', label: 'ChatBot', icon: MessageSquare },
 ];
 
 const patientNavItems = [
-  ...commonNavItems,
-  // "Book" item will be a Sheet trigger
+  ...commonNavItemsBase,
+  // Book is handled by Sheet Trigger now
   { href: '/patient/store', label: 'Pharmacy', icon: Pill },
   { href: '/patient/medical-records', label: 'Records', icon: FileText },
 ];
 
 const defaultNavItems = [ // For unauthenticated users
-  ...commonNavItems,
-  // "Book" item will be a Sheet trigger
+  ...commonNavItemsBase,
+    // Book is handled by Sheet Trigger now
   { href: '/patient/store', label: 'Pharmacy', icon: Pill },
   { href: '/auth?tab=login', label: 'Profile', icon: User }, // Link to login/signup
 ];
@@ -71,7 +71,6 @@ export function MobileNav({ userRole }: MobileNavProps) {
   } else if (userRole === 'lab_worker') {
     navItemsToShow = labWorkerNavItems;
   } else {
-    // Unauthenticated users
     navItemsToShow = defaultNavItems;
     showBookSheetTrigger = true;
   }
