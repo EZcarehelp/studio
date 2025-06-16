@@ -12,11 +12,17 @@ import { UserPlus, LogIn, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useRef, type ChangeEvent } from "react"; // Added useRef, ChangeEvent
+import { useState, useRef, type ChangeEvent, type FormEvent } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addPatient, addLabWorker, isUsernameUnique } from '@/lib/firebase/firestore'; 
+import { addDoctor, addPatient, addLabWorker, isUsernameUnique, getUserProfileByUID } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
-import { uploadFileToStorage } from '@/lib/firebase/storage'; // Added storage import
+import { uploadFileToStorage } from '@/lib/firebase/storage';
+import { auth } from '@/lib/firebase/config'; // Import Firebase Auth instance
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  type AuthError
+} from "firebase/auth";
 
 const ADMIN_EMAIL = "ezcarehelp@gmail.com";
 const ADMIN_PASSWORD = "VARUNARUN"; 
@@ -30,34 +36,62 @@ export default function AuthPage() {
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
     const emailValue = (event.currentTarget.elements.namedItem('email-login') as HTMLInputElement).value;
     const passwordValue = (event.currentTarget.elements.namedItem('password-login') as HTMLInputElement).value;
 
+    // Admin login check (remains hardcoded for now)
     if (emailValue === ADMIN_EMAIL && passwordValue === ADMIN_PASSWORD) {
-      toast({ title: "Admin Login Successful", description: "Redirecting to Admin Dashboard..." });
+      toast({ title: "Admin Login Successful", description: "Redirecting to Admin Dashboard...", variant: "success" });
       router.push('/admin/dashboard');
+      setIsLoading(false);
       return;
     }
     
-    console.log("Logging in...");
-    toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
-    
-    let role = 'patient'; 
-    if (emailValue.includes('doc@') || (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement)?.value.includes('doc')) {
-      role = 'doctor';
-    } else if (emailValue.includes('lab@') || (event.currentTarget.elements.namedItem('phone-login') as HTMLInputElement)?.value.includes('lab')) {
-      role = 'lab_worker';
-    }
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, emailValue, passwordValue);
+      const firebaseUser = userCredential.user;
+      console.log("Firebase Auth Login Successful for UID: ", firebaseUser.uid);
 
-    if (role === 'doctor') {
-      router.push('/doctor/dashboard');
-    } else if (role === 'lab_worker') {
-      router.push('/lab/dashboard');
-    } else {
-      router.push('/patient/dashboard');
+      // Fetch user profile from Firestore to determine role and redirect
+      const userProfile = await getUserProfileByUID(firebaseUser.uid);
+
+      if (userProfile) {
+        toast({ title: "Login Successful", description: "Redirecting to dashboard...", variant: "success" });
+        if (userProfile.role === 'doctor') {
+          router.push('/doctor/dashboard');
+        } else if (userProfile.role === 'lab_worker') {
+          router.push('/lab/dashboard');
+        } else if (userProfile.role === 'patient') {
+          router.push('/patient/dashboard');
+        } else {
+          // Fallback if role is not set or unexpected, though unlikely if signup is correct
+          toast({ variant: "destructive", title: "Login Error", description: "User role not found. Please contact support."});
+          router.push('/'); 
+        }
+      } else {
+        // This case should ideally not happen if sign-up correctly creates Firestore doc.
+        // Could indicate an issue where Auth user exists but Firestore profile doesn't.
+        toast({ variant: "destructive", title: "Login Error", description: "User profile not found. Please sign up or contact support." });
+        // Optionally, sign out the user from Firebase Auth here
+        // await auth.signOut();
+      }
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Firebase Auth Login Error: ", authError);
+      let errorMessage = "Failed to login. Please check your credentials.";
+      if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password' || authError.code === 'auth/invalid-credential') {
+        errorMessage = "Invalid email or password.";
+      } else if (authError.code === 'auth/invalid-email') {
+        errorMessage = "Please enter a valid email address.";
+      }
+      toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,33 +117,39 @@ export default function AuthPage() {
     }
   };
 
-  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
     const formData = new FormData(event.currentTarget);
     const name = formData.get('fullName') as string;
     const phone = formData.get('phone') as string;
     const email = formData.get('email-signup') as string; 
+    const password = formData.get('password-signup') as string;
     const locationInput = formData.get('location') as string;
     const username = formData.get('username') as string;
 
     if (email === ADMIN_EMAIL) {
-      toast({ variant: "destructive", title: "Registration Restricted", description: "This email address is reserved. Please use a different email." });
+      toast({ variant: "destructive", title: "Registration Restricted", description: "This email address is reserved for admin. Please use a different email." });
+      setIsLoading(false);
       return;
     }
 
     if (!username) {
       toast({ variant: "destructive", title: "Username Required", description: "Please enter a username." });
+      setIsLoading(false);
       return;
     }
     const usernameRegex = /^[a-zA-Z0-9._]{3,30}$/;
     if (!usernameRegex.test(username)) {
       toast({ variant: "destructive", title: "Invalid Username", description: "Username must be 3-30 characters and can only contain letters, numbers, periods (.), and underscores (_)." });
+      setIsLoading(false);
       return;
     }
 
     const isUnique = await isUsernameUnique(username.toLowerCase());
     if (!isUnique) {
       toast({ variant: "destructive", title: "Username Taken", description: "This username is already in use. Please choose another." });
+      setIsLoading(false);
       return;
     }
     
@@ -128,6 +168,12 @@ export default function AuthPage() {
     }
     
     try {
+      // 1. Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      const uid = firebaseUser.uid;
+
+      // 2. Add user details to Firestore
       if (userType === 'doctor') {
         const specialty = formData.get('specialization') as string;
         const experienceStr = formData.get('experience') as string;
@@ -135,55 +181,52 @@ export default function AuthPage() {
 
         if (!experienceStr || isNaN(parseInt(experienceStr, 10)) || parseInt(experienceStr, 10) < 0) {
             toast({ variant: "destructive", title: "Invalid Input", description: "Years of experience must be a valid non-negative number." });
+            setIsLoading(false);
             return;
         }
         const experience = parseInt(experienceStr, 10);
 
-        const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt'> & { username: string } = {
-          name,
-          username: finalUsername,
-          specialty,
-          experience,
-          consultationFee: 1000, 
-          location: locationInput, 
-          licenseNumber,
-          clinicHours: "Mon-Fri: 9 AM - 5 PM", 
-          onlineConsultationEnabled: true,
-          imageUrl: avatarUrl, // Use uploaded URL or undefined
+        const doctorData = {
+          uid, name, username: finalUsername, email, phone, specialty, experience,
+          consultationFee: 1000, location: locationInput, licenseNumber,
+          clinicHours: "Mon-Fri: 9 AM - 5 PM", onlineConsultationEnabled: true,
+          imageUrl: avatarUrl, 
         };
-        await addDoctor(doctorData); 
-        toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live. Approval pending by admin.` });
+        await addDoctor(doctorData as Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt'> & { username: string, uid: string }); 
+        toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile created. Approval pending by admin.`, variant: "success" });
         router.push('/doctor/dashboard'); 
       } else if (userType === 'lab_worker') {
         const labAffiliation = formData.get('labId') as string; 
         const labWorkerData = {
-          name,
-          username: finalUsername,
-          phone,
-          email,
-          location: locationInput,
-          labAffiliation,
-          avatarUrl, // Use uploaded URL or undefined
+          uid, name, username: finalUsername, email, phone, location: locationInput,
+          labAffiliation, avatarUrl, 
         };
-        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt' | 'role'> & { labAffiliation: string, username: string });
-        toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created. Approval pending by admin.` });
+        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'role' | 'createdAt'> & { labAffiliation: string, username: string, uid: string });
+        toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created. Approval pending.`, variant: "success" });
         router.push('/lab/dashboard');
       } else { 
         const patientData = {
-          name,
-          username: finalUsername,
-          phone,
-          email,
-          location: locationInput,
-          avatarUrl, // Use uploaded URL or undefined
+          uid, name, username: finalUsername, email, phone, location: locationInput,
+          avatarUrl, 
         };
-        await addPatient(patientData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt' | 'role'> & { username: string });
-        toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
+        await addPatient(patientData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'role' | 'createdAt'> & { username: string, uid: string });
+        toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.`, variant: "success" });
         router.push('/patient/dashboard');
       }
     } catch (error) {
-        console.error(`Error during ${userType} signup:`, error);
-        toast({ variant: "destructive", title: "Signup Failed", description: `Could not create ${userType} account. ${error instanceof Error ? error.message : 'An unexpected error occurred.'}` });
+        const authError = error as AuthError;
+        console.error(`Error during ${userType} signup:`, authError);
+        let errorMessage = `Could not create ${userType} account.`;
+        if (authError.code === 'auth/email-already-in-use') {
+            errorMessage = "This email is already registered. Please login or use a different email.";
+        } else if (authError.code === 'auth/weak-password') {
+            errorMessage = "Password is too weak. Please choose a stronger password (at least 6 characters).";
+        } else if (authError.code === 'auth/invalid-email') {
+            errorMessage = "The email address is not valid.";
+        }
+        toast({ variant: "destructive", title: "Signup Failed", description: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,7 +250,7 @@ export default function AuthPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Access your EzCare Simplified account. <br />(Hint: Use 'doc@', 'lab@' in email for roles)</CardDescription>
+              <CardDescription>Access your EzCare Simplified account.</CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
@@ -221,7 +264,9 @@ export default function AuthPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full btn-premium">Login</Button>
+                <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </Button>
                  <Link href="/" className="text-sm text-primary hover:underline">
                     Skip for now & browse
                 </Link>
@@ -278,7 +323,7 @@ export default function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Password</Label>
-                  <Input id="password-signup" name="password" type="password" placeholder="Create a password" required aria-label="Password for signup" />
+                  <Input id="password-signup" name="password" type="password" placeholder="Create a password (min. 6 characters)" required aria-label="Password for signup" />
                 </div>
 
                  <div className="space-y-2">
@@ -334,7 +379,9 @@ export default function AuthPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full btn-premium">Sign Up</Button>
+                <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
+                  {isLoading ? 'Signing up...' : 'Sign Up'}
+                </Button>
                  <Link href="/" className="text-sm text-primary hover:underline">
                     Skip for now & browse
                 </Link>

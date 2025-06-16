@@ -5,18 +5,18 @@ import type { Doctor, UserProfile } from '@/types';
 
 // Add a doctor to Firestore
 export async function addDoctor(
-  doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt'> & 
+  doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt' | 'uid'> & 
               Partial<Pick<Doctor, 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'imageUrl'>> &
-              { username: string } 
+              { username: string; uid: string; } // Added uid
 ): Promise<Doctor> {
   try {
     const docDataWithTimestamp = {
-      ...doctorData,
+      ...doctorData, // uid is now part of doctorData
       username: doctorData.username.toLowerCase(), 
-      rating: doctorData.rating || parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)), // Ensure rating is a number
+      rating: doctorData.rating || parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)),
       availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
-      imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png", // Use provided or default
-      isVerified: doctorData.isVerified === undefined ? true : doctorData.isVerified,
+      imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
+      isVerified: doctorData.isVerified === undefined ? false : doctorData.isVerified, // Doctors start unverified
       dataAiHint: doctorData.dataAiHint || "doctor portrait",
       createdAt: serverTimestamp(),
     };
@@ -48,15 +48,15 @@ export async function getDoctors(): Promise<Doctor[]> {
 
 // Add a patient to Firestore
 export async function addPatient(
-  patientData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'role' | 'createdAt'> &
-               { username: string; avatarUrl?: string; } 
+  patientData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'role' | 'createdAt' | 'uid'> &
+               { username: string; avatarUrl?: string; uid: string; } // Added uid
 ): Promise<UserProfile> {
   try {
     const patientDataWithTimestamp = {
-      ...patientData,
+      ...patientData, // uid is now part of patientData
       username: patientData.username.toLowerCase(), 
       role: 'patient' as const,
-      avatarUrl: patientData.avatarUrl || "https://placehold.co/200x200.png", // Use provided or default
+      avatarUrl: patientData.avatarUrl || "https://placehold.co/200x200.png",
       createdAt: serverTimestamp(),
     };
     const docRef = await addDoc(collection(db, "patients"), patientDataWithTimestamp);
@@ -70,8 +70,8 @@ export async function addPatient(
 
 // Add a lab worker to Firestore
 export async function addLabWorker(
-  labWorkerData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'role' | 'createdAt'> &
-                 { labAffiliation: string; username: string; avatarUrl?: string; } 
+  labWorkerData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'role' | 'createdAt' | 'uid'> &
+                 { labAffiliation: string; username: string; avatarUrl?: string; uid: string; } // Added uid
 ): Promise<UserProfile> {
   try {
     const labWorkerDataWithTimestamp = {
@@ -82,7 +82,8 @@ export async function addLabWorker(
       role: 'lab_worker' as const,
       location: labWorkerData.location,
       labAffiliation: labWorkerData.labAffiliation,
-      avatarUrl: labWorkerData.avatarUrl || "https://placehold.co/200x200.png", // Use provided or default
+      avatarUrl: labWorkerData.avatarUrl || "https://placehold.co/200x200.png",
+      uid: labWorkerData.uid, // Storing Firebase Auth UID
       createdAt: serverTimestamp(),
     };
     const docRef = await addDoc(collection(db, "lab_workers"), labWorkerDataWithTimestamp);
@@ -143,3 +144,24 @@ export async function getUserByUsername(username: string): Promise<(UserProfile 
   return null; 
 }
     
+// Get user profile by UID from Firestore (searches patients, doctors, lab_workers)
+export async function getUserProfileByUID(uid: string): Promise<UserProfile | Doctor | null> {
+  if (!uid) return null;
+
+  const collectionsToSearch = ['patients', 'doctors', 'lab_workers'];
+  for (const collectionName of collectionsToSearch) {
+    const q = query(collection(db, collectionName), where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      // Ensure role is correctly set if not explicitly in DB (especially for doctors)
+      let data = { id: doc.id, ...doc.data() };
+      if (collectionName === 'doctors' && !data.role) {
+        data.role = 'doctor';
+      }
+      return data as UserProfile | Doctor;
+    }
+  }
+  console.log(`No profile found for UID: ${uid} in any collection.`);
+  return null;
+}

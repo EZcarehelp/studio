@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export interface Doctor {
   id: string;
+  uid?: string; // Firebase Auth UID
   name: string;
   username?: string;
   specialty: string;
@@ -79,6 +80,7 @@ export interface Appointment {
 
 export interface UserProfile {
   id: string;
+  uid?: string; // Firebase Auth UID
   name: string;
   username?: string;
   email?: string;
@@ -140,7 +142,7 @@ export type AiLabReportAnalysisOutput = z.infer<typeof AiLabReportAnalysisOutput
 
 export interface LabReport {
   id: string;
-  patientId: string; // ID of the patient (internal system ID)
+  patientId: string; // ID of the patient (internal system ID or Firebase Auth UID)
   patientUsername?: string; // EzCare username of the patient this report is for
   patientName?: string; // Name of the patient, if available
   testId: string; // ID of the lab test type
@@ -216,4 +218,3 @@ export interface Pharmacy {
   latitude?: number;
   longitude?: number;
 }
-
