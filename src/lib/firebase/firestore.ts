@@ -1,21 +1,21 @@
 
-import { db } from './config'; // Import Firestore instance from config
+import { db } from './config'; 
 import { collection, addDoc, getDocs, serverTimestamp, query, where, type DocumentData, type QuerySnapshot } from 'firebase/firestore';
 import type { Doctor, UserProfile } from '@/types';
 
 // Add a doctor to Firestore
 export async function addDoctor(
-  doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'> & 
-              Partial<Pick<Doctor, 'rating' | 'availability' | 'imageUrl' | 'isVerified' | 'dataAiHint'>> &
-              { username: string } // Ensure username is required
+  doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt'> & 
+              Partial<Pick<Doctor, 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'imageUrl'>> &
+              { username: string } 
 ): Promise<Doctor> {
   try {
     const docDataWithTimestamp = {
       ...doctorData,
-      username: doctorData.username.toLowerCase(), // Store username in lowercase
-      rating: doctorData.rating || (Math.random() * 1.5 + 3.5).toFixed(1),
+      username: doctorData.username.toLowerCase(), 
+      rating: doctorData.rating || parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)), // Ensure rating is a number
       availability: doctorData.availability || (Math.random() > 0.5 ? "Available Today" : "Next 3 days"),
-      imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png",
+      imageUrl: doctorData.imageUrl || "https://placehold.co/400x250.png", // Use provided or default
       isVerified: doctorData.isVerified === undefined ? true : doctorData.isVerified,
       dataAiHint: doctorData.dataAiHint || "doctor portrait",
       createdAt: serverTimestamp(),
@@ -48,15 +48,15 @@ export async function getDoctors(): Promise<Doctor[]> {
 
 // Add a patient to Firestore
 export async function addPatient(
-  patientData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'role'> &
-               { username: string } // Ensure username is required
+  patientData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'role' | 'createdAt'> &
+               { username: string; avatarUrl?: string; } 
 ): Promise<UserProfile> {
   try {
     const patientDataWithTimestamp = {
       ...patientData,
-      username: patientData.username.toLowerCase(), // Store username in lowercase
+      username: patientData.username.toLowerCase(), 
       role: 'patient' as const,
-      avatarUrl: patientData.avatarUrl || "https://placehold.co/200x200.png",
+      avatarUrl: patientData.avatarUrl || "https://placehold.co/200x200.png", // Use provided or default
       createdAt: serverTimestamp(),
     };
     const docRef = await addDoc(collection(db, "patients"), patientDataWithTimestamp);
@@ -70,19 +70,19 @@ export async function addPatient(
 
 // Add a lab worker to Firestore
 export async function addLabWorker(
-  labWorkerData: Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'role'> &
-                 { labAffiliation: string; username: string } // Ensure username is required
+  labWorkerData: Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'role' | 'createdAt'> &
+                 { labAffiliation: string; username: string; avatarUrl?: string; } 
 ): Promise<UserProfile> {
   try {
     const labWorkerDataWithTimestamp = {
       name: labWorkerData.name,
       phone: labWorkerData.phone,
       email: labWorkerData.email,
-      username: labWorkerData.username.toLowerCase(), // Store username in lowercase
+      username: labWorkerData.username.toLowerCase(), 
       role: 'lab_worker' as const,
       location: labWorkerData.location,
       labAffiliation: labWorkerData.labAffiliation,
-      avatarUrl: "https://placehold.co/200x200.png",
+      avatarUrl: labWorkerData.avatarUrl || "https://placehold.co/200x200.png", // Use provided or default
       createdAt: serverTimestamp(),
     };
     const docRef = await addDoc(collection(db, "lab_workers"), labWorkerDataWithTimestamp);
@@ -104,10 +104,10 @@ export async function isUsernameUnique(username: string): Promise<boolean> {
     const q = query(collection(db, collectionName), where("username", "==", lowerUsername));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      return false; // Username found, not unique
+      return false; 
     }
   }
-  return true; // Username not found in any collection, it's unique
+  return true; 
 }
 
 // Get user by username from specified collections
@@ -128,14 +128,18 @@ export async function getUserByUsername(username: string): Promise<(UserProfile 
       const doc = querySnapshot.docs[0];
       const userData = { id: doc.id, ...doc.data() };
       
-      // Ensure a role is present, especially for doctors
       let roleActual: UserProfile['role'] | 'doctor' = (userData as UserProfile).role;
       if (!roleActual && collectionName === 'doctors') {
         roleActual = 'doctor';
+      } else if (!roleActual && collectionName === 'patients') {
+        roleActual = 'patient';
+      } else if (!roleActual && collectionName === 'lab_workers') {
+        roleActual = 'lab_worker';
       }
       
       return { ...userData, roleActual } as (UserProfile | Doctor) & { roleActual?: UserProfile['role'] | 'doctor' };
     }
   }
-  return null; // Username not found
+  return null; 
 }
+    

@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useParams }    from 'next/navigation';
 import { getUserByUsername } from '@/lib/firebase/firestore';
 import type { UserProfile, Doctor } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, UserCircle, ShieldCheck, Briefcase, MapPin, Mail, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button'; // Added Button for homepage link
 
 // Helper type for the combined user data with a clear role
 type CombinedUserType = (UserProfile | Doctor) & { roleActual: UserProfile['role'] | 'doctor' };
@@ -23,14 +24,14 @@ export default function UserProfilePage() {
   useEffect(() => {
     if (usernameFromUrl) {
       const fetchUser = async () => {
-        setUser(undefined); // Set to loading state
+        setUser(undefined); 
         setError(null);
         try {
-          const fetchedUser = await getUserByUsername(usernameFromUrl.toLowerCase()); // Fetch using lowercase username
+          const fetchedUser = await getUserByUsername(usernameFromUrl.toLowerCase()); 
           if (fetchedUser) {
-            setUser(fetchedUser as CombinedUserType); // Type assertion based on improved getUserByUsername
+            setUser(fetchedUser as CombinedUserType); 
           } else {
-            setUser(null); // User not found
+            setUser(null); 
           }
         } catch (err) {
           console.error("Error fetching user by username:", err);
@@ -79,7 +80,11 @@ export default function UserProfilePage() {
   
   const isDoctorProfile = user.roleActual === 'doctor' && 'specialty' in user;
   const doctorProfile = isDoctorProfile ? (user as Doctor) : null;
-  const userProfile = user as UserProfile; // General user details
+  const userProfile = user as UserProfile; 
+
+  const avatarSource = userProfile.avatarUrl || doctorProfile?.imageUrl || `https://placehold.co/200x200.png?text=${userProfile.username?.substring(0,2).toUpperCase()}`;
+  const avatarDataAiHint = userProfile.roleActual === 'doctor' ? 'doctor avatar' : userProfile.roleActual === 'lab_worker' ? 'lab worker avatar' : 'user avatar';
+
 
   return (
     <div className="max-w-2xl mx-auto py-8">
@@ -88,9 +93,9 @@ export default function UserProfilePage() {
           <div className="flex flex-col items-center sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
             <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
               <AvatarImage 
-                src={userProfile.avatarUrl || `https://placehold.co/200x200.png?text=${userProfile.username?.substring(0,2).toUpperCase()}`} 
+                src={avatarSource} 
                 alt={userProfile.name} 
-                data-ai-hint={`${userProfile.roleActual} avatar`}
+                data-ai-hint={avatarDataAiHint}
               />
               <AvatarFallback className="text-4xl bg-black/20">{userProfile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
@@ -145,7 +150,7 @@ export default function UserProfilePage() {
                     </div>
                 </div>
               </div>
-              {doctorProfile.experience !== undefined && ( // Check for undefined as experience can be 0
+              {doctorProfile.experience !== undefined && ( 
                 <div className="flex items-start">
                      <ShieldCheck className="w-5 h-5 mr-3 mt-1 text-muted-foreground flex-shrink-0"/>
                     <div>
@@ -183,11 +188,14 @@ export default function UserProfilePage() {
             </div>
           )}
           
-          <p className="text-xs text-muted-foreground pt-4 border-t text-center">
-            This is a basic profile view. More details can be added as the platform evolves.
-          </p>
+          <CardFooter className="pt-4 border-t text-center">
+            <p className="text-xs text-muted-foreground mx-auto">
+                This is a basic profile view. More details can be added as the platform evolves.
+            </p>
+          </CardFooter>
         </CardContent>
       </Card>
     </div>
   );
 }
+    

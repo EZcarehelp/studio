@@ -8,17 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { UserPlus, LogIn } from "lucide-react"; 
+import { UserPlus, LogIn, UploadCloud } from "lucide-react"; 
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState } from "react";
+import { useState, useRef, type ChangeEvent } from "react"; // Added useRef, ChangeEvent
 import { useToast } from "@/hooks/use-toast";
 import { addDoctor, addPatient, addLabWorker, isUsernameUnique } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
+import { uploadFileToStorage } from '@/lib/firebase/storage'; // Added storage import
 
 const ADMIN_EMAIL = "ezcarehelp@gmail.com";
-const ADMIN_PASSWORD = "VARUNARUN"; // In a real app, NEVER hardcode passwords on the client.
+const ADMIN_PASSWORD = "VARUNARUN"; 
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -26,6 +27,9 @@ export default function AuthPage() {
   const { toast } = useToast();
   const initialTab = searchParams.get('tab') || 'login';
   const [userType, setUserType] = useState<'patient' | 'doctor' | 'lab_worker'>('patient');
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,8 +42,6 @@ export default function AuthPage() {
       return;
     }
     
-    // Mock login for other roles based on email/phone hints
-    // This is NOT secure and for demo purposes only.
     console.log("Logging in...");
     toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
     
@@ -59,6 +61,28 @@ export default function AuthPage() {
     }
   };
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) { // Max 5MB
+        toast({ variant: "destructive", title: "File too large", description: "Profile picture must be smaller than 5MB." });
+        if(fileInputRef.current) fileInputRef.current.value = "";
+        setProfilePictureFile(null);
+        setProfilePicturePreview(null);
+        return;
+      }
+      setProfilePictureFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+        setProfilePictureFile(null);
+        setProfilePicturePreview(null);
+    }
+  };
+
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -73,7 +97,6 @@ export default function AuthPage() {
       return;
     }
 
-    // Username validation
     if (!username) {
       toast({ variant: "destructive", title: "Username Required", description: "Please enter a username." });
       return;
@@ -91,8 +114,18 @@ export default function AuthPage() {
     }
     
     const finalUsername = username.toLowerCase(); 
+    let avatarUrl: string | undefined = undefined;
 
-    console.log("Signing up as", userType);
+    if (profilePictureFile) {
+      try {
+        const fileName = `profile_${Date.now()}_${profilePictureFile.name}`;
+        avatarUrl = await uploadFileToStorage(profilePictureFile, `profilePictures/${finalUsername}`, fileName);
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload profile picture. Please try again or continue without one." });
+        // Optionally, allow signup without picture or return
+      }
+    }
     
     try {
       if (userType === 'doctor') {
@@ -106,7 +139,7 @@ export default function AuthPage() {
         }
         const experience = parseInt(experienceStr, 10);
 
-        const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'imageUrl' | 'dataAiHint' | 'createdAt'> & { username: string } = {
+        const doctorData: Omit<Doctor, 'id' | 'rating' | 'availability' | 'isVerified' | 'dataAiHint' | 'createdAt'> & { username: string } = {
           name,
           username: finalUsername,
           specialty,
@@ -116,7 +149,7 @@ export default function AuthPage() {
           licenseNumber,
           clinicHours: "Mon-Fri: 9 AM - 5 PM", 
           onlineConsultationEnabled: true,
-          isVerified: true, // Auto-verified for now, admin panel would handle this
+          imageUrl: avatarUrl, // Use uploaded URL or undefined
         };
         await addDoctor(doctorData); 
         toast({ title: "Doctor Sign Up Successful", description: `Dr. ${name}'s profile is now live. Approval pending by admin.` });
@@ -130,8 +163,9 @@ export default function AuthPage() {
           email,
           location: locationInput,
           labAffiliation,
+          avatarUrl, // Use uploaded URL or undefined
         };
-        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt' | 'role'> & { labAffiliation: string, username: string });
+        await addLabWorker(labWorkerData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'createdAt' | 'role'> & { labAffiliation: string, username: string });
         toast({ title: "Lab Worker Sign Up Successful", description: `Account for ${name} at ${labAffiliation} created. Approval pending by admin.` });
         router.push('/lab/dashboard');
       } else { 
@@ -141,8 +175,9 @@ export default function AuthPage() {
           phone,
           email,
           location: locationInput,
+          avatarUrl, // Use uploaded URL or undefined
         };
-        await addPatient(patientData as Omit<UserProfile, 'id' | 'avatarUrl' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt' | 'role'> & { username: string });
+        await addPatient(patientData as Omit<UserProfile, 'id' | 'medicalHistory' | 'savedAddresses' | 'paymentMethods' | 'doctorDetails' | 'labAffiliation' | 'createdAt' | 'role'> & { username: string });
         toast({ title: "Patient Sign Up Successful", description: `Account created for ${name}.` });
         router.push('/patient/dashboard');
       }
@@ -180,10 +215,6 @@ export default function AuthPage() {
                   <Label htmlFor="email-login">Email Address</Label>
                   <Input id="email-login" name="email-login" type="email" placeholder="Enter your email" required aria-label="Email address for login" />
                 </div>
-                {/* <div className="space-y-2">
-                  <Label htmlFor="phone-login">Phone Number (Optional)</Label>
-                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" aria-label="Phone number for login" />
-                </div> */}
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Password</Label>
                   <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required aria-label="Password for login" />
@@ -250,6 +281,18 @@ export default function AuthPage() {
                   <Input id="password-signup" name="password" type="password" placeholder="Create a password" required aria-label="Password for signup" />
                 </div>
 
+                 <div className="space-y-2">
+                  <Label htmlFor="profile-picture-signup" className="flex items-center">
+                    <UploadCloud className="w-4 h-4 mr-2 opacity-70"/> Profile Picture (Optional)
+                  </Label>
+                  <Input id="profile-picture-signup" name="profilePicture" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} aria-label="Profile picture for signup" className="text-sm"/>
+                  {profilePicturePreview && (
+                    <div className="mt-2">
+                      <Image src={profilePicturePreview} alt="Profile preview" width={80} height={80} className="rounded-full object-cover aspect-square" />
+                    </div>
+                  )}
+                </div>
+
                 {(userType === 'doctor' || userType === 'lab_worker' || userType === 'patient') && (
                     <div className="space-y-2">
                       <Label htmlFor="location-common">Location (City, State or Full Address)</Label>
@@ -303,6 +346,4 @@ export default function AuthPage() {
     </div>
   );
 }
-
-
     
