@@ -168,11 +168,11 @@ export default function AuthPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone-login">Phone Number</Label>
-                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" required />
+                  <Input id="phone-login" name="phone-login" type="tel" placeholder="Enter your phone number" required aria-label="Phone number for login" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Password</Label>
-                  <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required />
+                  <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required aria-label="Password for login" />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
@@ -198,47 +198,48 @@ export default function AuthPage() {
                     defaultValue="patient" 
                     onValueChange={(value: 'patient' | 'doctor' | 'lab_worker') => setUserType(value)} 
                     className="flex gap-4 flex-wrap"
+                    aria-label="Select account type"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="patient" id="patient" />
-                      <Label htmlFor="patient">Patient</Label>
+                      <RadioGroupItem value="patient" id="patient" aria-labelledby="patient-label"/>
+                      <Label htmlFor="patient" id="patient-label">Patient</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="doctor" id="doctor" />
-                      <Label htmlFor="doctor">Doctor</Label>
+                      <RadioGroupItem value="doctor" id="doctor" aria-labelledby="doctor-label"/>
+                      <Label htmlFor="doctor" id="doctor-label">Doctor</Label>
                     </div>
                      <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="lab_worker" id="lab_worker" />
-                      <Label htmlFor="lab_worker">Lab Worker</Label>
+                      <RadioGroupItem value="lab_worker" id="lab_worker" aria-labelledby="lab_worker-label"/>
+                      <Label htmlFor="lab_worker" id="lab_worker-label">Lab Worker</Label>
                     </div>
                   </RadioGroup>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="name-signup">Full Name</Label>
-                  <Input id="name-signup" name="fullName" placeholder="Enter your full name" required />
+                  <Input id="name-signup" name="fullName" placeholder="Enter your full name" required aria-label="Full name for signup" />
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="username-signup">Username</Label>
-                  <Input id="username-signup" name="username" placeholder="e.g., ezcare_user (a-z, 0-9, _, .)" required />
+                  <Input id="username-signup" name="username" placeholder="e.g., ezcare_user (a-z, 0-9, _, .)" required aria-label="Username for signup" />
                   <p className="text-xs text-muted-foreground">3-30 characters. No special symbols except '.' and '_'.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-signup">Email Address</Label>
-                  <Input id="email-signup" name="email-signup" type="email" placeholder="Enter your email address" required />
+                  <Input id="email-signup" name="email-signup" type="email" placeholder="Enter your email address" required aria-label="Email address for signup" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone-signup">Phone Number</Label>
-                  <Input id="phone-signup" name="phone" type="tel" placeholder="Enter your phone number" required />
+                  <Input id="phone-signup" name="phone" type="tel" placeholder="Enter your phone number" required aria-label="Phone number for signup" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Password</Label>
-                  <Input id="password-signup" name="password" type="password" placeholder="Create a password" required />
+                  <Input id="password-signup" name="password" type="password" placeholder="Create a password" required aria-label="Password for signup" />
                 </div>
 
                 {(userType === 'doctor' || userType === 'lab_worker' || userType === 'patient') && (
                     <div className="space-y-2">
                       <Label htmlFor="location-common">Location (City, State or Full Address)</Label>
-                      <Input id="location-common" name="location" placeholder="e.g., New York, NY or 123 Main St, City" required />
+                      <Input id="location-common" name="location" placeholder="e.g., New York, NY or 123 Main St, City" required aria-label="Location for signup" />
                     </div>
                 )}
 
@@ -246,15 +247,15 @@ export default function AuthPage() {
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="license">License Number</Label>
-                      <Input id="license" name="licenseNumber" placeholder="Enter your medical license number" required />
+                      <Input id="license" name="licenseNumber" placeholder="Enter your medical license number" required aria-label="Medical license number for doctor signup" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="specialization">Specialization</Label>
-                      <Input id="specialization" name="specialization" placeholder="e.g., Cardiologist" required />
+                      <Input id="specialization" name="specialization" placeholder="e.g., Cardiologist" required aria-label="Specialization for doctor signup" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="experience">Years of Experience</Label>
-                      <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required min="0"/>
+                      <Input id="experience" name="experience" type="number" placeholder="e.g., 5" required min="0" aria-label="Years of experience for doctor signup"/>
                     </div>
                     <p className="text-xs text-muted-foreground">Your profile will be live immediately.</p>
                   </>
@@ -263,14 +264,14 @@ export default function AuthPage() {
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="lab-id">Laboratory ID / Affiliation</Label>
-                      <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required />
+                      <Input id="lab-id" name="labId" placeholder="Enter your lab ID or affiliation" required aria-label="Laboratory ID or affiliation for lab worker signup" />
                     </div>
                      <p className="text-xs text-muted-foreground">Your account may be subject to verification.</p>
                   </>
                 )}
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" name="terms" required />
-                  <Label htmlFor="terms" className="text-sm font-normal">
+                  <Checkbox id="terms" name="terms" required aria-labelledby="terms-label"/>
+                  <Label htmlFor="terms" id="terms-label" className="text-sm font-normal">
                     I agree to the <Link href="/terms" className="underline text-primary">Terms and Conditions</Link>
                   </Label>
                 </div>
@@ -288,4 +289,3 @@ export default function AuthPage() {
     </div>
   );
 }
-

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Doctor } from '@/types';
@@ -64,11 +65,11 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
         </Badge>
       </CardContent>
       <CardFooter className="p-4 grid grid-cols-2 gap-2 border-t mt-auto">
-        <Button variant="outline" size="sm" onClick={handleBookAppointment} className="rounded-md">
+        <Button variant="outline" size="sm" onClick={handleBookAppointment} className="rounded-md" aria-label={`Book appointment with ${doctor.name}`}>
           <CalendarDays className="w-4 h-4 mr-2" /> Book
         </Button>
         <Button asChild className="btn-premium rounded-md" size="sm">
-          <Link href={`/patient/chats/new?doctorId=${doctor.id}`}> {/* Assuming a route to start new chat */}
+          <Link href={`/patient/chats/new?doctorId=${doctor.id}`} aria-label={`Chat with ${doctor.name}`}>
             <MessageSquare className="w-4 h-4 mr-2" /> Chat
           </Link>
         </Button>

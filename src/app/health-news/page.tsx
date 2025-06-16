@@ -50,14 +50,14 @@ export default function HealthNewsPage() {
       </Card>
 
       {isLoading && (
-        <div className="flex justify-center items-center py-10">
+        <div className="flex justify-center items-center py-10" role="status" aria-live="polite">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
           <p className="ml-3 text-lg text-muted-foreground">Loading health news...</p>
         </div>
       )}
 
       {error && (
-        <Card className="border-destructive bg-destructive/10 rounded-lg">
+        <Card className="border-destructive bg-destructive/10 rounded-lg" role="alert">
           <CardHeader className="flex flex-row items-center gap-2">
              <AlertTriangle className="h-6 w-6 text-destructive" />
             <CardTitle className="text-destructive">Error Fetching News</CardTitle>
@@ -113,7 +113,7 @@ export default function HealthNewsPage() {
                   </span>
                 </div>
                 <Button variant="link" asChild className="p-0 h-auto text-primary hover:text-secondary">
-                  <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
+                  <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer" aria-label={`Read more about ${article.title}`}>
                     Read More <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
                   </Link>
                 </Button>
