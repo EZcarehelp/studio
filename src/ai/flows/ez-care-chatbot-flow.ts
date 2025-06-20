@@ -37,11 +37,11 @@ export type EzCareChatbotInput = z.infer<typeof EzCareChatbotInputSchema>;
 
 const EzCareChatbotOutputSchema = z.object({
   type: z.enum(['analysis', 'remedy', 'clarification', 'error', 'prescription_insight', 'report_insight']).describe("The type of response from the chatbot."),
-  analysis: z.string().optional().describe("Symptom analysis, if applicable. Include links to medical sources."),
+  analysis: z.string().optional().describe("Symptom analysis, if applicable. Include links to medical sources. If stress is mentioned, include yoga/relaxation suggestions here."),
   remedy: AiAyurvedicRemedyOutputSchema.optional().describe("Ayurvedic remedy suggestion, if applicable."),
   prescriptionInsight: PrescriptionInsightSchema.optional().describe("Analysis of an uploaded prescription image, if applicable."),
   reportInsightMessage: z.string().optional().describe("A message from the AI specifically addressing a query about a lab report, using the provided context."),
-  message: z.string().optional().describe("A general message or clarification question from the chatbot."),
+  message: z.string().optional().describe("A general message or clarification question from the chatbot. If stress is mentioned vaguely, include yoga/relaxation suggestions here."),
   errorMessage: z.string().optional().describe("Error message, if any.")
 });
 export type EzCareChatbotOutput = z.infer<typeof EzCareChatbotOutputSchema>;
@@ -82,8 +82,9 @@ const mainChatbotPrompt = ai.definePrompt({
   name: 'ezCareChatbotPrompt',
   input: {schema: EzCareChatbotInputSchema},
   output: {schema: EzCareChatbotOutputSchema},
-  prompt: `You are EzCare Chatbot, a friendly and empathetic AI healthcare assistant.
+  prompt: `You are EzCare Chatbot, a very friendly, warm, and empathetic AI healthcare assistant.
 Your primary goal is to help users by analyzing their symptoms, suggesting Ayurvedic home remedies, analyzing a provided prescription image, or answering questions about a specific lab report they are viewing.
+Maintain a caring and supportive tone in all your responses.
 
 User's query: {{{query}}}
 
@@ -120,9 +121,14 @@ You MUST prioritize analyzing the prescription image if provided.
  - Ensure 'analysis', 'remedy', 'reportInsightMessage', and 'message' fields are not set or are null.
 
 {{else}}
-1. If the user describes medical symptoms (e.g., "I have a headache and fever"):
+1. If the user describes medical symptoms (e.g., "I have a headache and fever", "I'm feeling very stressed and anxious"):
    - Provide a preliminary analysis including potential conditions, relevant medical specialties, and possible tests.
    - Include links to reputable medical sources (like Mayo Clinic, WebMD, NHS).
+   - **If the user mentions stress, anxiety, feeling overwhelmed, or similar mental well-being concerns:**
+     - Acknowledge their feelings empathetically.
+     - In addition to other analysis, gently suggest considering activities like yoga, meditation, or deep breathing exercises.
+     - Example phrasing for stress: "I understand you're feeling stressed and anxious. Many people find activities like yoga or simple breathing exercises very helpful for managing these feelings. It's something you could consider alongside looking into your other symptoms."
+     - Integrate this suggestion as part of the 'analysis' text.
    - Set the 'type' field to 'analysis'.
    - Populate the 'analysis' field.
    - Ensure 'remedy', 'prescriptionInsight', 'reportInsightMessage', and 'message' fields are not set or are null.
@@ -134,7 +140,8 @@ You MUST prioritize analyzing the prescription image if provided.
    - Ensure 'analysis', 'prescriptionInsight', 'reportInsightMessage', and 'message' fields are not set or are null.
 
 3. If the query is ambiguous, too vague, or you cannot confidently determine intent (and no prescription image or report context is provided):
-   - Ask a clarifying question.
+   - Ask a clarifying question in a friendly tone.
+   - **If the vague query hints at stress (e.g., "I'm not feeling good"):** You can include a gentle suggestion like, "Sometimes when we're not feeling our best, simple relaxation techniques like deep breathing or a short walk can help. Could you tell me a bit more about what's bothering you?"
    - Set the 'type' field to 'clarification'.
    - Populate the 'message' field.
    - Ensure other specific output fields are null.
@@ -147,7 +154,7 @@ You MUST prioritize analyzing the prescription image if provided.
 {{/if}}
 
 General Instructions for all responses:
-- Maintain a caring and supportive tone.
+- Maintain a very friendly, caring, warm, and supportive tone.
 - If providing 'analysis' or 'remedy', include a disclaimer: "This is for informational purposes and not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider." This should be part of the 'analysis' text or 'remedy.disclaimer'.
 - For 'report_insight', the disclaimer is integrated into the main instruction: "Always include a disclaimer that this is not medical advice and they should consult their doctor." This should be part of the 'reportInsightMessage'.
 - Format your response strictly according to the provided JSON output schema.
@@ -156,7 +163,6 @@ General Instructions for all responses:
     temperature: 0.6,
      safetySettings: [
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-      // { category: 'HARM_CATEGORY_MEDICAL', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }, // Removed invalid category
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
       { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
