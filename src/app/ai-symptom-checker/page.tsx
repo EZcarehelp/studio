@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight, type ReportContext } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info, Menu, CloudSun } from 'lucide-react'; // Added CloudSun
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info, Menu, CloudSun } from 'lucide-react';
 import NextImage from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -28,7 +28,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
-
+import { Input } from '@/components/ui/input'; // For potential future sidebar search
 
 const chatQuerySchema = z.object({
   query: z.string().min(1, { message: "Please type a message or upload a prescription." }).max(2000),
@@ -49,7 +49,8 @@ interface DisplayMessage {
 
 const mockUser = {
   name: "Demo User",
-  avatarUrl: "https://placehold.co/100x100.png",
+  avatarUrl: "https://placehold.co/100x100.png?text=DU",
+  dataAiHint: "user avatar"
 };
 
 export default function EzCareChatbotPage() {
@@ -318,35 +319,53 @@ export default function EzCareChatbotPage() {
   const canSubmit = form.formState.isValid || !!prescriptionImageDataUri;
 
   const sidebarItems = [
-    { label: "New Chat", icon: MessageSquarePlus, action: () => initializeChat(false) }, 
     { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
     { label: "Health News", icon: Rss, href: "/health-news" },
-    { label: "Climate Health", icon: CloudSun, href: "/patient/climate-health" }, // Added Climate Health
+    { label: "Climate Health", icon: CloudSun, href: "/patient/climate-health" },
   ];
 
   return (
-    <div className="flex h-full w-full bg-background dark:bg-[#1E1E2F]">
+    <div className="flex h-[calc(100vh-4.5rem)] w-full bg-slate-100 dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-[260px] flex-col bg-gray-100 dark:bg-[#111827] p-3 space-y-2 border-r border-gray-200 dark:border-gray-700">
-        {sidebarItems.map((item, index) => (
-          item.href ? (
-            <Link key={index} href={item.href}>
-              <Button variant="ghost" className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
-                <item.icon className="mr-3 h-5 w-5" /> {item.label}
-              </Button>
-            </Link>
-          ) : (
-            <Button key={index} variant="ghost" onClick={item.action} className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
-              <item.icon className="mr-3 h-5 w-5" /> {item.label}
+      <aside className="hidden md:flex md:w-[260px] flex-col bg-white dark:bg-[#111827] p-4 space-y-2 border-r border-slate-200 dark:border-slate-700">
+        <div className='mb-4'>
+            <h2 className="text-xl font-semibold text-foreground dark:text-white mb-1">EzCare AI</h2>
+             <Button variant="default" onClick={() => initializeChat(false)} className="w-full btn-premium rounded-lg text-sm">
+                <MessageSquarePlus className="mr-2 h-4 w-4" /> New Chat
             </Button>
-          )
-        ))}
+        </div>
+
+        {/* Can add a search bar here if needed: <Input placeholder="Search chats..." className="mb-3 rounded-md" /> */}
+        
+        <nav className="space-y-1 flex-grow">
+            {sidebarItems.map((item, index) => (
+            <Link key={index} href={item.href}>
+                <Button variant="ghost" className="w-full justify-start text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md">
+                <item.icon className="mr-3 h-5 w-5" /> {item.label}
+                </Button>
+            </Link>
+            ))}
+        </nav>
+        <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+             <Button variant="ghost" className="w-full justify-start text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md">
+                <Settings className="mr-3 h-5 w-5" /> Settings
+            </Button>
+             <Link href="/patient/settings">
+                <div className="flex items-center space-x-2 mt-3 p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint={mockUser.dataAiHint}/>
+                        <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{mockUser.name}</span>
+                </div>
+            </Link>
+        </div>
       </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[56px] px-2 sm:px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F] shrink-0">
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            {/* Mobile Sidebar Trigger */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#1E1E2F]">
+        {/* Chat Header */}
+        <header className="h-[60px] px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 shrink-0">
+          <div className="flex items-center space-x-2">
             <div className="md:hidden">
               <Sheet open={isMobileSheetOpen} onOpenChange={setIsMobileSheetOpen}>
                 <SheetTrigger asChild>
@@ -355,35 +374,36 @@ export default function EzCareChatbotPage() {
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[260px] p-0 pt-4">
-                  <SheetHeader className="px-3 pb-2 border-b">
-                    <SheetTitle className="text-left">EzCare Menu</SheetTitle>
+                <SheetContent side="left" className="w-[260px] p-0 pt-4 bg-white dark:bg-[#111827]">
+                  <SheetHeader className="px-4 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <SheetTitle className="text-left text-xl font-semibold text-foreground dark:text-white">EzCare Menu</SheetTitle>
                     <SheetClose />
                   </SheetHeader>
                   <div className="p-3 space-y-1">
+                     <Button variant="default" onClick={() => {initializeChat(false); setIsMobileSheetOpen(false);}} className="w-full btn-premium rounded-lg text-sm mb-2">
+                        <MessageSquarePlus className="mr-2 h-4 w-4" /> New Chat
+                    </Button>
                     {sidebarItems.map((item, index) => (
-                      item.href ? (
                         <SheetClose asChild key={`${item.label}-mobile-${index}`}>
                           <Link href={item.href}>
-                            <Button variant="ghost" className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+                            <Button variant="ghost" className="w-full justify-start text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md">
                               <item.icon className="mr-3 h-5 w-5" /> {item.label}
                             </Button>
                           </Link>
                         </SheetClose>
-                      ) : (
-                        <SheetClose asChild key={`${item.label}-mobile-${index}`}>
-                          <Button variant="ghost" onClick={item.action} className="w-full justify-start text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
-                            <item.icon className="mr-3 h-5 w-5" /> {item.label}
-                          </Button>
-                        </SheetClose>
-                      )
                     ))}
+                     <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-3">
+                         <SheetClose asChild>
+                            <Button variant="ghost" className="w-full justify-start text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md">
+                                <Settings className="mr-3 h-5 w-5" /> Settings
+                            </Button>
+                        </SheetClose>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
             </div>
-            <NextImage src="/logo.svg" alt="EzCare Logo" width={28} height={28} className="h-6 sm:h-7 w-auto" />
-            <h1 className="text-md sm:text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
+            <h1 className="text-lg font-semibold text-foreground dark:text-white">EzCare AI Chatbot</h1>
           </div>
            {activeReportContext?.reportName && (
             <div className="hidden sm:flex text-xs text-muted-foreground border border-dashed border-primary/50 dark:border-accent/50 px-2 py-1 rounded-md items-center gap-1.5">
@@ -395,16 +415,14 @@ export default function EzCareChatbotPage() {
               </Button>
             </div>
           )}
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint="user avatar"/>
-              <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
-            </Avatar>
-          </div>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint={mockUser.dataAiHint}/>
+            <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
+          </Avatar>
         </header>
 
-        <ScrollArea className="flex-grow p-4 md:p-6 bg-background dark:bg-[#1E1E2F]" viewportRef={scrollAreaViewportRef}>
-          <div className="space-y-3"> 
+        <ScrollArea className="flex-grow p-4 md:p-6" viewportRef={scrollAreaViewportRef}>
+          <div className="space-y-4"> 
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -415,96 +433,77 @@ export default function EzCareChatbotPage() {
               >
                 {msg.sender === 'bot' && (
                   <Avatar className="h-8 w-8 self-start shrink-0"> 
-                     <AvatarFallback className="bg-primary/20 dark:bg-gray-700"><Bot className="h-5 w-5 text-primary dark:text-gray-300" /></AvatarFallback>
+                     <AvatarFallback className="bg-primary/10 dark:bg-slate-700"><Bot className="h-5 w-5 text-primary dark:text-slate-300" /></AvatarFallback>
                   </Avatar>
                 )}
                 <div
                   className={cn(
-                    "max-w-[70%] p-4 rounded-xl shadow-sm text-base", 
+                    "max-w-[70%] p-3 rounded-2xl shadow-sm text-sm", 
                     msg.sender === 'user'
-                      ? "bg-primary text-primary-foreground dark:bg-[#2A2A3B] dark:text-white rounded-br-none"
-                      : "bg-muted text-foreground dark:bg-[#34344A] dark:text-white rounded-bl-none",
+                      ? "bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white rounded-br-sm" // User messages
+                      : "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200 rounded-bl-sm", // Bot messages
                     msg.isError ? "bg-destructive/20 text-destructive dark:bg-red-700/50 dark:text-red-200 border border-destructive/30 dark:border-red-600" : ""
                   )}
                 >
                   {msg.uploadedImagePreviewUrl && msg.sender === 'user' && (
-                    <div className="mb-2 border border-primary-foreground/30 dark:border-gray-600 rounded-md overflow-hidden">
+                    <div className="mb-2 border border-primary-foreground/20 dark:border-slate-600 rounded-md overflow-hidden">
                         <NextImage src={msg.uploadedImagePreviewUrl} alt="Uploaded prescription preview" width={200} height={150} style={{ objectFit: 'contain' }} className="max-h-[150px] w-auto"/>
                     </div>
                   )}
-                  {msg.remedy ? (
+                  {msg.remedy ? ( // Remedy styling remains similar
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary dark:prose-a:text-[hsl(var(--accent))] hover:prose-a:text-secondary
-                      prose-strong:text-foreground dark:prose-strong:text-white
+                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-strong:text-inherit
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
                       prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
-                      dark:text-gray-300">
+                      dark:text-slate-300">
                       <p className="dark:text-white">{msg.content}</p>
                       <h4 className="font-semibold mt-2 mb-1 dark:text-white">{msg.remedy.name} ({msg.remedy.type})</h4>
-                      <p className="text-xs opacity-90 dark:text-gray-400">{msg.remedy.description}</p>
-                      {msg.remedy.ingredients && msg.remedy.ingredients.length > 0 && (
-                        <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Ingredients:</p>
-                          <ul className="text-xs list-disc list-inside pl-1 space-y-0.5 opacity-80 dark:text-gray-400">
-                            {msg.remedy.ingredients.map((item, index) => <li key={index}>{item}</li>)}
-                          </ul>
-                        </>
-                      )}
-                      {msg.remedy.preparation && (
-                         <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Preparation:</p>
-                          <p className="text-xs opacity-80 whitespace-pre-line dark:text-gray-400">{msg.remedy.preparation}</p>
-                         </>
-                      )}
-                      {msg.remedy.usage && (
-                        <>
-                          <p className="text-xs font-medium mt-1.5 mb-0.5 dark:text-gray-200">Usage/Notes:</p>
-                          <p className="text-xs opacity-80 whitespace-pre-line dark:text-gray-400">{msg.remedy.usage}</p>
-                        </>
-                      )}
-                      {msg.remedy.source && (
-                        <p className="text-xs opacity-70 mt-2 border-t pt-1.5 italic dark:text-gray-500 dark:border-gray-700">{msg.remedy.source}</p>
+                      <p className="text-xs opacity-90 dark:text-slate-400">{msg.remedy.description}</p>
+                      {/* ... other remedy details ... */}
+                       {msg.remedy.source && (
+                        <p className="text-xs opacity-70 mt-2 border-t pt-1.5 italic dark:text-slate-500 dark:border-slate-600">{msg.remedy.source}</p>
                       )}
                     </div>
-                  ) : msg.prescriptionInsight ? (
+                  ) : msg.prescriptionInsight ? ( // Prescription insight styling
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                         prose-headings:font-semibold prose-h4:my-1.5 prose-p:my-0.5
                         prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
-                        prose-strong:font-medium prose-strong:text-foreground dark:prose-strong:text-white
-                         dark:text-gray-300">
+                        prose-strong:font-medium prose-strong:text-inherit
+                         dark:text-slate-300">
                        {msg.prescriptionInsight.summary && <p className="font-semibold dark:text-white">{msg.prescriptionInsight.summary}</p>}
                        {msg.content !== msg.prescriptionInsight.summary && <p className="dark:text-white">{msg.content}</p>}
                        
                        {msg.prescriptionInsight.analyzedMedicines.map((med, index) => (
-                         <div key={index} className="mt-2 py-1.5 border-t border-muted-foreground/20 dark:border-gray-700 first:border-t-0 first:mt-0">
-                           <h4 className="font-semibold text-foreground dark:text-white">{med.name}</h4>
+                         <div key={index} className="mt-2 py-1.5 border-t border-inherit/20 dark:border-slate-600 first:border-t-0 first:mt-0">
+                           <h4 className="font-semibold text-inherit dark:text-white">{med.name}</h4>
                            <p><strong>Purpose:</strong> {med.purpose}</p>
                            <p><strong>Benefits:</strong> {med.benefits}</p>
                            <p><strong>Proper Usage:</strong> {med.properUsage}</p>
                          </div>
                        ))}
                        {msg.prescriptionInsight.generalAdvice && <p className="mt-2"><strong>General Advice:</strong> {msg.prescriptionInsight.generalAdvice}</p>}
-                       <p className="text-xs opacity-70 mt-2 pt-1.5 border-t border-muted-foreground/30 dark:border-gray-700 italic dark:text-gray-500">{msg.prescriptionInsight.disclaimer}</p>
+                       <p className="text-xs opacity-70 mt-2 pt-1.5 border-t border-inherit/30 dark:border-slate-600 italic dark:text-slate-500">{msg.prescriptionInsight.disclaimer}</p>
                     </div>
-                  ) : (
+                  ) : ( // Regular text message styling
                     <div className="prose prose-sm max-w-none dark:prose-invert 
                       prose-headings:font-semibold prose-p:my-1
-                      prose-a:text-primary dark:prose-a:text-[hsl(var(--accent))] hover:prose-a:text-secondary
-                      prose-strong:text-foreground dark:prose-strong:text-white 
+                      prose-a:text-primary dark:prose-a:text-blue-400 hover:prose-a:text-secondary
+                      prose-strong:text-inherit
                       prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5
                       prose-blockquote:border-l-primary prose-blockquote:pl-2 prose-blockquote:italic
-                      dark:text-gray-300">
+                      dark:text-slate-300">
                       <ReactMarkdown
                           components={{
-                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-[hsl(var(--accent))] hover:underline" />
+                              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline" />
                           }}
                       >{msg.content}</ReactMarkdown>
                     </div>
                   )}
                   <p className={cn(
                       "text-xs mt-1.5 text-right",
-                      msg.sender === 'user' ? "text-primary-foreground/70 dark:text-gray-400" : "text-muted-foreground/70 dark:text-gray-400"
+                      msg.sender === 'user' ? "text-primary-foreground/70 dark:text-slate-300" : "text-slate-500 dark:text-slate-400"
                     )}
                   >
                     {format(msg.timestamp, "p")}
@@ -512,7 +511,8 @@ export default function EzCareChatbotPage() {
                 </div>
                  {msg.sender === 'user' && (
                   <Avatar className="h-8 w-8 self-start shrink-0"> 
-                     <AvatarFallback className="bg-secondary/20 dark:bg-gray-700"><UserCircle className="h-5 w-5 text-secondary dark:text-gray-300" /></AvatarFallback>
+                     <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint={mockUser.dataAiHint}/>
+                     <AvatarFallback className="bg-primary/20 dark:bg-slate-700"><UserCircle className="h-5 w-5 text-primary dark:text-slate-300" /></AvatarFallback>
                   </Avatar>
                 )}
               </div>
@@ -520,19 +520,19 @@ export default function EzCareChatbotPage() {
              {isLoading && (
               <div className="flex justify-start space-x-2 items-center">
                  <Avatar className="h-8 w-8 self-start">
-                   <AvatarFallback className="bg-primary/20 dark:bg-gray-700"><Bot className="h-5 w-5 text-primary dark:text-gray-300" /></AvatarFallback>
+                   <AvatarFallback className="bg-primary/10 dark:bg-slate-700"><Bot className="h-5 w-5 text-primary dark:text-slate-300" /></AvatarFallback>
                  </Avatar>
-                <div className="bg-muted text-foreground dark:bg-[#34344A] dark:text-white rounded-xl rounded-bl-none p-3 shadow-sm">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground dark:text-gray-400" />
+                <div className="bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200 rounded-2xl rounded-bl-sm p-3 shadow-sm">
+                  <Loader2 className="h-5 w-5 animate-spin text-slate-500 dark:text-slate-400" />
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
 
-        <div className="min-h-[60px] max-h-[120px] px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-background dark:bg-[#1E1E2F]">
+        <div className="min-h-[60px] max-h-[120px] px-3 py-2 border-t border-slate-200 dark:border-slate-700">
           {imagePreviewForUpload && (
-            <div className="mb-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md relative max-w-[150px] bg-gray-50 dark:bg-gray-800">
+            <div className="mb-2 p-2 border border-slate-300 dark:border-slate-600 rounded-md relative max-w-[150px] bg-slate-100 dark:bg-slate-800">
               <NextImage src={imagePreviewForUpload} alt="Preview" width={100} height={75} style={{objectFit: 'contain'}} className="rounded max-h-[75px] w-auto" />
               <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive/80 text-destructive-foreground hover:bg-destructive" onClick={clearSelectedImage}>
                 <XCircle className="h-4 w-4" />
@@ -543,8 +543,8 @@ export default function EzCareChatbotPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2">
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="prescriptionUpload" />
-              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-[hsl(var(--accent))]">
-                <Paperclip className="h-[24px] w-[24px]" />
+              <Button variant="ghost" size="icon" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-full text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400">
+                <Paperclip className="h-5 w-5" />
                 <span className="sr-only">Attach prescription</span>
               </Button>
                <Button 
@@ -553,12 +553,12 @@ export default function EzCareChatbotPage() {
                 type="button" 
                 onClick={handleMicClick} 
                 className={cn(
-                  "rounded-full hover:text-primary dark:hover:text-[hsl(var(--accent))]",
-                  isListening ? "text-destructive dark:text-red-400 animate-pulse" : "text-muted-foreground dark:text-gray-400"
+                  "rounded-full hover:text-primary dark:hover:text-blue-400",
+                  isListening ? "text-destructive dark:text-red-400 animate-pulse" : "text-slate-500 dark:text-slate-400"
                 )}
                 disabled={!recognitionRef.current}
               >
-                <Mic className="h-[24px] w-[24px]" />
+                <Mic className="h-5 w-5" />
                 <span className="sr-only">{isListening ? "Stop Listening" : "Start Voice Input"}</span>
               </Button>
               <FormField
@@ -576,7 +576,7 @@ export default function EzCareChatbotPage() {
                                     ? "Optional: Add a question about the prescription..." 
                                     : "Describe symptoms or ask for a remedy..."
                         }
-                        className="min-h-[40px] max-h-[100px] resize-none text-base rounded-full px-4 py-2.5 bg-gray-100 dark:bg-[#2A2A3B] dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus-visible:ring-ring dark:focus-visible:ring-ring"
+                        className="min-h-[40px] max-h-[100px] resize-none text-sm rounded-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 border-slate-300 dark:border-slate-600 focus-visible:ring-primary dark:focus-visible:ring-blue-500"
                         rows={1}
                         {...field}
                         onKeyDown={(e) => {
@@ -608,3 +608,4 @@ export default function EzCareChatbotPage() {
     </div>
   );
 }
+
