@@ -10,6 +10,9 @@ import { format } from 'date-fns';
 import { fetchHealthNews, type FetchHealthNewsInput } from '@/ai/flows/fetch-health-news-flow';
 import { cn } from '@/lib/utils';
 
+const DEFAULT_PLACEHOLDER_IMAGE_URL = 'https://placehold.co/600x400.png';
+const FALLBACK_IMAGE_URL = 'https://placehold.co/800x500.png'; // General fallback for onError
+
 export default function HealthNewsPage() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,14 +25,18 @@ export default function HealthNewsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch around 7 articles for a newspaper front-page style layout
-        const input: FetchHealthNewsInput = { category: 'health', country: 'us', pageSize: 7 };
+        const input: FetchHealthNewsInput = { category: 'health', country: 'us', pageSize: 20 }; // Fetch 20 articles
         const result = await fetchHealthNews(input);
-        setArticles(result.articles);
+        
+        // Filter articles to only include those with a valid imageUrl (not the default placeholder)
+        const articlesWithImages = result.articles.filter(
+          article => article.imageUrl && article.imageUrl !== DEFAULT_PLACEHOLDER_IMAGE_URL
+        );
+        setArticles(articlesWithImages);
+
       } catch (err) {
         console.error("Failed to fetch health news:", err);
         setError(err instanceof Error ? err.message : "An unknown error occurred while fetching news.");
-        // Set articles to empty array on error to prevent layout issues with undefined data
         setArticles([]);
       } finally {
         setIsLoading(false);
@@ -40,8 +47,8 @@ export default function HealthNewsPage() {
   }, []);
 
   const leadArticle = articles.length > 0 ? articles[0] : null;
-  const secondaryArticles = articles.slice(1, 3); // Next 2 articles for a side column
-  const remainingArticles = articles.slice(3); // Remaining articles for bottom rows
+  const secondaryArticles = articles.slice(1, 3); 
+  const remainingArticles = articles.slice(3); 
 
   return (
     <div className="font-sans bg-background text-foreground dark:bg-slate-900 dark:text-slate-100 min-h-screen">
@@ -79,28 +86,26 @@ export default function HealthNewsPage() {
           <div className="text-center py-20 text-muted-foreground dark:text-slate-400">
             <Rss className="h-16 w-16 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No News Articles Found</h3>
-            <p>We couldn't find any health news articles at the moment.</p>
+            <p>We couldn't find any health news articles with images at the moment.</p>
           </div>
         )}
 
         {!isLoading && !error && articles.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-8">
             {/* Lead Article */}
-            {leadArticle && (
+            {leadArticle && leadArticle.imageUrl && leadArticle.imageUrl !== DEFAULT_PLACEHOLDER_IMAGE_URL && (
               <article className="md:col-span-8 lg:col-span-9 space-y-2 pb-6 border-b md:border-b-0 md:border-r md:pr-6 border-foreground/20 dark:border-slate-700">
-                {leadArticle.imageUrl && (
-                  <div className="relative w-full h-64 md:h-80 mb-3 rounded overflow-hidden shadow">
-                    <Image
-                      src={leadArticle.imageUrl}
-                      alt={leadArticle.title}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      data-ai-hint={leadArticle.dataAiHint || "news event"}
-                      onError={(e) => (e.currentTarget.src = "https://placehold.co/800x500.png")}
-                      priority
-                    />
-                  </div>
-                )}
+                <div className="relative w-full h-64 md:h-80 mb-3 rounded overflow-hidden shadow">
+                  <Image
+                    src={leadArticle.imageUrl}
+                    alt={leadArticle.title}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    data-ai-hint={leadArticle.dataAiHint || "news event"}
+                    onError={(e) => (e.currentTarget.src = FALLBACK_IMAGE_URL)}
+                    priority
+                  />
+                </div>
                 <h2 className="text-3xl md:text-4xl font-bold font-serif text-foreground dark:text-slate-100 hover:text-primary dark:hover:text-blue-400 transition-colors">
                   <Link href={leadArticle.articleUrl} target="_blank" rel="noopener noreferrer">
                     {leadArticle.title}
@@ -122,36 +127,38 @@ export default function HealthNewsPage() {
             {secondaryArticles.length > 0 && (
               <aside className="md:col-span-4 lg:col-span-3 space-y-6">
                 {secondaryArticles.map((article) => (
-                  <article key={article.id} className="pb-4 border-b border-foreground/20 dark:border-slate-700 last:border-b-0">
-                    <h3 className="text-lg font-semibold font-serif text-foreground dark:text-slate-100 hover:text-primary dark:hover:text-blue-400 transition-colors">
-                       <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
-                        {article.title}
-                      </Link>
-                    </h3>
-                    <p className="text-sm text-muted-foreground dark:text-slate-300 leading-snug mt-1 line-clamp-3">
-                      {article.snippet || "No summary available."}
-                    </p>
-                     <div className="text-xs text-muted-foreground dark:text-slate-400 mt-1.5">
-                       <span>By {article.sourceName}</span> | <span className="ml-1">{format(new Date(article.publishedAt), "MMM d, yyyy")}</span>
-                       <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline ml-2 text-xs">
-                        Full Story <ExternalLink className="inline h-2.5 w-2.5 ml-0.5" />
-                      </Link>
-                    </div>
-                  </article>
+                  article.imageUrl && article.imageUrl !== DEFAULT_PLACEHOLDER_IMAGE_URL && (
+                    <article key={article.id} className="pb-4 border-b border-foreground/20 dark:border-slate-700 last:border-b-0">
+                      <h3 className="text-lg font-semibold font-serif text-foreground dark:text-slate-100 hover:text-primary dark:hover:text-blue-400 transition-colors">
+                        <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
+                          {article.title}
+                        </Link>
+                      </h3>
+                      <p className="text-sm text-muted-foreground dark:text-slate-300 leading-snug mt-1 line-clamp-3">
+                        {article.snippet || "No summary available."}
+                      </p>
+                      <div className="text-xs text-muted-foreground dark:text-slate-400 mt-1.5">
+                        <span>By {article.sourceName}</span> | <span className="ml-1">{format(new Date(article.publishedAt), "MMM d, yyyy")}</span>
+                        <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline ml-2 text-xs">
+                          Full Story <ExternalLink className="inline h-2.5 w-2.5 ml-0.5" />
+                        </Link>
+                      </div>
+                    </article>
+                  )
                 ))}
               </aside>
             )}
           </div>
         )}
         
-        {/* Remaining Articles (if any) - simpler layout */}
+        {/* Remaining Articles (if any) */}
         {!isLoading && !error && remainingArticles.length > 0 && (
           <section className="mt-8 pt-6 border-t border-foreground/20 dark:border-slate-700">
              <h3 className="text-2xl font-serif font-semibold mb-4 text-foreground dark:text-slate-200">More Health News</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {remainingArticles.map((article) => (
-                <article key={article.id} className="space-y-1 pb-3 border-b border-foreground/10 dark:border-slate-700/50 last:border-b-0">
-                   {article.imageUrl && (
+                article.imageUrl && article.imageUrl !== DEFAULT_PLACEHOLDER_IMAGE_URL && (
+                  <article key={article.id} className="space-y-1 pb-3 border-b border-foreground/10 dark:border-slate-700/50 last:border-b-0">
                     <div className="relative w-full h-40 mb-2 rounded overflow-hidden shadow-sm">
                       <Image
                         src={article.imageUrl}
@@ -159,25 +166,25 @@ export default function HealthNewsPage() {
                         fill
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={article.dataAiHint || "news illustration"}
-                        onError={(e) => (e.currentTarget.src = "https://placehold.co/400x250.png")}
+                        onError={(e) => (e.currentTarget.src = FALLBACK_IMAGE_URL)}
                       />
                     </div>
-                  )}
-                  <h4 className="text-md font-semibold font-serif text-foreground dark:text-slate-100 hover:text-primary dark:hover:text-blue-400 transition-colors">
-                     <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
-                        {article.title}
-                      </Link>
-                  </h4>
-                  <p className="text-sm text-muted-foreground dark:text-slate-300 leading-tight line-clamp-2">
-                    {article.snippet || "No summary available."}
-                  </p>
-                  <div className="text-xs text-muted-foreground dark:text-slate-400 pt-0.5">
-                     <span>By {article.sourceName}</span> | <span className="ml-1">{format(new Date(article.publishedAt), "MMM d, yyyy")}</span>
-                      <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline ml-2 text-xs">
-                        Read <ExternalLink className="inline h-2.5 w-2.5 ml-0.5" />
-                      </Link>
-                  </div>
-                </article>
+                    <h4 className="text-md font-semibold font-serif text-foreground dark:text-slate-100 hover:text-primary dark:hover:text-blue-400 transition-colors">
+                      <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer">
+                          {article.title}
+                        </Link>
+                    </h4>
+                    <p className="text-sm text-muted-foreground dark:text-slate-300 leading-tight line-clamp-2">
+                      {article.snippet || "No summary available."}
+                    </p>
+                    <div className="text-xs text-muted-foreground dark:text-slate-400 pt-0.5">
+                      <span>By {article.sourceName}</span> | <span className="ml-1">{format(new Date(article.publishedAt), "MMM d, yyyy")}</span>
+                        <Link href={article.articleUrl} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-blue-400 hover:underline ml-2 text-xs">
+                          Read <ExternalLink className="inline h-2.5 w-2.5 ml-0.5" />
+                        </Link>
+                    </div>
+                  </article>
+                )
               ))}
             </div>
           </section>
@@ -193,4 +200,3 @@ export default function HealthNewsPage() {
     </div>
   );
 }
-
