@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link'; // Added missing import
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,8 +63,8 @@ export default function AyurvedicRemediesPage() {
         results = results.filter(remedy =>
             remedy.name.toLowerCase().includes(lowerSearchTerm) ||
             remedy.description.toLowerCase().includes(lowerSearchTerm) ||
-            remedy.tags.some(tag => tag.toLowerCase().includes(lowerSearchTerm)) ||
-            remedy.ingredients.some(ing => ing.toLowerCase().includes(lowerSearchTerm))
+            (remedy.tags && remedy.tags.some(tag => tag.toLowerCase().includes(lowerSearchTerm))) ||
+            (remedy.ingredients && remedy.ingredients.some(ing => ing.toLowerCase().includes(lowerSearchTerm)))
         );
     }
     
@@ -80,7 +81,11 @@ export default function AyurvedicRemediesPage() {
 
     // Placeholder for ingredient filtering
     if (selectedIngredients.length > 0) {
-        results = results.filter(remedy => selectedIngredients.every(selIng => remedy.ingredients.some(rIng => rIng.toLowerCase().includes(selIng.toLowerCase()))));
+        results = results.filter(remedy => 
+            selectedIngredients.every(selIng => 
+                remedy.ingredients && remedy.ingredients.some(rIng => rIng.toLowerCase().includes(selIng.toLowerCase()))
+            )
+        );
     }
 
     setFilteredRemedies(results);
@@ -326,4 +331,3 @@ export default function AyurvedicRemediesPage() {
     </div>
   );
 }
-
