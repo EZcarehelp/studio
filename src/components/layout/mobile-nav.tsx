@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Home, MessageSquare, User, LayoutDashboard, CalendarDays, Users, Upload, Settings, Pill, Stethoscope, FlaskConical, FileText, CalendarPlus, Shield, UserCheck } from 'lucide-react';
+import { Home, MessageSquare, User, LayoutDashboard, CalendarDays, Users, Upload, Settings, Pill, Stethoscope, FlaskConical, FileText, CalendarPlus, Shield, UserCheck, CloudSun } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
@@ -37,6 +37,7 @@ export function MobileNav({ userProfile, isAdminSession, isAuthenticated }: Mobi
 
   const patientNavItems = [
     ...commonNavItemsBase,
+    { href: '/patient/climate-health', label: 'Climate', icon: CloudSun },
     { href: '/patient/store', label: 'Pharmacy', icon: Pill },
     { href: isAuthenticated ? '/patient/settings' : '/auth?tab=login', label: 'Profile', icon: User }, // Dynamic Profile/Login
   ];

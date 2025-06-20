@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, CalendarDays, FileText, MessageSquare, Search, Pill, Heart, Footprints, Bed, Brain, Leaf, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, CalendarDays, FileText, MessageSquare, Search, Pill, Heart, Footprints, Bed, Brain, Leaf, ShieldAlert, CloudSun } from "lucide-react";
 import { HealthStatCard } from "@/components/patient/health-stat-card";
 import type { AyurvedicRemedy } from "@/types";
 import { AyurvedicRemedyCard } from "@/components/patient/ayurvedic-remedy-card"; // Assuming this path
@@ -93,13 +93,14 @@ export default function PatientDashboardPage() {
       {/* Quick Actions Section */}
       <section>
         <h2 className="text-xl font-semibold mb-4 text-foreground/90">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           <DashboardActionCard title="Find Doctors" description="Search & book." icon={<Search />} href="/patient/find-doctors" />
           <DashboardActionCard title="My Appointments" description="View schedule." icon={<CalendarDays />} href="/patient/appointments" />
           <DashboardActionCard title="EzCare Chatbot" description="Preliminary analysis." icon={<MessageSquare />} href="/ai-symptom-checker" />
           <DashboardActionCard title="Order Medicines" description="Browse store." icon={<Pill />} href="/patient/store" />
           <DashboardActionCard title="Medical Records" description="Access records." icon={<FileText />} href="/patient/medical-records" />
           <DashboardActionCard title="Ayurvedic Remedies" description="Natural wellness." icon={<Leaf />} href="/patient/ayurvedic-remedies" />
+          <DashboardActionCard title="Climate Health" description="Weather & health tips." icon={<CloudSun />} href="/patient/climate-health" />
         </div>
       </section>
 

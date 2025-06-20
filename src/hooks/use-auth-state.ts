@@ -7,7 +7,11 @@ import { auth } from '@/lib/firebase/config';
 import { getUserProfileByUID } from '@/lib/firebase/firestore';
 import type { UserProfile, Doctor } from '@/types';
 
-type AppUserProfile = (UserProfile | Doctor) & { roleActual?: UserProfile['role'] | 'doctor' };
+type AppUserProfile = (UserProfile | Doctor) & { 
+    roleActual?: UserProfile['role'] | 'doctor';
+    latitude?: number;
+    longitude?: number; 
+};
 
 interface AuthState {
   authUser: FirebaseUser | null;
@@ -23,18 +27,27 @@ export function useAuthState(): AuthState {
   const [isAdminSession, setIsAdminSession] = useState(false);
 
   useEffect(() => {
-    // Check for hardcoded admin session from localStorage (this is a mock, not secure)
+    // Check for hardcoded admin session from localStorage
     if (typeof window !== 'undefined') {
         const adminLoggedIn = localStorage.getItem('isAdminLoggedIn');
         if (adminLoggedIn === 'true') {
-            setAuthUser({ uid: 'admin_uid_mock' } as FirebaseUser); // Mock FirebaseUser for admin
-            setUserProfile({ name: 'Admin', role: 'admin', roleActual: 'admin' } as AppUserProfile);
+            // For admin, create a mock FirebaseUser and a basic admin profile
+            const mockAdminFirebaseUser: Partial<FirebaseUser> = { uid: 'admin_uid_mock', email: 'ezcarehelp@gmail.com' };
+            const mockAdminProfile: AppUserProfile = { 
+                id: 'admin_profile_mock',
+                name: 'Admin User', 
+                email: 'ezcarehelp@gmail.com', 
+                role: 'admin', 
+                roleActual: 'admin',
+                phone: 'N/A' // Add required field
+            };
+            setAuthUser(mockAdminFirebaseUser as FirebaseUser);
+            setUserProfile(mockAdminProfile);
             setIsAdminSession(true);
             setIsLoading(false);
             return; // Skip Firebase auth listener if admin session active
         }
     }
-
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setIsLoading(true);
@@ -43,20 +56,31 @@ export function useAuthState(): AuthState {
         try {
           const profile = await getUserProfileByUID(user.uid);
           if (profile) {
-            // Ensure roleActual is set for doctors if 'role' field is missing
             let roleActual = profile.role;
-            if (!roleActual && 'specialty' in profile) { // Heuristic for doctor
+            if (!roleActual && 'specialty' in profile) { // Doctor specific check
                 roleActual = 'doctor';
             }
-            setUserProfile({ ...profile, roleActual: roleActual as UserProfile['role'] | 'doctor' });
+            // Add mock location for patient for demo purposes if not present
+            let mockLat: number | undefined = (profile as UserProfile).latitude;
+            let mockLon: number | undefined = (profile as UserProfile).longitude;
+            if (roleActual === 'patient' && (mockLat === undefined || mockLon === undefined)) {
+                mockLat = 13.0827; // Chennai default
+                mockLon = 80.2707;
+                 console.log("Applied mock location for patient profile for climate feature demo.");
+            }
+
+            setUserProfile({ 
+                ...profile, 
+                roleActual: roleActual as UserProfile['role'] | 'doctor',
+                latitude: mockLat, // Include possibly mocked lat/lon
+                longitude: mockLon
+            });
           } else {
-            // This case means user exists in Firebase Auth but not in Firestore.
-            // Could be a partially completed signup or data issue.
-            console.warn(`No Firestore profile found for UID: ${user.uid}. Signing out.`);
+            console.warn(`No Firestore profile found for UID: ${user.uid}. User might need to complete sign-up or data is missing.`);
             setUserProfile(null);
-            // Optionally sign them out from Firebase Auth too:
+            // Consider signing out the user from Firebase Auth if profile is crucial:
             // await auth.signOut(); 
-            // setAuthUser(null); // If signing out
+            // setAuthUser(null);
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
@@ -65,7 +89,7 @@ export function useAuthState(): AuthState {
       } else {
         setAuthUser(null);
         setUserProfile(null);
-        setIsAdminSession(false); // Clear admin session if Firebase user logs out
+        setIsAdminSession(false); 
         if (typeof window !== 'undefined') {
             localStorage.removeItem('isAdminLoggedIn');
         }

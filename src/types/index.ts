@@ -85,18 +85,22 @@ export interface UserProfile {
   username?: string;
   email?: string;
   phone: string;
-  role: 'patient' | 'doctor' | 'lab_worker';
+  role: 'patient' | 'doctor' | 'lab_worker' | 'admin'; // Added 'admin'
+  roleActual?: 'patient' | 'doctor' | 'lab_worker' | 'admin'; // Added for consistent role access
   avatarUrl?: string;
   location?: string;
+  latitude?: number; // Added for climate feature
+  longitude?: number; // Added for climate feature
   medicalHistory?: string[];
   savedAddresses?: Address[];
   paymentMethods?: PaymentMethod[];
-  doctorDetails?: Partial<Doctor>;
-  labAffiliation?: string;
+  doctorDetails?: Partial<Doctor>; // Specialty, experience etc.
+  labAffiliation?: string; // For lab workers
+  createdAt?: any; // Firestore ServerTimestamp
 }
 
 export interface Address {
-  id: string;
+  id:string;
   street: string;
   city: string;
   state: string;
@@ -109,7 +113,7 @@ export interface PaymentMethod {
   id: string;
   type: 'card' | 'upi';
   last4?: string;
-  expiry?: string;
+  expiry?: string; // MM/YY
   isDefault?: boolean;
 }
 
@@ -217,4 +221,38 @@ export interface Pharmacy {
   dataAiHint?: string;
   latitude?: number;
   longitude?: number;
+}
+
+// Open-Meteo API types
+export interface OpenMeteoDailyData {
+  time: string[];
+  temperature_2m_max: (number | null)[];
+  temperature_2m_min: (number | null)[];
+  precipitation_sum: (number | null)[];
+  uv_index_max: (number | null)[];
+}
+
+export interface OpenMeteoApiResponse {
+  latitude: number;
+  longitude: number;
+  generationtime_ms: number;
+  utc_offset_seconds: number;
+  timezone: string;
+  timezone_abbreviation: string;
+  elevation: number;
+  daily_units: {
+    time: string;
+    temperature_2m_max: string;
+    temperature_2m_min: string;
+    precipitation_sum: string;
+    uv_index_max: string;
+  };
+  daily: OpenMeteoDailyData;
+}
+
+// Health Prediction types
+export interface HealthPrediction {
+  diseases: string[];
+  suggestions: string[];
+  message?: string; // For "No risks"
 }
