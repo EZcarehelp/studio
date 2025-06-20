@@ -36,23 +36,25 @@ const mockRemedies: AyurvedicRemedy[] = [
     id: 'remedy001',
     name: 'Tulsi-Kali Mirch Kadha',
     type: 'herbal',
-    tags: ['cough', 'tulsi', 'kali mirch', 'ginger', 'kadha'],
+    tags: ['cough', 'tulsi', 'kali mirch', 'ginger', 'kadha', 'respiratory'],
     description: 'An effective decoction for cough relief using Tulsi, black peppercorns, and ginger.',
     ingredients: ["10 Tulsi leaves", "5 black peppercorns", "1 tsp ginger (grated)", "2 cups water", "Honey (optional)"],
     preparation: "Boil all ingredients (except honey) in water till reduced to half. Strain and add honey.",
     usage: "Drink warm 2x a day.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal decoction"
   },
   {
     id: 'remedy002',
     name: 'Mulethi Powder Tea',
     type: 'herbal',
-    tags: ['dry cough', 'mulethi', 'licorice', 'cinnamon'],
+    tags: ['dry cough', 'mulethi', 'licorice', 'cinnamon', 'throat'],
     description: 'A soothing tea made from Mulethi (licorice) powder for dry cough.',
     ingredients: ["1 tsp Mulethi (licorice) powder", "1 cup hot water", "A pinch of cinnamon"],
     preparation: "Stir into hot water, cover for 5 mins, drink warm.",
     usage: "Use for dry cough.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal tea"
   },
   {
     id: 'remedy003',
@@ -61,9 +63,10 @@ const mockRemedies: AyurvedicRemedy[] = [
     tags: ['sore throat', 'ginger', 'honey', 'cough'],
     description: 'A simple and effective mix of ginger juice and honey for sore throat relief.',
     ingredients: ["1 tsp ginger juice", "1 tsp honey"],
-    preparation: "Mix and take 2–3 times a day for sore throat.",
-    usage: "Take 2-3 times a day.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix well.",
+    usage: "Take 2–3 times a day for sore throat.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "natural syrup"
   },
   {
     id: 'remedy004',
@@ -74,152 +77,166 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2–3 cloves", "1 tsp honey"],
     preparation: "Grind cloves and mix with honey.",
     usage: "Take once or twice a day.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "spice paste"
   },
   {
     id: 'remedy005',
     name: 'Steam Inhalation with Ajwain',
-    type: 'herbal',
-    tags: ['congestion', 'ajwain', 'carom seeds', 'steam'],
+    type: 'general',
+    tags: ['congestion', 'ajwain', 'carom seeds', 'steam', 'respiratory'],
     description: 'Steam inhalation with Ajwain (carom seeds) for relieving nasal congestion.',
     ingredients: ["1 tbsp Ajwain (carom seeds)", "2 cups water"],
-    preparation: "Boil water with ajwain and inhale steam for congestion relief.",
-    usage: "Inhale steam as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Boil water with ajwain.",
+    usage: "Inhale steam for congestion relief.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "steam inhalation"
   },
   {
     id: 'remedy006',
     name: 'Turmeric Milk',
     type: 'herbal',
-    tags: ['cough', 'cold', 'turmeric', 'milk', 'immunity'],
+    tags: ['cough', 'cold', 'turmeric', 'milk', 'immunity', 'anti-inflammatory'],
     description: 'Classic turmeric milk (Haldi Doodh) for general wellness and cough/cold relief.',
     ingredients: ["1 cup warm milk", "½ tsp turmeric powder", "A pinch of black pepper"],
-    preparation: "Mix and drink before bed.",
+    preparation: "Mix all ingredients in warm milk.",
     usage: "Drink before bed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "golden milk"
   },
   {
     id: 'remedy007',
     name: 'Onion Juice Syrup',
     type: 'herbal',
-    tags: ['cough', 'expectorant', 'onion'],
+    tags: ['cough', 'expectorant', 'onion', 'honey'],
     description: 'A simple syrup made from onion juice and honey, acting as an expectorant.',
     ingredients: ["1 tsp onion juice", "1 tsp honey"],
-    preparation: "Mix and take 1–2 times a day.",
-    usage: "Take 1-2 times a day. Acts as an expectorant.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix onion juice and honey.",
+    usage: "Take 1–2 times a day. Acts as an expectorant.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "homemade syrup"
   },
   // ❄️ 2. Cold
   {
     id: 'remedy008',
-    name: 'Tulsi-Ginger Tea (Cold)',
+    name: 'Tulsi-Ginger Tea (for Cold)',
     type: 'herbal',
-    tags: ['cold', 'tulsi', 'ginger', 'tea'],
+    tags: ['cold', 'tulsi', 'ginger', 'tea', 'immunity'],
     description: 'A variation of Tulsi-Ginger tea for cold relief, optionally with black tea.',
     ingredients: ["10 Tulsi leaves", "1 tsp ginger (grated)", "2 cups water", "Honey (optional)", "Pinch of black tea (optional)"],
-    preparation: "Same as Remedy 1 (Tulsi-Kali Mirch Kadha), add a pinch of black tea for flavor if desired.",
+    preparation: "Boil Tulsi, ginger in water till reduced to half. Strain. Add black tea if desired and honey.",
     usage: "Drink warm 2x a day.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal infusion"
   },
   {
     id: 'remedy009',
-    name: 'Cinnamon-Honey Paste',
+    name: 'Cinnamon-Honey Paste (for Cold)',
     type: 'herbal',
-    tags: ['cold', 'cinnamon', 'honey'],
+    tags: ['cold', 'cinnamon', 'honey', 'warming'],
     description: 'A warming paste of cinnamon and honey for cold season.',
     ingredients: ["½ tsp cinnamon powder", "1 tsp honey"],
-    preparation: "Mix and take once daily during cold season.",
-    usage: "Take once daily.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix cinnamon powder and honey.",
+    usage: "Take once daily during cold season.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "sweet paste"
   },
   {
     id: 'remedy010',
     name: 'Garlic Ghee Toast',
-    type: 'herbal',
-    tags: ['cold', 'runny nose', 'garlic', 'ghee'],
+    type: 'general',
+    tags: ['cold', 'runny nose', 'garlic', 'ghee', 'toast'],
     description: 'Garlic fried in ghee on toast, helpful for runny nose during a cold.',
     ingredients: ["2 garlic cloves", "1 tsp ghee", "Bread"],
     preparation: "Fry garlic in ghee, spread on toast.",
     usage: "Eat during runny nose.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "savory toast"
   },
   {
     id: 'remedy011',
     name: 'Mustard Oil Chest Rub',
-    type: 'herbal',
+    type: 'general',
     tags: ['cold', 'chest congestion', 'mustard oil', 'camphor'],
     description: 'A warm mustard oil and camphor rub for chest congestion relief.',
     ingredients: ["2 tbsp mustard oil", "1 tsp camphor"],
-    preparation: "Warm slightly, apply on chest and feet before bed.",
+    preparation: "Warm slightly and mix.",
     usage: "Apply on chest and feet before bed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal rub"
   },
   {
     id: 'remedy012',
-    name: 'Ajwain Potli',
-    type: 'herbal',
-    tags: ['cold', 'chest congestion', 'ajwain'],
+    name: 'Ajwain Potli (for Cold)',
+    type: 'general',
+    tags: ['cold', 'chest congestion', 'ajwain', 'poultice'],
     description: 'A heated Ajwain potli (pouch) applied to the chest for warmth and relief.',
     ingredients: ["2 tbsp ajwain", "Cotton cloth"],
-    preparation: "Heat ajwain in dry pan, tie in cloth, apply on chest.",
-    usage: "Apply on chest as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Heat ajwain in dry pan, tie in cloth.",
+    usage: "Apply on chest when comfortably warm.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "warm compress"
   },
   {
     id: 'remedy013',
     name: 'Camphor Steam',
-    type: 'herbal',
-    tags: ['nasal congestion', 'camphor', 'steam'],
+    type: 'general',
+    tags: ['nasal congestion', 'camphor', 'steam', 'cold'],
     description: 'Steam inhalation with camphor for nasal congestion.',
     ingredients: ["2 cups hot water", "A pinch of camphor"],
-    preparation: "Inhale for nasal congestion.",
-    usage: "Inhale steam as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Add camphor to hot water.",
+    usage: "Inhale steam for nasal congestion.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "vapor inhalation"
   },
   {
     id: 'remedy014',
-    name: 'Lemon-Honey Water',
+    name: 'Lemon-Honey Water (for Cold)',
     type: 'herbal',
-    tags: ['cold', 'sore throat', 'immunity', 'lemon', 'honey'],
+    tags: ['cold', 'sore throat', 'immunity', 'lemon', 'honey', 'vitamin c'],
     description: 'Warm lemon-honey water to soothe the throat and boost immunity.',
     ingredients: ["1 glass warm water", "1 tsp lemon juice", "1 tsp honey"],
-    preparation: "Drink to soothe throat and boost immunity.",
-    usage: "Drink as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix lemon juice and honey in warm water.",
+    usage: "Drink to soothe throat and boost immunity.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "citrus drink"
   },
   // 🔥 3. Indigestion
   {
     id: 'remedy015',
     name: 'Jeera Water',
     type: 'digestion',
-    tags: ['indigestion', 'cumin', 'jeera'],
+    tags: ['indigestion', 'cumin', 'jeera', 'bloating'],
     description: 'Cumin (Jeera) water to aid digestion.',
     ingredients: ["1 tsp cumin seeds", "2 cups water"],
-    preparation: "Boil and cool.",
-    usage: "Drink 2–3 times/day.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Boil cumin seeds in water, then cool.",
+    usage: "Drink 2–3 times a day.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "spiced water"
   },
   {
     id: 'remedy016',
     name: 'Hing-Ajwain Mix',
     type: 'digestion',
-    tags: ['indigestion', 'hing', 'asafoetida', 'ajwain'],
+    tags: ['indigestion', 'hing', 'asafoetida', 'ajwain', 'gas'],
     description: 'A mix of Hing (asafoetida) and Ajwain with warm water for post-meal digestion.',
     ingredients: ["½ tsp hing (asafoetida)", "½ tsp ajwain", "Warm water"],
-    preparation: "Mix and drink post meal.",
+    preparation: "Mix hing and ajwain with warm water.",
     usage: "Drink post meal.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "digestive aid"
   },
   {
     id: 'remedy017',
     name: 'Triphala Powder',
     type: 'digestion',
-    tags: ['digestion', 'bowel health', 'constipation', 'triphala'],
+    tags: ['digestion', 'bowel health', 'constipation', 'triphala', 'detox'],
     description: 'Triphala powder taken with warm water before bed for digestive health and regular bowel movements.',
     ingredients: ["1 tsp Triphala powder", "Warm water"],
-    preparation: "Take before bed for digestion & bowel health.",
-    usage: "Take before bed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix Triphala powder in warm water.",
+    usage: "Take before bed for digestion & bowel health.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal powder"
   },
   {
     id: 'remedy018',
@@ -228,354 +245,386 @@ const mockRemedies: AyurvedicRemedy[] = [
     tags: ['indigestion', 'appetizer', 'ginger', 'lemon', 'rock salt'],
     description: 'A shot of grated ginger, lemon juice, and rock salt taken before meals to stimulate digestion.',
     ingredients: ["1 tsp grated ginger", "1 tsp lemon juice", "A pinch of rock salt"],
-    preparation: "Take before meals.",
+    preparation: "Mix grated ginger, lemon juice, and rock salt.",
     usage: "Take before meals.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "health shot"
   },
   {
     id: 'remedy019',
     name: 'Buttermilk with Spices',
     type: 'digestion',
-    tags: ['indigestion', 'buttermilk', 'jeera', 'black salt'],
+    tags: ['indigestion', 'buttermilk', 'jeera', 'black salt', 'cooling'],
     description: 'Spiced buttermilk to drink after meals for better digestion.',
-    ingredients: ["1 glass buttermilk", "½ tsp roasted jeera", "A pinch of black salt"],
-    preparation: "Mix and drink after meals.",
+    ingredients: ["1 glass buttermilk", "½ tsp roasted jeera powder", "A pinch of black salt"],
+    preparation: "Mix roasted jeera powder and black salt into buttermilk.",
     usage: "Drink after meals.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "spiced drink"
   },
   {
     id: 'remedy020',
-    name: 'Fennel Tea',
+    name: 'Fennel Tea (for Digestion)',
     type: 'digestion',
-    tags: ['bloating', 'gas', 'fennel', 'tea'],
+    tags: ['bloating', 'gas', 'fennel', 'tea', 'indigestion'],
     description: 'Fennel seed tea to help with bloating and gas.',
     ingredients: ["1 tsp fennel seeds", "1 cup hot water"],
-    preparation: "Steep for 5 mins.",
+    preparation: "Steep fennel seeds in hot water for 5 mins.",
     usage: "Helps bloating and gas. Drink as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "seed tea"
   },
   {
     id: 'remedy021',
-    name: 'Amla Juice',
+    name: 'Amla Juice (for Digestion)',
     type: 'digestion',
-    tags: ['acidity', 'digestion', 'amla', 'gooseberry'],
+    tags: ['acidity', 'digestion', 'amla', 'gooseberry', 'vitamin c'],
     description: 'Amla (Indian Gooseberry) juice for acidity and overall digestive health.',
     ingredients: ["2 tsp amla juice", "1 glass water"],
-    preparation: "Drink on empty stomach for acidity and digestion.",
-    usage: "Drink on empty stomach.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Dilute amla juice in water.",
+    usage: "Drink on empty stomach for acidity and digestion.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "fruit juice"
   },
   // 😖 4. Stress
   {
     id: 'remedy022',
     name: 'Brahmi Tea',
     type: 'calming',
-    tags: ['stress', 'brahmi', 'tea', 'calm'],
+    tags: ['stress', 'brahmi', 'tea', 'calm', 'mental clarity'],
     description: 'Brahmi tea to help calm the mind and reduce stress.',
     ingredients: ["1 tsp Brahmi powder", "1 cup water", "Honey (optional)"],
-    preparation: "Boil powder in water, strain, add honey.",
+    preparation: "Boil Brahmi powder in water, strain, add honey if desired.",
     usage: "Drink daily.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "calming tea"
   },
   {
     id: 'remedy023',
     name: 'Ashwagandha Milk',
     type: 'calming',
-    tags: ['stress', 'ashwagandha', 'milk', 'adaptogen'],
+    tags: ['stress', 'ashwagandha', 'milk', 'adaptogen', 'sleep'],
     description: 'Ashwagandha powder mixed with milk, taken at bedtime for stress relief.',
     ingredients: ["1 tsp Ashwagandha powder", "1 cup milk", "A pinch of cardamom"],
-    preparation: "Boil and drink at bedtime.",
+    preparation: "Boil Ashwagandha powder and cardamom in milk.",
     usage: "Drink at bedtime.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal milk"
   },
   {
     id: 'remedy024',
     name: 'Tulsi Leaves Chewing',
     type: 'calming',
-    tags: ['stress', 'tulsi', 'cortisol', 'calm'],
+    tags: ['stress', 'tulsi', 'cortisol', 'calm', 'anxiety'],
     description: 'Chewing fresh Tulsi leaves in the morning to calm the mind and reduce cortisol levels.',
     ingredients: ["5 fresh Tulsi leaves"],
-    preparation: "Chew daily in morning to calm mind and reduce cortisol.",
-    usage: "Chew daily in the morning.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "None required.",
+    usage: "Chew daily in morning to calm mind and reduce cortisol.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "fresh leaves"
   },
   {
     id: 'remedy025',
     name: 'Shankhpushpi Syrup',
     type: 'calming',
-    tags: ['anxiety', 'brain health', 'shankhpushpi', 'syrup'],
+    tags: ['anxiety', 'brain health', 'shankhpushpi', 'syrup', 'memory'],
     description: 'Shankhpushpi syrup taken for anxiety and promoting brain health.',
-    ingredients: ["10 ml Shankhpushpi syrup", "Water"],
-    preparation: "Take twice daily for anxiety and brain health.",
-    usage: "Take twice daily.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["10 ml Shankhpushpi syrup", "Water (optional, if too concentrated)"],
+    preparation: "Take as per product instructions.",
+    usage: "Take twice daily for anxiety and brain health.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal syrup"
   },
   {
     id: 'remedy026',
     name: 'Lavender Oil Massage',
     type: 'calming',
-    tags: ['stress', 'lavender oil', 'massage', 'relaxation'],
+    tags: ['stress', 'lavender oil', 'massage', 'relaxation', 'headache'],
     description: 'A calming massage with lavender oil on the neck and head.',
     ingredients: ["5 drops lavender oil", "2 tbsp coconut oil"],
-    preparation: "Massage neck and head at night.",
+    preparation: "Mix lavender oil with coconut oil.",
     usage: "Massage neck and head at night.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "aromatherapy oil"
   },
   {
     id: 'remedy027',
     name: 'Chamomile-Tulsi Tea',
     type: 'calming',
-    tags: ['stress', 'chamomile', 'tulsi', 'tea', 'calm'],
+    tags: ['stress', 'chamomile', 'tulsi', 'tea', 'calm', 'relaxation'],
     description: 'A soothing tea blend of chamomile and Tulsi.',
     ingredients: ["1 tsp dried chamomile", "3–4 Tulsi leaves", "1 cup hot water"],
-    preparation: "Steep and sip.",
-    usage: "Sip as needed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Steep chamomile and Tulsi leaves in hot water.",
+    usage: "Sip as needed for relaxation.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "flower tea"
   },
   {
     id: 'remedy028',
     name: 'Pranayama (Breathing + Oil)',
     type: 'calming',
-    tags: ['stress', 'pranayama', 'breathing', 'sesame oil', 'nasal drops'],
+    tags: ['stress', 'pranayama', 'breathing', 'sesame oil', 'nasal drops', 'meditation'],
     description: 'Sesame oil nasal drops followed by deep breathing exercises (Pranayama).',
-    ingredients: ["Sesame oil nasal drops (2 drops in each nostril)"],
-    preparation: "Use sesame oil nasal drops (2 drops in each nostril) in morning, followed by deep breathing.",
-    usage: "Practice in the morning.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["Sesame oil nasal drops"],
+    preparation: "Administer 2 drops of sesame oil in each nostril.",
+    usage: "Use sesame oil nasal drops in morning, followed by deep breathing exercises.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "meditation practice"
   },
   // 😴 5. Sleep Issues
   {
     id: 'remedy029',
     name: 'Nutmeg Milk',
     type: 'calming',
-    tags: ['sleep issues', 'insomnia', 'nutmeg', 'milk'],
+    tags: ['sleep issues', 'insomnia', 'nutmeg', 'milk', 'sedative'],
     description: 'Warm milk with a pinch of nutmeg taken before bedtime to aid sleep.',
-    ingredients: ["A pinch of nutmeg", "1 cup warm milk"],
-    preparation: "Drink 30 mins before bedtime.",
-    usage: "Drink 30 minutes before bedtime.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["A pinch of nutmeg powder", "1 cup warm milk"],
+    preparation: "Mix nutmeg powder in warm milk.",
+    usage: "Drink 30 mins before bedtime.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "spiced milk"
   },
   {
     id: 'remedy030',
     name: 'Tagar Powder (Indian Valerian)',
     type: 'calming',
-    tags: ['sleep issues', 'tagar', 'valerian', 'insomnia'],
+    tags: ['sleep issues', 'tagar', 'valerian', 'insomnia', 'anxiety'],
     description: 'Tagar root powder, known as Indian Valerian, for promoting sleep. (Consult practitioner for dose)',
-    ingredients: ["500 mg Tagar root powder"],
-    preparation: "Take with warm water at bedtime (consult practitioner for dose).",
-    usage: "Take with warm water at bedtime.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional (Consult Practitioner)"
+    ingredients: ["500 mg Tagar root powder (approx.)", "Warm water"],
+    preparation: "Consult practitioner for correct dosage.",
+    usage: "Take with warm water at bedtime (consult practitioner for dose).",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional (Consult Practitioner)",
+    dataAiHint: "root powder"
   },
   {
     id: 'remedy031',
-    name: 'Warm Ghee in Nostrils',
+    name: 'Warm Ghee in Nostrils (Nasya)',
     type: 'calming',
-    tags: ['sleep issues', 'ghee', 'nasya', 'nerves'],
+    tags: ['sleep issues', 'ghee', 'nasya', 'nerves', 'relaxation'],
     description: 'Applying warm desi ghee in nostrils before sleep to soothe nerves.',
-    ingredients: ["Desi ghee"],
-    preparation: "2 drops in each nostril before sleep.",
+    ingredients: ["Desi ghee (clarified butter)"],
+    preparation: "Slightly warm the ghee.",
     usage: "Apply 2 drops in each nostril before sleep. Soothes nerves.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "nasal application"
   },
   {
     id: 'remedy032',
     name: 'Brahmi Vati',
     type: 'calming',
-    tags: ['sleep issues', 'mental calm', 'brahmi vati', 'tablet'],
+    tags: ['sleep issues', 'mental calm', 'brahmi vati', 'tablet', 'stress'],
     description: 'Ayurvedic tablet (Brahmi Vati) for mental calm, taken as prescribed.',
     ingredients: ["Brahmi Vati (Ayurvedic tablet)"],
-    preparation: "Take as prescribed.",
+    preparation: "No preparation needed.",
     usage: "Take as prescribed by an Ayurvedic practitioner.",
-    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)"
+    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)",
+    dataAiHint: "herbal tablet"
   },
   {
     id: 'remedy033',
     name: 'Banana-Cinnamon Smoothie',
     type: 'calming',
-    tags: ['sleep issues', 'banana', 'cinnamon', 'smoothie'],
+    tags: ['sleep issues', 'banana', 'cinnamon', 'smoothie', 'almond milk'],
     description: 'A smoothie made with banana, cinnamon, and warm almond milk before sleep.',
-    ingredients: ["1 ripe banana", "1 pinch cinnamon", "Warm almond milk"],
-    preparation: "Blend and drink before sleep.",
+    ingredients: ["1 ripe banana", "1 pinch cinnamon powder", "Warm almond milk"],
+    preparation: "Blend all ingredients until smooth.",
     usage: "Drink before sleep.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "fruit smoothie"
   },
   {
     id: 'remedy034',
-    name: 'Foot Massage with Sesame Oil',
+    name: 'Foot Massage with Sesame Oil (Sleep)',
     type: 'calming',
     tags: ['sleep issues', 'foot massage', 'sesame oil', 'relaxation'],
     description: 'A nightly foot massage with sesame oil for relaxation.',
     ingredients: ["Sesame oil"],
-    preparation: "Massage feet for 5 mins nightly.",
-    usage: "Massage feet for 5 minutes nightly.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Warm sesame oil slightly if desired.",
+    usage: "Massage feet for 5 mins nightly.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "oil massage"
   },
   {
     id: 'remedy035',
     name: 'Chamomile-Brahmi Infusion',
     type: 'calming',
-    tags: ['sleep issues', 'chamomile', 'brahmi', 'tea', 'infusion'],
+    tags: ['sleep issues', 'chamomile', 'brahmi', 'tea', 'infusion', 'tulsi'],
     description: 'An infusion of chamomile and Brahmi for promoting restful sleep.',
     ingredients: ["1 tsp dried chamomile", "1 tsp Brahmi powder", "3-4 Tulsi leaves (optional)", "1 cup hot water"],
     preparation: "Steep chamomile and Brahmi (and Tulsi if using) in hot water for 5-7 minutes. Strain and sip.",
     usage: "Drink before bedtime.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal blend"
   },
   // 🌺 6. Skin Rashes
   {
     id: 'remedy036',
-    name: 'Neem Paste',
-    type: 'general', 
-    tags: ['skin rashes', 'neem', 'anti-inflammatory', 'anti-bacterial'],
+    name: 'Neem Paste (for Skin)',
+    type: 'general',
+    tags: ['skin rashes', 'neem', 'anti-inflammatory', 'anti-bacterial', 'itching'],
     description: 'A paste of fresh neem leaves applied to skin rashes.',
     ingredients: ["Fresh neem leaves", "Water"],
-    preparation: "Grind and apply on rash for 20 mins.",
-    usage: "Apply on rash for 20 minutes, then rinse.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Grind neem leaves with a little water to make a paste.",
+    usage: "Apply on rash for 20 mins, then rinse.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "leaf paste"
   },
   {
     id: 'remedy037',
     name: 'Sandalwood-Rosewater Paste',
     type: 'general',
-    tags: ['skin rashes', 'sandalwood', 'rosewater', 'cooling'],
+    tags: ['skin rashes', 'sandalwood', 'rosewater', 'cooling', 'soothing'],
     description: 'A cooling paste of sandalwood powder and rosewater for skin rashes.',
     ingredients: ["1 tbsp sandalwood powder", "Rosewater"],
-    preparation: "Make paste, apply on affected area.",
+    preparation: "Mix sandalwood powder with rosewater to form a smooth paste.",
     usage: "Apply on affected area and let dry.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "cooling paste"
   },
   {
     id: 'remedy038',
-    name: 'Aloe Vera Gel',
+    name: 'Aloe Vera Gel (for Skin)',
     type: 'general',
-    tags: ['skin rashes', 'aloe vera', 'soothing', 'healing'],
+    tags: ['skin rashes', 'aloe vera', 'soothing', 'healing', 'burns'],
     description: 'Fresh aloe vera gel applied directly to skin rashes for soothing relief.',
     ingredients: ["Fresh aloe vera leaf"],
-    preparation: "Extract gel, apply on rash twice daily.",
+    preparation: "Extract gel from a fresh aloe vera leaf.",
     usage: "Apply on rash twice daily.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "plant gel"
   },
   {
     id: 'remedy039',
-    name: 'Turmeric-Curd Pack',
+    name: 'Turmeric-Curd Pack (for Skin)',
     type: 'general',
     tags: ['skin rashes', 'turmeric', 'curd', 'yogurt', 'anti-inflammatory'],
     description: 'A pack made from turmeric and curd (yogurt) to reduce inflammation of skin rashes.',
-    ingredients: ["½ tsp turmeric", "1 tbsp curd"],
-    preparation: "Apply for 15 mins. Helps reduce inflammation.",
-    usage: "Apply for 15 minutes, then rinse.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["½ tsp turmeric powder", "1 tbsp curd (yogurt)"],
+    preparation: "Mix turmeric powder and curd to form a paste.",
+    usage: "Apply for 15 mins. Helps reduce inflammation.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "skin pack"
   },
   {
     id: 'remedy040',
-    name: 'Coconut Oil + Camphor (Skin)',
+    name: 'Coconut Oil + Camphor (for Skin)',
     type: 'general',
-    tags: ['skin rashes', 'fungal', 'coconut oil', 'camphor'],
+    tags: ['skin rashes', 'fungal', 'coconut oil', 'camphor', 'itching'],
     description: 'A mixture of coconut oil and camphor for fungal skin rashes.',
     ingredients: ["2 tbsp coconut oil", "A pinch of camphor"],
-    preparation: "Apply for fungal skin rashes.",
-    usage: "Apply to affected area.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix camphor into coconut oil.",
+    usage: "Apply for fungal skin rashes.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "medicated oil"
   },
   {
     id: 'remedy041',
-    name: 'Triphala Water Wash',
+    name: 'Triphala Water Wash (for Skin)',
     type: 'general',
-    tags: ['skin rashes', 'triphala', 'wash', 'detox'],
+    tags: ['skin rashes', 'triphala', 'wash', 'detox', 'cleansing'],
     description: 'Washing the affected area with Triphala-infused water.',
     ingredients: ["1 tsp Triphala powder", "Water"],
-    preparation: "Soak 1 tsp Triphala overnight in water, strain and wash rash area.",
+    preparation: "Soak 1 tsp Triphala powder overnight in water, strain.",
     usage: "Wash rash area with the strained water.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal wash"
   },
   {
     id: 'remedy042',
     name: 'Khadirarishta',
     type: 'general',
-    tags: ['skin detox', 'khadirarishta', 'ayurvedic tonic'],
+    tags: ['skin detox', 'khadirarishta', 'ayurvedic tonic', 'blood purifier'],
     description: 'Khadirarishta, an Ayurvedic tonic for skin detoxification (use under guidance).',
     ingredients: ["Khadirarishta (Ayurvedic tonic)"],
-    preparation: "Use under guidance.",
-    usage: "Take as prescribed by an Ayurvedic practitioner.",
-    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)"
+    preparation: "No preparation needed.",
+    usage: "Use under guidance of an Ayurvedic practitioner.",
+    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)",
+    dataAiHint: "tonic bottle"
   },
   // 💧 7. Acne
   {
     id: 'remedy043',
-    name: 'Multani Mitti + Rosewater',
+    name: 'Multani Mitti + Rosewater (for Acne)',
     type: 'general',
-    tags: ['acne', 'multani mitti', 'fullers earth', 'rosewater', 'oil control'],
-    description: 'A face pack of Multani Mitti (Fuller\'s Earth) and rosewater for oil control and acne.',
-    ingredients: ["2 tbsp Multani mitti", "Rosewater"],
-    preparation: "Apply on face for 15 mins. Helps oil control.",
-    usage: "Apply on face for 15 minutes, then rinse.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    tags: ['acne', 'multani mitti', 'fullers earth', 'rosewater', 'oil control', 'face pack'],
+    description: "A face pack of Multani Mitti (Fuller's Earth) and rosewater for oil control and acne.",
+    ingredients: ["2 tbsp Multani mitti (Fuller's Earth)", "Rosewater"],
+    preparation: "Mix Multani mitti with rosewater to form a paste.",
+    usage: "Apply on face for 15 mins. Helps oil control.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "clay mask"
   },
   {
     id: 'remedy044',
-    name: 'Neem-Turmeric Face Pack',
+    name: 'Neem-Turmeric Face Pack (for Acne)',
     type: 'general',
-    tags: ['acne', 'neem', 'turmeric', 'honey', 'face pack'],
+    tags: ['acne', 'neem', 'turmeric', 'honey', 'face pack', 'anti-bacterial'],
     description: 'A face pack with neem, turmeric, and honey for acne.',
-    ingredients: ["Neem powder", "Turmeric", "Honey"],
-    preparation: "Mix and apply for 15 mins, wash off.",
-    usage: "Apply for 15 minutes, then wash off.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["Neem powder", "Turmeric powder", "Honey"],
+    preparation: "Mix neem powder, turmeric powder, and honey to form a paste.",
+    usage: "Apply for 15 mins, wash off.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal mask"
   },
   {
     id: 'remedy045',
-    name: 'Aloe Vera + Lemon (Acne)',
+    name: 'Aloe Vera + Lemon (for Acne)',
     type: 'general',
-    tags: ['acne', 'aloe vera', 'lemon', 'brightening'],
+    tags: ['acne', 'aloe vera', 'lemon', 'brightening', 'spots'],
     description: 'A mixture of aloe vera gel and lemon juice for acne and skin brightening.',
     ingredients: ["1 tbsp aloe vera gel", "½ tsp lemon juice"],
-    preparation: "Apply for 10 mins. Brightens and reduces acne.",
-    usage: "Apply for 10 minutes, then rinse.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Mix aloe vera gel and lemon juice.",
+    usage: "Apply for 10 mins. Brightens and reduces acne.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "gel mixture"
   },
   {
     id: 'remedy046',
-    name: 'Raw Potato Juice',
+    name: 'Raw Potato Juice (for Acne)',
     type: 'general',
-    tags: ['acne spots', 'potato juice', 'lightening'],
+    tags: ['acne spots', 'potato juice', 'lightening', 'blemishes'],
     description: 'Applying raw potato juice to acne spots.',
     ingredients: ["Raw potato"],
-    preparation: "Apply potato juice with cotton on acne spots.",
-    usage: "Apply juice with cotton on acne spots.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Extract juice from a raw potato.",
+    usage: "Apply potato juice with cotton on acne spots.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "vegetable juice"
   },
   {
     id: 'remedy047',
     name: 'Tulsi-Besan Mask',
     type: 'general',
-    tags: ['acne', 'tulsi', 'besan', 'gram flour', 'face mask'],
+    tags: ['acne', 'tulsi', 'besan', 'gram flour', 'face mask', 'cleansing'],
     description: 'A weekly face mask with Tulsi powder, Besan (gram flour), and rosewater.',
-    ingredients: ["1 tsp tulsi powder", "1 tbsp besan", "Rosewater"],
-    preparation: "Apply weekly.",
+    ingredients: ["1 tsp tulsi powder", "1 tbsp besan (gram flour)", "Rosewater"],
+    preparation: "Mix tulsi powder, besan, and rosewater to form a paste.",
     usage: "Apply weekly for 15-20 minutes, then rinse.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "powder mask"
   },
   {
     id: 'remedy048',
-    name: 'Manjistha Powder',
+    name: 'Manjistha Powder (for Acne)',
     type: 'general',
-    tags: ['acne', 'blood purification', 'manjistha'],
+    tags: ['acne', 'blood purification', 'manjistha', 'skin health'],
     description: 'Manjistha powder taken internally for blood purification, which can help with acne (under advice).',
     ingredients: ["Manjistha powder"],
-    preparation: "Take ½ tsp with warm water daily for blood purification (under advice).",
-    usage: "Take ½ tsp with warm water daily.",
-    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic (Consult Practitioner)"
+    preparation: "No preparation needed for powder itself.",
+    usage: "Take ½ tsp with warm water daily for blood purification (under advice of a practitioner).",
+    isFavorite: false, views: 0, saves: 0, source: "Ayurvedic (Consult Practitioner)",
+    dataAiHint: "herbal supplement"
   },
   {
     id: 'remedy049',
     name: 'Apple Cider Vinegar Toner',
     type: 'general',
-    tags: ['acne', 'apple cider vinegar', 'toner'],
+    tags: ['acne', 'apple cider vinegar', 'toner', 'astringent'],
     description: 'Diluted apple cider vinegar used as a facial toner.',
-    ingredients: ["1 part ACV", "3 parts water"],
-    preparation: "Use as face toner with cotton.",
-    usage: "Use as a toner with a cotton pad after cleansing.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    ingredients: ["1 part Apple Cider Vinegar (ACV)", "3 parts water"],
+    preparation: "Dilute ACV with water.",
+    usage: "Use as face toner with cotton pad after cleansing.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "liquid toner"
   },
   {
     id: 'remedy050',
@@ -584,43 +633,47 @@ const mockRemedies: AyurvedicRemedy[] = [
     tags: ['acne', 'tea tree oil', 'spot treatment', 'anti-bacterial'],
     description: 'Diluted tea tree oil applied as a spot treatment for acne.',
     ingredients: ["Tea Tree Oil", "Coconut oil (or other carrier oil)"],
-    preparation: "Dilute with coconut oil and apply on acne.",
-    usage: "Dilute 1-2 drops of tea tree oil with a teaspoon of carrier oil and apply to acne spots.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "Dilute 1-2 drops of tea tree oil with a teaspoon of carrier oil (like coconut oil).",
+    usage: "Apply to acne spots.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "essential oil"
   },
   // Added remedies from user's latest input
   {
     id: 'remedy051',
     name: 'Vasa and Tulsi for Asthma',
     type: 'herbal',
-    tags: ['asthma', 'vasa', 'adusa', 'vasak', 'tulsi', 'basil'],
+    tags: ['asthma', 'vasa', 'adusa', 'vasak', 'tulsi', 'basil', 'respiratory'],
     description: 'A decoction of Vasa (Adusa) and Tulsi leaves to relieve asthma symptoms.',
     ingredients: ["250ml Vasa (Adusa) or Vasak water", "10 basil (Tulsi) leaves"],
     preparation: "Boil Vasa water with Tulsi leaves until well infused. Strain.",
     usage: "Chanakya Niti recommends drinking it in the morning for 21 days.",
-    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti"
+    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti",
+    dataAiHint: "asthma relief"
   },
   {
     id: 'remedy052',
     name: 'Rock Salt for Seasonal Cough',
     type: 'general',
-    tags: ['cough', 'seasonal cough', 'phlegm cough', 'rock salt'],
+    tags: ['cough', 'seasonal cough', 'phlegm cough', 'rock salt', 'throat'],
     description: 'Heated rock salt dissolved in water to provide relief from cough, especially phlegm cough.',
     ingredients: ["~5 grams rock salt", "Half a cup of water"],
     preparation: "Hold rock salt with tongs and heat it on fire/gas/griddle until it starts to turn red. Immediately dip the hot nugget in half a cup of water.",
     usage: "Drink the salty hot water in one go at bedtime for two-three days. The same salt nugget can be reused if kept dry.",
-    isFavorite: false, views: 0, saves: 0, source: "Words of Wisdom – Health Sutras of Ayurveda"
+    isFavorite: false, views: 0, saves: 0, source: "Words of Wisdom – Health Sutras of Ayurveda",
+    dataAiHint: "salt water"
   },
   {
     id: 'remedy053',
     name: 'Licorice Powder for Sore Throat',
     type: 'herbal',
-    tags: ['sore throat', 'licorice powder', 'mulethi', 'betel leaf', 'swelling'],
+    tags: ['sore throat', 'licorice powder', 'mulethi', 'betel leaf', 'swelling', 'voice'],
     description: 'Licorice powder used with betel leaf or chewed directly to cure sore throat and swelling.',
     ingredients: ["Licorice powder", "Betel leaf (optional)"],
     preparation: "Option 1: Put licorice powder in betel leaf and eat. Option 2: While sleeping, keep one gram of licorice powder in the mouth and keep chewing it for some time, then keep it in your mouth and go to sleep.",
     usage: "By morning the throat will be clear. Provides relief in sore throat and swelling.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "throat lozenge"
   },
   {
     id: 'remedy054',
@@ -631,7 +684,8 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Half a teaspoon of fennel", "Sugar candy (Mishri)"],
     preparation: "Take half a teaspoon of fennel (optionally with sugar candy) after each meal.",
     usage: "Cures dry cough and mouth diseases, opens the voice, cures dry throat, and makes the voice sweeter.",
-    isFavorite: false, views: 0, saves: 0, source: "Yoga practice and therapy"
+    isFavorite: false, views: 0, saves: 0, source: "Yoga practice and therapy",
+    dataAiHint: "mouth freshener"
   },
   {
     id: 'remedy055',
@@ -642,150 +696,164 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Ground ginger", "Jaggery", "Ghee (or Honey)"],
     preparation: "Mix ground ginger with jaggery and ghee. Honey can be used in place of jaggery or ghee.",
     usage: "Get relief from dry coughs and sore throats.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "sweet remedy"
   },
   {
     id: 'remedy056',
     name: 'Salt and Oregano for Stomach Worms',
-    type: 'general',
-    tags: ['stomach worms', 'carom seeds', 'ajwain', 'black salt'],
+    type: 'digestion',
+    tags: ['stomach worms', 'carom seeds', 'ajwain', 'black salt', 'parasites'],
     description: 'A mixture of carom seeds (ajwain) powder and black salt with warm water to dissolve stomach worms.',
     ingredients: ["Carom seeds (Ajwain) powder", "Black salt", "Warm water"],
     preparation: "For children: Use half a gram of carom seeds powder mixed with black salt. For elders: Mix one part black salt in four parts carom seed powder. Take two grams.",
     usage: "Take with warm water before going to bed.",
-    isFavorite: false, views: 0, saves: 0, source: "Yoga Darshanam"
+    isFavorite: false, views: 0, saves: 0, source: "Yoga Darshanam",
+    dataAiHint: "deworming mix"
   },
   {
     id: 'remedy057',
     name: 'Anorexia Remedy (Grapes & Myrobalan)',
     type: 'digestion',
-    tags: ['anorexia', 'loss of appetite', 'grapes', 'myrobalan', 'haritaki', 'sugar'],
+    tags: ['anorexia', 'loss of appetite', 'grapes', 'myrobalan', 'haritaki', 'sugar', 'appetite stimulant'],
     description: 'A chutney made from grapes, myrobalan (haritaki), and sugar to improve appetite.',
     ingredients: ["Equal quantities of grapes", "Equal quantities of myrobalan (Haritaki)", "Equal quantities of sugar"],
     preparation: "Make a chutney from equal quantities of grapes, myrobalan, and sugar.",
     usage: "Lick one small spoon twice daily if you don’t feel hungry.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "fruit chutney"
   },
   {
     id: 'remedy058',
     name: 'Camphor and Mustard Oil for Body Pain',
     type: 'general',
-    tags: ['body pain', 'nerve pain', 'back pain', 'muscle pain', 'camphor', 'mustard oil'],
+    tags: ['body pain', 'nerve pain', 'back pain', 'muscle pain', 'camphor', 'mustard oil', 'massage oil'],
     description: 'An oil made from camphor and mustard oil, exposed to sunlight, for treating various body pains.',
     ingredients: ["10 grams of camphor", "200 grams mustard oil"],
     preparation: "Fill a vial with camphor and mustard oil. Apply a strong compress to the vial and let it dry in the sunlight until camphor dissolves.",
     usage: "The oil can be used to treat nerve pain, back pain, and muscle pain by massaging.",
-    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna to brother Rajiv Dixit"
+    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna to brother Rajiv Dixit",
+    dataAiHint: "pain relief oil"
   },
   {
     id: 'remedy059',
     name: 'Bathua Juice for Joint Pain',
     type: 'herbal',
-    tags: ['joint pain', 'arthritis', 'bathua', 'chenopodium album'],
+    tags: ['joint pain', 'arthritis', 'bathua', 'chenopodium album', 'anti-inflammatory'],
     description: 'Fresh Bathua (Chenopodium album) leaves juice taken daily for arthritis and joint pain.',
     ingredients: ["Fresh Bathua leaves (to yield 15 grams juice)"],
     preparation: "Extract juice from fresh Bathua leaves.",
     usage: "Take fifteen grams of juice daily. Do not add salt, sugar, etc. Take it every morning on an empty stomach or at four in the evening. Do not take anything two hours before or after. Take for two to three months.",
-    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna Rajiv Dixit"
+    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna Rajiv Dixit",
+    dataAiHint: "green juice"
   },
   {
     id: 'remedy060',
     name: 'Carom Seeds and Whey for Stomach Gas',
     type: 'digestion',
-    tags: ['stomach gas', 'flatulence', 'carom seeds', 'ajwain', 'whey', 'curd'],
+    tags: ['stomach gas', 'flatulence', 'carom seeds', 'ajwain', 'whey', 'curd', 'bloating'],
     description: 'Curd whey mixed with carom seeds taken after meals to relieve stomach gas.',
     ingredients: ["125g curd (for whey)", "2 grams carom seeds (Ajwain)"],
     preparation: "Extract whey from curd. Mix with carom seeds.",
     usage: "Take after meals as necessary for one to two weeks.",
-    isFavorite: false, views: 0, saves: 0, source: "Linguistics Mother Sanskrit Language"
+    isFavorite: false, views: 0, saves: 0, source: "Linguistics Mother Sanskrit Language",
+    dataAiHint: "digestive drink"
   },
   {
     id: 'remedy061',
     name: 'Mustard Oil for Cracked Lips/Extremities',
     type: 'general',
-    tags: ['cracked lips', 'chapped lips', 'dry eyes', 'mustard oil', 'navel application'],
+    tags: ['cracked lips', 'chapped lips', 'dry eyes', 'mustard oil', 'navel application', 'skin care'],
     description: 'Applying mustard oil to the navel daily to prevent chapped lips and soothe dry eyes.',
     ingredients: ["Mustard oil"],
-    preparation: "Apply mustard oil to the navel.",
+    preparation: "No preparation needed.",
     usage: "Apply every day to the navel. Ensures lips don’t crack and softens chapped lips. Itching and dryness in the eyes will disappear.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "body oiling"
   },
   {
     id: 'remedy062',
     name: 'Basil for Cold, Fever, Bronchial Diseases',
     type: 'herbal',
-    tags: ['cold', 'fever', 'bronchial diseases', 'basil', 'tulsi', 'curd', 'honey'],
+    tags: ['cold', 'fever', 'bronchial diseases', 'basil', 'tulsi', 'curd', 'honey', 'respiratory'],
     description: 'A chutney of Tulsi leaves mixed with sweet curd or honey for various respiratory ailments.',
     ingredients: ["21 Tulsi leaves", "Sweet curd (10-30 grams) or Honey"],
     preparation: "Make a chutney with 21 Tulsi leaves (grind with silbatta or clean drywall). Add 10-30 grams of sweet curd. If curd isn’t suitable, honey can be added.",
     usage: "Eat this mixture every morning on an empty stomach for three months. The curd shouldn’t be too sour. Small children can be given half a gram of basil chutney with honey. Do not give with milk. Breakfast can be taken after half an hour.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "herbal paste"
   },
   {
     id: 'remedy063',
     name: 'Gulkand and Amla Jam for Anger',
     type: 'calming',
-    tags: ['anger management', 'gulkand', 'rose petal jam', 'amla jam', 'gooseberry jam'],
+    tags: ['anger management', 'gulkand', 'rose petal jam', 'amla jam', 'gooseberry jam', 'cooling'],
     description: 'Gulkand and Amla jam taken daily to calm anger.',
     ingredients: ["Gulkand (Rose petal jam)", "Amla jam (Gooseberry jam)"],
-    preparation: "Take one teaspoon of gulkand each morning and one spoon of gooseberry jam in the evening.",
-    usage: "Anger will be calmed.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    preparation: "No preparation needed.",
+    usage: "Take one teaspoon of gulkand each morning and one spoon of gooseberry jam in the evening. Anger will be calmed.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "sweet preserves"
   },
   {
     id: 'remedy064',
     name: 'Walnuts for Knee Pain',
     type: 'general',
-    tags: ['knee pain', 'walnuts'],
+    tags: ['knee pain', 'walnuts', 'joint health'],
     description: 'Eating walnut kernels on an empty stomach to relieve knee pain.',
     ingredients: ["3-4 walnut kernels"],
-    preparation: "Eat three to four walnut kernels.",
+    preparation: "No preparation needed.",
     usage: "Take in the morning on an empty stomach. This will relieve your knee pain.",
-    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous"
+    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous",
+    dataAiHint: "nuts remedy"
   },
   {
     id: 'remedy065',
     name: 'Coconut Oil and Lemon Juice for Dark Spots',
     type: 'general',
-    tags: ['dark spots', 'elbows', 'face', 'coconut oil', 'lemon juice', 'skin lightening'],
+    tags: ['dark spots', 'elbows', 'face', 'coconut oil', 'lemon juice', 'skin lightening', 'pigmentation'],
     description: 'A mixture of coconut oil and lemon juice to lighten dark spots on elbows and face.',
     ingredients: ["Half a teaspoon coconut oil", "Juice of half a lemon"],
     preparation: "Mix half a lemon juice with half a teaspoon coconut oil.",
     usage: "Rub the mixture on the skin and then rinse it off with warm water.",
-    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous"
+    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous",
+    dataAiHint: "skin treatment"
   },
   {
     id: 'remedy066',
     name: 'Betel Nut for Cholesterol Control',
     type: 'general',
-    tags: ['cholesterol', 'blood pressure', 'betel nut', 'supari', 'blood thinner'],
+    tags: ['cholesterol', 'blood pressure', 'betel nut', 'supari', 'blood thinner', 'heart health'],
     description: 'Chewing betel nuts after meals, as the juice mixed with saliva acts as a blood thinner, potentially helping with cholesterol and blood pressure.',
     ingredients: ["Betel nuts (Supari)"],
-    preparation: "Chew betel nuts.",
+    preparation: "No specific preparation, just chew.",
     usage: "After eating, chew the betel nuts for 20-40 minutes. Then, clean your mouth. When mixed with saliva, the juice of betel nuts acts as a blood thinner, causing a decrease in cholesterol and blood pressure.",
-    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti’s priceless thoughts"
+    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti’s priceless thoughts",
+    dataAiHint: "areca nut"
   },
   {
     id: 'remedy067',
     name: 'Oregano (Ajwain) for Gingivitis',
     type: 'herbal',
-    tags: ['gingivitis', 'swollen gums', 'oregano oil', 'ajwain oil', 'gargle'],
+    tags: ['gingivitis', 'swollen gums', 'oregano oil', 'ajwain oil', 'gargle', 'oral health'],
     description: 'Gargling with water mixed with a few drops of ajwain oil (often referred to as oregano in some contexts for its similar properties) for swollen gums.',
     ingredients: ["Ajwain oil (or Oregano oil)", "Water"],
     preparation: "Add a few drops of ajwain oil to water.",
     usage: "Gargle if you have swelling gums. It will provide relief.",
-    isFavorite: false, views: 0, saves: 0, source: "Vedic Sanskrit Vaidik sanskrit"
+    isFavorite: false, views: 0, saves: 0, source: "Vedic Sanskrit Vaidik sanskrit",
+    dataAiHint: "mouthwash"
   },
   {
     id: 'remedy068',
-    name: 'Amla for Heart Disease',
+    name: 'Amla For Heart Disease',
     type: 'herbal',
-    tags: ['heart disease', 'abnormal heartbeats', 'heart weakness', 'amla', 'gooseberry', 'murabba'],
+    tags: ['heart disease', 'abnormal heartbeats', 'heart weakness', 'amla', 'gooseberry', 'murabba', 'cardiac health'],
     description: 'Consuming Amla murabba (sweet gooseberry preserve) to treat heart disease, abnormal heartbeats, and heart weakness.',
     ingredients: ["Amla murabba"],
-    preparation: "Consume Amla murabba.",
+    preparation: "No preparation needed.",
     usage: "Consuming Amla murabba three times a day is a great way to treat heart disease, abnormal heartbeats, and heart weakness.",
-    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+    isFavorite: false, views: 0, saves: 0, source: "Traditional",
+    dataAiHint: "fruit preserve"
   }
 ];
 
@@ -793,8 +861,9 @@ const mockRemedies: AyurvedicRemedy[] = [
 const remedyTypes: RemedyType[] = ["herbal", "digestion", "inflammation", "calming", "general"];
 const allRemedyTypesDisplay = ["All", ...remedyTypes.map(t => t.charAt(0).toUpperCase() + t.slice(1))];
 
-const mockDiseases = Array.from(new Set(mockRemedies.flatMap(r => r.tags.filter(tag => !mockIngredients.map(i => i.toLowerCase()).includes(tag.toLowerCase()))))).sort();
-const mockIngredients = Array.from(new Set(mockRemedies.flatMap(r => r.ingredients.map(ing => ing.split(' ')[0].replace(/[^\w\s]/gi, ''))))).filter(i => i.length > 2).sort();
+// Define mockIngredients before mockDiseases
+const mockIngredients = Array.from(new Set(mockRemedies.flatMap(r => r.ingredients.map(ing => ing.split(' ')[0].replace(/[^\w\s]/gi, '').toLowerCase())))).filter(i => i.length > 2 && i !== 'tsp' && i !== 'tbsp').sort();
+const mockDiseases = Array.from(new Set(mockRemedies.flatMap(r => r.tags.filter(tag => !mockIngredients.includes(tag.toLowerCase()))))).sort();
 
 
 const aiRemedySchema = z.object({
@@ -896,6 +965,7 @@ export default function AyurvedicRemediesPage() {
         source: "AI Assistant",
         views: 0,
         saves: 0,
+        dataAiHint: "ai suggestion"
       };
       setAiGeneratedRemedy(newRemedy);
       aiForm.reset();
@@ -1217,3 +1287,4 @@ export default function AyurvedicRemediesPage() {
     </div>
   );
 }
+
