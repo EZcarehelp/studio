@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link'; // Added missing import
+import Link from 'next/link'; 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { Checkbox } from '@/components/ui/checkbox'; // For sidebar filters
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from "@/components/ui/label"; // Added this import
 
 const mockRemedies: AyurvedicRemedy[] = [
   { id: 'remedy1', name: 'Ginger-Honey Tea for Cough', type: 'herbal', tags: ['cough', 'cold', 'throat'], description: 'A soothing tea effective for cough and sore throat.', ingredients: ['1 inch Ginger (grated)', '1 tsp Honey', '1 cup Hot Water', 'Few Tulsi leaves (optional)'], preparation: 'Steep grated ginger and tulsi leaves in hot water for 5-7 minutes. Strain, add honey, and drink warm.', usage: 'Drink 2-3 times a day.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "ginger tea", isFavorite: false, views: 120, saves: 25 },
@@ -72,14 +73,16 @@ export default function AyurvedicRemediesPage() {
         results = results.filter(remedy => remedy.type.toLowerCase() === activeTypeFilter.toLowerCase());
     }
 
-    // Placeholder for disease filtering
     if (selectedDiseases.length > 0) {
-        // results = results.filter(remedy => selectedDiseases.some(disease => remedy.tags.includes(disease.toLowerCase()) || remedy.description.toLowerCase().includes(disease.toLowerCase()) ));
-        // This mock logic is very basic, real logic would be more complex
-         console.log("Filtering by diseases (mock):", selectedDiseases);
+        results = results.filter(remedy => 
+            selectedDiseases.some(disease => 
+                (remedy.tags && remedy.tags.some(tag => tag.toLowerCase().includes(disease.toLowerCase()))) || 
+                remedy.name.toLowerCase().includes(disease.toLowerCase()) ||
+                remedy.description.toLowerCase().includes(disease.toLowerCase())
+            )
+        );
     }
 
-    // Placeholder for ingredient filtering
     if (selectedIngredients.length > 0) {
         results = results.filter(remedy => 
             selectedIngredients.every(selIng => 
@@ -331,3 +334,4 @@ export default function AyurvedicRemediesPage() {
     </div>
   );
 }
+
