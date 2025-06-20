@@ -6,9 +6,10 @@ import { useAuthState } from '@/hooks/use-auth-state';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, MapPin, Thermometer, Umbrella, Sun, CloudSun, CloudRain, Zap, ShieldCheck, Info, HelpCircle } from 'lucide-react';
-import type { OpenMeteoApiResponse, HealthPrediction, UserProfile } from '@/types';
+import type { HealthPrediction } from '@/types'; // UserProfile removed as it comes from useAuthState
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { fetchWeatherApi } from 'openmeteo';
 
 // Default location (e.g., Chennai, India - if user profile doesn't have location)
 const DEFAULT_LATITUDE = 13.0827;
@@ -68,13 +69,19 @@ function getWeatherIcon(maxTemp: number | null, rain: number | null, uvIndex: nu
     return CloudSun; // Default
 }
 
+interface ProcessedDailyWeather {
+  maxTemp: number | null;
+  minTemp: number | null;
+  precipitation: number | null;
+  uvIndex: number | null;
+}
 
 export default function ClimateHealthPage() {
   const { userProfile, isLoading: authLoading } = useAuthState();
   const { toast } = useToast();
 
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number; name: string } | null>(null);
-  const [weatherData, setWeatherData] = useState<OpenMeteoApiResponse['daily'] | null>(null);
+  const [todayWeather, setTodayWeather] = useState<ProcessedDailyWeather | null>(null);
   const [healthPrediction, setHealthPrediction] = useState<HealthPrediction | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +96,7 @@ export default function ClimateHealthPage() {
         });
       } else {
         setCurrentLocation({ lat: DEFAULT_LATITUDE, lon: DEFAULT_LONGITUDE, name: DEFAULT_LOCATION_NAME });
-        if(userProfile) { // Only toast if profile is loaded but no location
+        if(userProfile) { 
             toast({
                 title: "Location Not Set",
                 description: `Using default location. Please update your profile for personalized weather.`,
@@ -103,47 +110,62 @@ export default function ClimateHealthPage() {
 
   useEffect(() => {
     if (currentLocation) {
-      const fetchWeather = async () => {
+      const fetchWeatherData = async () => {
         setIsLoadingWeather(true);
         setError(null);
         setHealthPrediction(null);
+        setTodayWeather(null);
+
+        const params = {
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lon,
+          daily: ['temperature_2m_max', 'temperature_2m_min', 'precipitation_sum', 'uv_index_max'],
+          timezone: 'auto',
+          forecast_days: 1
+        };
+        const url = "https://api.open-meteo.com/v1/forecast";
+
         try {
-          const params = new URLSearchParams({
-            latitude: currentLocation.lat.toString(),
-            longitude: currentLocation.lon.toString(),
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max',
-            timezone: 'auto',
-            forecast_days: '1' // Fetch only for today
-          });
-          const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch weather: ${response.statusText}`);
-          }
-          const data: OpenMeteoApiResponse = await response.json();
-          if (data && data.daily && data.daily.time && data.daily.time.length > 0) {
-            setWeatherData(data.daily);
-            // Predict health issues based on fetched weather
-            const todayWeather = {
-              maxTemp: data.daily.temperature_2m_max[0],
-              uvIndex: data.daily.uv_index_max[0],
-              rain: data.daily.precipitation_sum[0],
-            };
-            setHealthPrediction(predictDiseases(todayWeather));
-          } else {
-            throw new Error("Weather data is incomplete or unavailable for today.");
-          }
+          const responses = await fetchWeatherApi(url, params);
+          const response = responses[0]; // Process first location
+
+          // Attributes for timezone and location (though not strictly needed for this page's display)
+          // const utcOffsetSeconds = response.utcOffsetSeconds();
+          // const timezone = response.timezone();
+          // const timezoneAbbreviation = response.timezoneAbbreviation();
+          // const latitude = response.latitude();
+          // const longitude = response.longitude();
+
+          const daily = response.daily()!;
+          
+          // Helper function to get value or null
+          const getDailyValue = (variableIndex: number): number | null => {
+            const values = daily.variables(variableIndex)?.valuesArray();
+            return values && values.length > 0 ? values[0] : null;
+          };
+
+          const processedWeather: ProcessedDailyWeather = {
+            maxTemp: getDailyValue(0),       // temperature_2m_max
+            minTemp: getDailyValue(1),       // temperature_2m_min
+            precipitation: getDailyValue(2), // precipitation_sum
+            uvIndex: getDailyValue(3),       // uv_index_max
+          };
+          
+          setTodayWeather(processedWeather);
+          setHealthPrediction(predictDiseases(processedWeather));
+
         } catch (err) {
-          console.error("Error fetching weather data:", err);
+          console.error("Error fetching weather data with openmeteo package:", err);
           setError(err instanceof Error ? err.message : "An unknown error occurred while fetching weather.");
         } finally {
           setIsLoadingWeather(false);
         }
       };
-      fetchWeather();
+      fetchWeatherData();
     }
   }, [currentLocation]);
 
-  if (authLoading || (isLoadingWeather && !weatherData)) {
+  if (authLoading || (isLoadingWeather && !todayWeather)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] text-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -169,14 +191,7 @@ export default function ClimateHealthPage() {
     );
   }
   
-  const todayWeather = weatherData && weatherData.time.length > 0 ? {
-      maxTemp: weatherData.temperature_2m_max[0],
-      minTemp: weatherData.temperature_2m_min[0],
-      precipitation: weatherData.precipitation_sum[0],
-      uvIndex: weatherData.uv_index_max[0],
-  } : null;
-  
-  const WeatherIcon = todayWeather ? getWeatherIcon(todayWeather.maxTemp, todayWeather.precipitation, todayWeather.uvIndex) : HelpCircle;
+  const WeatherIconDisplay = todayWeather ? getWeatherIcon(todayWeather.maxTemp, todayWeather.precipitation, todayWeather.uvIndex) : HelpCircle;
 
 
   return (
@@ -217,7 +232,7 @@ export default function ClimateHealthPage() {
                 Date: {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </CardDescription>
             </div>
-            <WeatherIcon className="h-10 w-10 text-primary" />
+            <WeatherIconDisplay className="h-10 w-10 text-primary" />
           </CardHeader>
           <CardContent className="grid grid-cols-2 sm:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center space-x-2 p-3 bg-background/50 rounded-md">

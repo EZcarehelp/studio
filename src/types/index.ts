@@ -223,33 +223,6 @@ export interface Pharmacy {
   longitude?: number;
 }
 
-// Open-Meteo API types
-export interface OpenMeteoDailyData {
-  time: string[];
-  temperature_2m_max: (number | null)[];
-  temperature_2m_min: (number | null)[];
-  precipitation_sum: (number | null)[];
-  uv_index_max: (number | null)[];
-}
-
-export interface OpenMeteoApiResponse {
-  latitude: number;
-  longitude: number;
-  generationtime_ms: number;
-  utc_offset_seconds: number;
-  timezone: string;
-  timezone_abbreviation: string;
-  elevation: number;
-  daily_units: {
-    time: string;
-    temperature_2m_max: string;
-    temperature_2m_min: string;
-    precipitation_sum: string;
-    uv_index_max: string;
-  };
-  daily: OpenMeteoDailyData;
-}
-
 // Health Prediction types
 export interface HealthPrediction {
   diseases: string[];

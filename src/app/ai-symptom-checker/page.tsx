@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ezCareChatbotFlow, type EzCareChatbotInput, type EzCareChatbotOutput, type PrescriptionInsight, type ReportContext } from '@/ai/flows/ez-care-chatbot-flow';
-import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info, Menu } from 'lucide-react';
+import { Loader2, Bot, UserCircle, Send, Paperclip, XCircle, MessageSquarePlus, Settings, Mic, User, Leaf, CalendarDays, Rss, Info, Menu, CloudSun } from 'lucide-react'; // Added CloudSun
 import NextImage from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -321,6 +321,7 @@ export default function EzCareChatbotPage() {
     { label: "New Chat", icon: MessageSquarePlus, action: () => initializeChat(false) }, 
     { label: "Ayurvedic Remedies", icon: Leaf, href: "/patient/ayurvedic-remedies" },
     { label: "Health News", icon: Rss, href: "/health-news" },
+    { label: "Climate Health", icon: CloudSun, href: "/patient/climate-health" }, // Added Climate Health
   ];
 
   return (
