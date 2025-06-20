@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthState } from '@/hooks/use-auth-state';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription as it's not used directly in the new design
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, MapPin, Sun, CloudSun, CloudRain, Zap, ShieldCheck, Info, HelpCircle, Droplet, Wind, ThermometerIcon } from 'lucide-react';
 import type { HealthPrediction } from '@/types';
@@ -16,7 +16,6 @@ const DEFAULT_LATITUDE = 13.0827; // Chennai
 const DEFAULT_LONGITUDE = 80.2707;
 const DEFAULT_LOCATION_NAME = "Chennai, India (Default)";
 
-// Updated predictDiseases function
 function predictDiseases(weather: { maxTemp: number | null; uvIndex: number | null; rain: number | null; }): HealthPrediction {
   const diseases: string[] = [];
   const suggestions: string[] = [];
@@ -28,13 +27,9 @@ function predictDiseases(weather: { maxTemp: number | null; uvIndex: number | nu
   if (weather.maxTemp !== null && weather.maxTemp > 35) {
     diseases.push("Heatstroke & Dehydration");
     suggestions.push("Drink plenty of water/fluids. Avoid strenuous outdoor activities during peak heat. Wear light, loose-fitting clothes.");
-     if (weather.uvIndex === null || weather.uvIndex <= 7) {
-        // This condition might be too specific; high temp is the main driver for heatstroke.
-        // suggestions.push("Even with moderate UV, high temperatures are risky. Stay cool.");
-    }
   } else if (weather.maxTemp !== null && weather.maxTemp > 30 && weather.maxTemp <= 35) {
      diseases.push("Moderate Heat Discomfort Risk");
-     suggestions.push("Stay hydrated. Take breaks in cool areas if outdoors for long periods. Be mindful of prolonged sun exposure even with moderate UV.");
+     suggestions.push("Stay hydrated. Take breaks in cool areas if outdoors for long periods.");
   }
 
   if (weather.rain !== null && weather.rain > 5) {
@@ -68,11 +63,12 @@ interface ProcessedDailyWeather {
   uvIndex: number | null;
 }
 
-function getWeatherIcon(maxTemp: number | null, rain: number | null, uvIndex: number | null): { Icon: React.ElementType, color: string, sizeClass: string } {
-    if (rain !== null && rain > 1) return { Icon: CloudRain, color: "text-blue-400 dark:text-blue-300", sizeClass: "h-28 w-28 sm:h-36 sm:w-36" };
-    if (maxTemp !== null && maxTemp > 30) return { Icon: Sun, color: "text-yellow-400 dark:text-yellow-300", sizeClass: "h-28 w-28 sm:h-36 sm:w-36" };
-    if (uvIndex !== null && uvIndex > 5 && (rain === null || rain < 0.5)) return { Icon: Sun, color: "text-yellow-400 dark:text-yellow-300", sizeClass: "h-28 w-28 sm:h-36 sm:w-36" };
-    return { Icon: CloudSun, color: "text-sky-400 dark:text-sky-300", sizeClass: "h-28 w-28 sm:h-36 sm:w-36" };
+function getWeatherIcon(maxTemp: number | null, rain: number | null, uvIndex: number | null): { Icon: React.ElementType, description: string } {
+    if (rain !== null && rain > 1) return { Icon: CloudRain, description: "Rainy" };
+    if (maxTemp !== null && maxTemp > 30 && (uvIndex === null || uvIndex > 5)) return { Icon: Sun, description: "Sunny & Hot" };
+    if (maxTemp !== null && maxTemp > 30) return { Icon: CloudSun, description: "Partly Cloudy & Hot"};
+    if (uvIndex !== null && uvIndex > 5 && (rain === null || rain < 0.5)) return { Icon: Sun, description: "Sunny" };
+    return { Icon: CloudSun, description: "Partly Cloudy" };
 }
 
 export default function ClimateHealthPage() {
@@ -155,43 +151,42 @@ export default function ClimateHealthPage() {
     }
   }, [currentLocation]);
   
-  const { Icon: WeatherIcon, color: weatherIconColor, sizeClass: weatherIconSizeClass } = todayWeather ? getWeatherIcon(todayWeather.maxTemp, todayWeather.precipitation, todayWeather.uvIndex) : { Icon: HelpCircle, color: "text-slate-500 dark:text-slate-400", sizeClass: "h-24 w-24" };
+  const { Icon: CurrentWeatherIcon, description: weatherDescription } = todayWeather ? getWeatherIcon(todayWeather.maxTemp, todayWeather.precipitation, todayWeather.uvIndex) : { Icon: HelpCircle, description: "Loading..." };
 
 
   if (authLoading || (isLoadingWeather && !currentLocation)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center bg-slate-50 dark:bg-slate-950 p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary dark:text-accent mb-4" />
-        <p className="text-lg text-slate-600 dark:text-slate-400">Loading your climate health insights...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-500 dark:from-slate-900 dark:via-sky-800 dark:to-blue-950 p-4 text-white">
+        <Loader2 className="h-12 w-12 animate-spin mb-4" />
+        <p className="text-lg">Loading your climate health insights...</p>
       </div>
     );
   }
 
-
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-500 dark:from-slate-900 dark:via-sky-800 dark:to-blue-950 p-4 sm:p-6 lg:p-8 text-slate-100">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1.5">Climate & Health</h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">Today's weather and potential health considerations for {currentLocation?.name || 'your location'}.</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-1.5">Climate & Health</h1>
+            <p className="text-slate-200 dark:text-slate-300 text-sm sm:text-base">Today's weather and potential health considerations.</p>
         </div>
 
         {isLoadingWeather && !todayWeather && (
-             <div className="flex flex-col items-center justify-center min-h-[200px] text-center bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-4">
-                <Loader2 className="h-10 w-10 animate-spin text-primary dark:text-accent mb-3" />
-                <p className="text-md text-slate-500 dark:text-slate-400">Fetching latest weather...</p>
+             <div className="flex flex-col items-center justify-center min-h-[200px] text-center bg-white/20 dark:bg-slate-800/30 backdrop-blur-md rounded-2xl shadow-xl p-4">
+                <Loader2 className="h-10 w-10 animate-spin text-white/80 mb-3" />
+                <p className="text-md text-slate-200 dark:text-slate-300">Fetching latest weather...</p>
             </div>
         )}
 
         {error && (
-            <Card className="max-w-md mx-auto border-red-600 bg-red-50 dark:bg-red-900/50 rounded-2xl shadow-xl" role="alert">
+            <Card className="max-w-md mx-auto bg-red-500/30 dark:bg-red-700/40 backdrop-blur-md border border-red-400/50 rounded-2xl shadow-xl text-white" role="alert">
             <CardHeader className="flex flex-row items-center gap-3">
-                <AlertTriangle className="h-7 w-7 text-red-600 dark:text-red-400" />
-                <CardTitle className="text-red-700 dark:text-red-300 text-xl">Data Error</CardTitle>
+                <AlertTriangle className="h-7 w-7 text-red-100" />
+                <CardTitle className="text-red-100 text-xl">Data Error</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-red-600 dark:text-red-400">{error}</p>
-                <p className="text-sm text-red-500/80 dark:text-red-400/80 mt-2">
+                <p className="text-red-100">{error}</p>
+                <p className="text-sm text-red-200/80 mt-2">
                 Could not fetch weather or health prediction data. Please try refreshing later.
                 </p>
             </CardContent>
@@ -201,44 +196,45 @@ export default function ClimateHealthPage() {
         {currentLocation && todayWeather && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Weather Card (Main Area) */}
-            <Card className="lg:col-span-3 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700/50">
+            <Card className="lg:col-span-3 bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg shadow-2xl rounded-3xl border border-white/30 dark:border-slate-700/50 text-slate-100 dark:text-slate-50 overflow-hidden">
               <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">{currentLocation.name}</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </p>
-                  </div>
+                <div className="mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold flex items-center">
+                    <MapPin size={20} className="mr-2 opacity-80" /> {currentLocation.name}
+                  </h2>
+                  <p className="text-sm text-slate-200 dark:text-slate-300">
+                    {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                  </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-around gap-4 mb-6">
-                  <div className="text-center sm:text-left">
-                    <p className="text-7xl sm:text-8xl font-black text-slate-800 dark:text-slate-50 tracking-tighter -ml-1">
-                      {todayWeather.maxTemp ?? '--'}<span className="text-4xl sm:text-5xl align-top font-light -ml-1">°C</span>
+                <div className="flex flex-col sm:flex-row items-center sm:justify-around text-center sm:text-left gap-6 mb-8">
+                  <CurrentWeatherIcon className="w-28 h-28 sm:w-36 sm:h-36 text-white drop-shadow-lg" />
+                  <div className="flex-shrink-0">
+                    <p className="text-7xl sm:text-8xl font-bold tracking-tight">
+                      {todayWeather.maxTemp ?? '--'}<span className="text-4xl sm:text-5xl align-top font-light tracking-normal">°C</span>
                     </p>
+                    <p className="text-lg text-slate-200 dark:text-slate-300 -mt-2">{weatherDescription}</p>
                     {todayWeather.minTemp && 
-                        <p className="text-md text-slate-500 dark:text-slate-400 ml-1">Min: {todayWeather.minTemp}°C</p>
+                        <p className="text-sm text-slate-300 dark:text-slate-400 mt-1">Min: {todayWeather.minTemp}°C</p>
                     }
                   </div>
-                  <WeatherIcon className={cn("opacity-80", weatherIconColor, weatherIconSizeClass)} />
                 </div>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                  <div className="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <Sun className="h-6 w-6 text-yellow-500 mb-1" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">{todayWeather.uvIndex ?? 'N/A'}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">UV Index</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex flex-col items-center p-3 bg-white/10 dark:bg-slate-700/30 backdrop-blur-sm rounded-xl border border-white/20 dark:border-slate-600/50">
+                    <Sun className="h-6 w-6 text-yellow-300 mb-1" />
+                    <p className="font-semibold text-lg">{todayWeather.uvIndex ?? 'N/A'}</p>
+                    <p className="text-xs text-slate-200 dark:text-slate-300">UV Index</p>
                   </div>
-                  <div className="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <Droplet className="h-6 w-6 text-blue-500 mb-1" /> {/* Changed to Droplet for rain */}
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">{todayWeather.precipitation ?? 'N/A'} mm</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Precipitation</p>
+                  <div className="flex flex-col items-center p-3 bg-white/10 dark:bg-slate-700/30 backdrop-blur-sm rounded-xl border border-white/20 dark:border-slate-600/50">
+                    <Droplet className="h-6 w-6 text-sky-300 mb-1" />
+                    <p className="font-semibold text-lg">{todayWeather.precipitation ?? 'N/A'} mm</p>
+                    <p className="text-xs text-slate-200 dark:text-slate-300">Precipitation</p>
                   </div>
-                  <div className="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 col-span-2 sm:col-span-1">
-                    <Wind className="h-6 w-6 text-sky-500 mb-1" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">~5 km/h</p> {/* Mock wind */}
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Wind (Est.)</p>
+                  <div className="flex flex-col items-center p-3 bg-white/10 dark:bg-slate-700/30 backdrop-blur-sm rounded-xl border border-white/20 dark:border-slate-600/50 col-span-2 md:col-span-1">
+                    <Wind className="h-6 w-6 text-slate-300 mb-1" />
+                    <p className="font-semibold text-lg">~5 km/h</p> {/* Mock wind */}
+                    <p className="text-xs text-slate-200 dark:text-slate-300">Wind (Est.)</p>
                   </div>
                 </div>
               </CardContent>
@@ -246,25 +242,25 @@ export default function ClimateHealthPage() {
 
             {/* AI Health Insights Card (Right Column) */}
             {healthPrediction && (
-              <Card className="lg:col-span-2 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-xl font-semibold text-slate-800 dark:text-slate-100 flex items-center">
-                    <Zap className="mr-2.5 h-6 w-6 text-primary dark:text-accent" />
+              <Card className="lg:col-span-2 bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg shadow-2xl rounded-3xl border border-white/30 dark:border-slate-700/50 text-slate-100 dark:text-slate-50">
+                <CardHeader className="pb-3 pt-5 px-5">
+                  <CardTitle className="text-xl font-semibold flex items-center">
+                    <Zap className="mr-2.5 h-6 w-6 text-sky-300" />
                     AI Health Insights
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 pt-2 pb-5">
+                <CardContent className="space-y-4 px-5 pb-5">
                   {healthPrediction.message ? (
-                    <div className="flex items-start p-3 bg-green-50 dark:bg-green-800/40 border border-green-200 dark:border-green-700/60 rounded-md">
-                      <ShieldCheck className="mr-3 h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-green-700 dark:text-green-300">{healthPrediction.message}</p>
+                    <div className="flex items-start p-3 bg-green-400/30 dark:bg-green-600/40 backdrop-blur-sm border border-green-300/40 dark:border-green-500/50 rounded-xl">
+                      <ShieldCheck className="mr-3 h-5 w-5 text-green-100 dark:text-green-200 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-green-50 dark:text-green-100">{healthPrediction.message}</p>
                     </div>
                   ) : (
                     <>
                       {healthPrediction.diseases.length > 0 && (
-                        <div className="p-3 bg-red-50 dark:bg-red-800/40 border border-red-200 dark:border-red-700/60 rounded-md">
-                          <h3 className="font-semibold text-red-700 dark:text-red-300 mb-1.5 flex items-center"><AlertTriangle size={16} className="mr-2"/>Potential Risks Today:</h3>
-                          <ul className="list-disc list-inside pl-1 text-red-600 dark:text-red-400 text-sm space-y-0.5">
+                        <div className="p-3 bg-red-400/30 dark:bg-red-600/40 backdrop-blur-sm border border-red-300/40 dark:border-red-500/50 rounded-xl">
+                          <h3 className="font-semibold text-red-100 dark:text-red-200 mb-1.5 flex items-center"><AlertTriangle size={16} className="mr-2"/>Potential Risks Today:</h3>
+                          <ul className="list-disc list-inside pl-1 text-red-50 dark:text-red-100 text-sm space-y-0.5">
                             {healthPrediction.diseases.map((disease, index) => (
                               <li key={index}>{disease}</li>
                             ))}
@@ -272,9 +268,9 @@ export default function ClimateHealthPage() {
                         </div>
                       )}
                       {healthPrediction.suggestions.length > 0 && (
-                        <div className="p-3 bg-blue-50 dark:bg-blue-800/40 border border-blue-200 dark:border-blue-700/60 rounded-md">
-                          <h3 className="font-semibold text-blue-700 dark:text-blue-300 mb-1.5 flex items-center"><Info size={16} className="mr-2"/>Prevention Tips:</h3>
-                          <ul className="list-disc list-inside pl-1 text-blue-600 dark:text-blue-400 text-sm space-y-0.5">
+                        <div className="p-3 bg-blue-400/30 dark:bg-blue-600/40 backdrop-blur-sm border border-blue-300/40 dark:border-blue-500/50 rounded-xl">
+                          <h3 className="font-semibold text-blue-100 dark:text-blue-200 mb-1.5 flex items-center"><Info size={16} className="mr-2"/>Prevention Tips:</h3>
+                          <ul className="list-disc list-inside pl-1 text-blue-50 dark:text-blue-100 text-sm space-y-0.5">
                             {healthPrediction.suggestions.map((tip, index) => (
                               <li key={index}>{tip}</li>
                             ))}
@@ -289,14 +285,14 @@ export default function ClimateHealthPage() {
           </div>
         )}
 
-         <Card className="bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 rounded-lg mt-8 shadow-md">
+         <Card className="bg-white/10 dark:bg-slate-800/30 backdrop-blur-md border-white/20 dark:border-slate-700/40 rounded-xl mt-8 shadow-md">
             <CardContent className="p-4">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                <strong className="font-medium text-slate-700 dark:text-slate-300">Disclaimer:</strong> This forecast provides informational suggestions based on general weather patterns and is not a substitute for professional medical advice. Always consult a healthcare provider for health concerns. Weather data from Open-Meteo.
+                <p className="text-xs text-slate-200 dark:text-slate-300">
+                <strong className="font-medium text-slate-50 dark:text-slate-100">Disclaimer:</strong> This forecast provides informational suggestions based on general weather patterns and is not a substitute for professional medical advice. Always consult a healthcare provider for health concerns. Weather data from Open-Meteo.
                 </p>
                  {!userProfile?.latitude && !userProfile?.longitude && (
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5">
-                       For more accurate local predictions, please <Button variant="link" asChild className="p-0 h-auto text-xs text-primary dark:text-accent"><Link href="/patient/settings/profile-info">update your profile</Link></Button> with your location.
+                    <p className="text-xs text-slate-200 dark:text-slate-300 mt-1.5">
+                       For more accurate local predictions, please <Button variant="link" asChild className="p-0 h-auto text-xs text-sky-300 dark:text-sky-400 hover:text-sky-200"><Link href="/patient/settings/profile-info">update your profile</Link></Button> with your location.
                     </p>
                 )}
             </CardContent>
@@ -305,4 +301,3 @@ export default function ClimateHealthPage() {
     </div>
   );
 }
-
