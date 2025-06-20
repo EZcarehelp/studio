@@ -5,7 +5,6 @@ import type { AyurvedicRemedy, RemedyType } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Eye, MessageSquare, ThumbsUp, Leaf } from 'lucide-react';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -14,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 interface AyurvedicRemedyCardProps {
   remedy: AyurvedicRemedy & { views?: number; saves?: number };
   onSaveToggle?: (remedyId: string) => void;
-  onOpenDetailModal: (remedy: AyurvedicRemedy) => void; // Changed from onReadMore
+  onOpenDetailModal: (remedy: AyurvedicRemedy) => void;
 }
 
 export function AyurvedicRemedyCard({ remedy, onSaveToggle, onOpenDetailModal }: AyurvedicRemedyCardProps) {
@@ -26,7 +25,7 @@ export function AyurvedicRemedyCard({ remedy, onSaveToggle, onOpenDetailModal }:
   }, [remedy.isFavorite]);
 
   const handleSaveClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click when saving
+    e.stopPropagation(); 
     const newFavoriteState = !isFavorite;
     setIsFavorite(newFavoriteState);
     if (onSaveToggle) {
@@ -44,7 +43,7 @@ export function AyurvedicRemedyCard({ remedy, onSaveToggle, onOpenDetailModal }:
   };
 
   const handleReadMoreClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click if a dedicated button triggers modal
+    e.stopPropagation(); 
     onOpenDetailModal(remedy);
   };
 
@@ -53,18 +52,6 @@ export function AyurvedicRemedyCard({ remedy, onSaveToggle, onOpenDetailModal }:
         className="shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full rounded-lg overflow-hidden transform hover:scale-102 bg-card cursor-pointer"
         onClick={handleCardClick}
     >
-      {remedy.imageUrl && (
-        <div className="relative w-full h-48">
-          <Image 
-            src={remedy.imageUrl} 
-            alt={remedy.name} 
-            fill
-            style={{ objectFit: 'cover' }}
-            data-ai-hint={remedy.dataAiHint || "herbal remedy"}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        </div>
-      )}
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-lg font-semibold mb-0.5 line-clamp-2">{remedy.name}</CardTitle>
         <CardDescription className="text-xs text-muted-foreground line-clamp-1">

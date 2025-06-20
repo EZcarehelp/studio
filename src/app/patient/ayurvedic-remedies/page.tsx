@@ -18,7 +18,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from "@/components/ui/label";
-import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +27,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import { ScrollArea } from '@/components/ui/scroll-area'; // Added ScrollArea import
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 
 const mockRemedies: AyurvedicRemedy[] = [
@@ -42,8 +41,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["10 Tulsi leaves", "5 black peppercorns", "1 tsp ginger (grated)", "2 cups water", "Honey (optional)"],
     preparation: "Boil all ingredients (except honey) in water till reduced to half. Strain and add honey.",
     usage: "Drink warm 2x a day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tulsi pepper kadha",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -55,8 +52,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp Mulethi (licorice) powder", "1 cup hot water", "A pinch of cinnamon"],
     preparation: "Stir into hot water, cover for 5 mins, drink warm.",
     usage: "Use for dry cough.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "mulethi licorice tea",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -68,8 +63,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp ginger juice", "1 tsp honey"],
     preparation: "Mix and take 2–3 times a day for sore throat.",
     usage: "Take 2-3 times a day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ginger honey",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -81,8 +74,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2–3 cloves", "1 tsp honey"],
     preparation: "Grind cloves and mix with honey.",
     usage: "Take once or twice a day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "clove honey paste",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -94,8 +85,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tbsp Ajwain (carom seeds)", "2 cups water"],
     preparation: "Boil water with ajwain and inhale steam for congestion relief.",
     usage: "Inhale steam as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ajwain steam",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -107,8 +96,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 cup warm milk", "½ tsp turmeric powder", "A pinch of black pepper"],
     preparation: "Mix and drink before bed.",
     usage: "Drink before bed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "turmeric milk",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -119,9 +106,7 @@ const mockRemedies: AyurvedicRemedy[] = [
     description: 'A simple syrup made from onion juice and honey, acting as an expectorant.',
     ingredients: ["1 tsp onion juice", "1 tsp honey"],
     preparation: "Mix and take 1–2 times a day.",
-    usage: "Take 1-2 times a day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "onion honey syrup",
+    usage: "Take 1-2 times a day. Acts as an expectorant.",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   // ❄️ 2. Cold
@@ -134,8 +119,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["10 Tulsi leaves", "1 tsp ginger (grated)", "2 cups water", "Honey (optional)", "Pinch of black tea (optional)"],
     preparation: "Same as Remedy 1 (Tulsi-Kali Mirch Kadha), add a pinch of black tea for flavor if desired.",
     usage: "Drink warm 2x a day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tulsi ginger tea cold",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -147,8 +130,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["½ tsp cinnamon powder", "1 tsp honey"],
     preparation: "Mix and take once daily during cold season.",
     usage: "Take once daily.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "cinnamon honey paste",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -160,8 +141,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 garlic cloves", "1 tsp ghee", "Bread"],
     preparation: "Fry garlic in ghee, spread on toast.",
     usage: "Eat during runny nose.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "garlic ghee toast",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -173,8 +152,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 tbsp mustard oil", "1 tsp camphor"],
     preparation: "Warm slightly, apply on chest and feet before bed.",
     usage: "Apply on chest and feet before bed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "mustard oil rub",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -186,8 +163,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 tbsp ajwain", "Cotton cloth"],
     preparation: "Heat ajwain in dry pan, tie in cloth, apply on chest.",
     usage: "Apply on chest as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ajwain potli",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -199,8 +174,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 cups hot water", "A pinch of camphor"],
     preparation: "Inhale for nasal congestion.",
     usage: "Inhale steam as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "camphor steam",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -212,8 +185,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 glass warm water", "1 tsp lemon juice", "1 tsp honey"],
     preparation: "Drink to soothe throat and boost immunity.",
     usage: "Drink as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "lemon honey water",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   // 🔥 3. Indigestion
@@ -226,8 +197,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp cumin seeds", "2 cups water"],
     preparation: "Boil and cool.",
     usage: "Drink 2–3 times/day.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "jeera water",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -239,8 +208,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["½ tsp hing (asafoetida)", "½ tsp ajwain", "Warm water"],
     preparation: "Mix and drink post meal.",
     usage: "Drink post meal.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "hing ajwain mix",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -252,8 +219,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp Triphala powder", "Warm water"],
     preparation: "Take before bed for digestion & bowel health.",
     usage: "Take before bed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "triphala powder",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -265,8 +230,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp grated ginger", "1 tsp lemon juice", "A pinch of rock salt"],
     preparation: "Take before meals.",
     usage: "Take before meals.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ginger lemon shot",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -278,8 +241,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 glass buttermilk", "½ tsp roasted jeera", "A pinch of black salt"],
     preparation: "Mix and drink after meals.",
     usage: "Drink after meals.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "spiced buttermilk",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -291,8 +252,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp fennel seeds", "1 cup hot water"],
     preparation: "Steep for 5 mins.",
     usage: "Helps bloating and gas. Drink as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "fennel tea",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -304,8 +263,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 tsp amla juice", "1 glass water"],
     preparation: "Drink on empty stomach for acidity and digestion.",
     usage: "Drink on empty stomach.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "amla juice",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   // 😖 4. Stress
@@ -318,8 +275,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp Brahmi powder", "1 cup water", "Honey (optional)"],
     preparation: "Boil powder in water, strain, add honey.",
     usage: "Drink daily.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "brahmi tea",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -331,8 +286,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp Ashwagandha powder", "1 cup milk", "A pinch of cardamom"],
     preparation: "Boil and drink at bedtime.",
     usage: "Drink at bedtime.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ashwagandha milk",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -344,8 +297,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["5 fresh Tulsi leaves"],
     preparation: "Chew daily in morning to calm mind and reduce cortisol.",
     usage: "Chew daily in the morning.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tulsi leaves",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -357,8 +308,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["10 ml Shankhpushpi syrup", "Water"],
     preparation: "Take twice daily for anxiety and brain health.",
     usage: "Take twice daily.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "shankhpushpi syrup",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -370,8 +319,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["5 drops lavender oil", "2 tbsp coconut oil"],
     preparation: "Massage neck and head at night.",
     usage: "Massage neck and head at night.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "lavender oil massage",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -383,8 +330,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp dried chamomile", "3–4 Tulsi leaves", "1 cup hot water"],
     preparation: "Steep and sip.",
     usage: "Sip as needed.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "chamomile tulsi tea",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -396,8 +341,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Sesame oil nasal drops (2 drops in each nostril)"],
     preparation: "Use sesame oil nasal drops (2 drops in each nostril) in morning, followed by deep breathing.",
     usage: "Practice in the morning.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "nasal oil drops",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   // 😴 5. Sleep Issues
@@ -410,8 +353,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["A pinch of nutmeg", "1 cup warm milk"],
     preparation: "Drink 30 mins before bedtime.",
     usage: "Drink 30 minutes before bedtime.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "nutmeg milk",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -423,8 +364,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["500 mg Tagar root powder"],
     preparation: "Take with warm water at bedtime (consult practitioner for dose).",
     usage: "Take with warm water at bedtime.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tagar powder",
     isFavorite: false, views: 0, saves: 0, source: "Traditional (Consult Practitioner)"
   },
   {
@@ -435,9 +374,7 @@ const mockRemedies: AyurvedicRemedy[] = [
     description: 'Applying warm desi ghee in nostrils before sleep to soothe nerves.',
     ingredients: ["Desi ghee"],
     preparation: "2 drops in each nostril before sleep.",
-    usage: "Apply 2 drops in each nostril before sleep.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ghee nasal drops",
+    usage: "Apply 2 drops in each nostril before sleep. Soothes nerves.",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -449,8 +386,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Brahmi Vati (Ayurvedic tablet)"],
     preparation: "Take as prescribed.",
     usage: "Take as prescribed by an Ayurvedic practitioner.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ayurvedic tablets",
     isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)"
   },
   {
@@ -462,8 +397,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 ripe banana", "1 pinch cinnamon", "Warm almond milk"],
     preparation: "Blend and drink before sleep.",
     usage: "Drink before sleep.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "banana smoothie",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -475,8 +408,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Sesame oil"],
     preparation: "Massage feet for 5 mins nightly.",
     usage: "Massage feet for 5 minutes nightly.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "foot massage oil",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -488,22 +419,18 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp dried chamomile", "1 tsp Brahmi powder", "3-4 Tulsi leaves (optional)", "1 cup hot water"],
     preparation: "Steep chamomile and Brahmi (and Tulsi if using) in hot water for 5-7 minutes. Strain and sip.",
     usage: "Drink before bedtime.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "chamomile brahmi tea",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   // 🌺 6. Skin Rashes
   {
     id: 'remedy036',
     name: 'Neem Paste',
-    type: 'general', // Could be 'herbal'
+    type: 'general', 
     tags: ['skin rashes', 'neem', 'anti-inflammatory', 'anti-bacterial'],
     description: 'A paste of fresh neem leaves applied to skin rashes.',
     ingredients: ["Fresh neem leaves", "Water"],
     preparation: "Grind and apply on rash for 20 mins.",
     usage: "Apply on rash for 20 minutes, then rinse.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "neem paste",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -515,8 +442,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tbsp sandalwood powder", "Rosewater"],
     preparation: "Make paste, apply on affected area.",
     usage: "Apply on affected area and let dry.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "sandalwood paste",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -528,8 +453,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Fresh aloe vera leaf"],
     preparation: "Extract gel, apply on rash twice daily.",
     usage: "Apply on rash twice daily.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "aloe vera gel",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -541,8 +464,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["½ tsp turmeric", "1 tbsp curd"],
     preparation: "Apply for 15 mins. Helps reduce inflammation.",
     usage: "Apply for 15 minutes, then rinse.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "turmeric curd pack",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -554,8 +475,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 tbsp coconut oil", "A pinch of camphor"],
     preparation: "Apply for fungal skin rashes.",
     usage: "Apply to affected area.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "coconut oil camphor",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -567,8 +486,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp Triphala powder", "Water"],
     preparation: "Soak 1 tsp Triphala overnight in water, strain and wash rash area.",
     usage: "Wash rash area with the strained water.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "triphala water",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -580,8 +497,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Khadirarishta (Ayurvedic tonic)"],
     preparation: "Use under guidance.",
     usage: "Take as prescribed by an Ayurvedic practitioner.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "ayurvedic tonic bottle",
     isFavorite: false, views: 0, saves: 0, source: "Ayurvedic Formulation (Consult Practitioner)"
   },
   // 💧 7. Acne
@@ -594,8 +509,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["2 tbsp Multani mitti", "Rosewater"],
     preparation: "Apply on face for 15 mins. Helps oil control.",
     usage: "Apply on face for 15 minutes, then rinse.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "multani mitti pack",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -607,8 +520,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Neem powder", "Turmeric", "Honey"],
     preparation: "Mix and apply for 15 mins, wash off.",
     usage: "Apply for 15 minutes, then wash off.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "neem turmeric pack",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -620,8 +531,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tbsp aloe vera gel", "½ tsp lemon juice"],
     preparation: "Apply for 10 mins. Brightens and reduces acne.",
     usage: "Apply for 10 minutes, then rinse.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "aloe lemon mix",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -633,8 +542,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Raw potato"],
     preparation: "Apply potato juice with cotton on acne spots.",
     usage: "Apply juice with cotton on acne spots.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "potato juice acne",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -646,8 +553,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 tsp tulsi powder", "1 tbsp besan", "Rosewater"],
     preparation: "Apply weekly.",
     usage: "Apply weekly for 15-20 minutes, then rinse.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tulsi besan mask",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -659,8 +564,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Manjistha powder"],
     preparation: "Take ½ tsp with warm water daily for blood purification (under advice).",
     usage: "Take ½ tsp with warm water daily.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "manjistha powder herb",
     isFavorite: false, views: 0, saves: 0, source: "Ayurvedic (Consult Practitioner)"
   },
   {
@@ -672,8 +575,6 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["1 part ACV", "3 parts water"],
     preparation: "Use as face toner with cotton.",
     usage: "Use as a toner with a cotton pad after cleansing.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "apple cider vinegar",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   },
   {
@@ -685,8 +586,205 @@ const mockRemedies: AyurvedicRemedy[] = [
     ingredients: ["Tea Tree Oil", "Coconut oil (or other carrier oil)"],
     preparation: "Dilute with coconut oil and apply on acne.",
     usage: "Dilute 1-2 drops of tea tree oil with a teaspoon of carrier oil and apply to acne spots.",
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: "tea tree oil bottle",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  // Added remedies from user's latest input
+  {
+    id: 'remedy051',
+    name: 'Vasa and Tulsi for Asthma',
+    type: 'herbal',
+    tags: ['asthma', 'vasa', 'adusa', 'vasak', 'tulsi', 'basil'],
+    description: 'A decoction of Vasa (Adusa) and Tulsi leaves to relieve asthma symptoms.',
+    ingredients: ["250ml Vasa (Adusa) or Vasak water", "10 basil (Tulsi) leaves"],
+    preparation: "Boil Vasa water with Tulsi leaves until well infused. Strain.",
+    usage: "Chanakya Niti recommends drinking it in the morning for 21 days.",
+    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti"
+  },
+  {
+    id: 'remedy052',
+    name: 'Rock Salt for Seasonal Cough',
+    type: 'general',
+    tags: ['cough', 'seasonal cough', 'phlegm cough', 'rock salt'],
+    description: 'Heated rock salt dissolved in water to provide relief from cough, especially phlegm cough.',
+    ingredients: ["~5 grams rock salt", "Half a cup of water"],
+    preparation: "Hold rock salt with tongs and heat it on fire/gas/griddle until it starts to turn red. Immediately dip the hot nugget in half a cup of water.",
+    usage: "Drink the salty hot water in one go at bedtime for two-three days. The same salt nugget can be reused if kept dry.",
+    isFavorite: false, views: 0, saves: 0, source: "Words of Wisdom – Health Sutras of Ayurveda"
+  },
+  {
+    id: 'remedy053',
+    name: 'Licorice Powder for Sore Throat',
+    type: 'herbal',
+    tags: ['sore throat', 'licorice powder', 'mulethi', 'betel leaf', 'swelling'],
+    description: 'Licorice powder used with betel leaf or chewed directly to cure sore throat and swelling.',
+    ingredients: ["Licorice powder", "Betel leaf (optional)"],
+    preparation: "Option 1: Put licorice powder in betel leaf and eat. Option 2: While sleeping, keep one gram of licorice powder in the mouth and keep chewing it for some time, then keep it in your mouth and go to sleep.",
+    usage: "By morning the throat will be clear. Provides relief in sore throat and swelling.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy054',
+    name: 'Sugar Candy and Fennel for Throat/Mouth Issues',
+    type: 'general',
+    tags: ['dry cough', 'mouth diseases', 'voice', 'dry throat', 'sugar candy', 'mishri', 'fennel'],
+    description: 'Fennel and sugar candy taken after meals to cure dry cough, mouth diseases, open the voice, and cure dry throat.',
+    ingredients: ["Half a teaspoon of fennel", "Sugar candy (Mishri)"],
+    preparation: "Take half a teaspoon of fennel (optionally with sugar candy) after each meal.",
+    usage: "Cures dry cough and mouth diseases, opens the voice, cures dry throat, and makes the voice sweeter.",
+    isFavorite: false, views: 0, saves: 0, source: "Yoga practice and therapy"
+  },
+  {
+    id: 'remedy055',
+    name: 'Ginger and Jaggery for Cough',
+    type: 'herbal',
+    tags: ['dry cough', 'sore throat', 'ginger', 'jaggery', 'ghee', 'honey'],
+    description: 'Ground ginger mixed with jaggery and ghee (or honey) to treat dry coughs and sore throats.',
+    ingredients: ["Ground ginger", "Jaggery", "Ghee (or Honey)"],
+    preparation: "Mix ground ginger with jaggery and ghee. Honey can be used in place of jaggery or ghee.",
+    usage: "Get relief from dry coughs and sore throats.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy056',
+    name: 'Salt and Oregano for Stomach Worms',
+    type: 'general',
+    tags: ['stomach worms', 'carom seeds', 'ajwain', 'black salt'],
+    description: 'A mixture of carom seeds (ajwain) powder and black salt with warm water to dissolve stomach worms.',
+    ingredients: ["Carom seeds (Ajwain) powder", "Black salt", "Warm water"],
+    preparation: "For children: Use half a gram of carom seeds powder mixed with black salt. For elders: Mix one part black salt in four parts carom seed powder. Take two grams.",
+    usage: "Take with warm water before going to bed.",
+    isFavorite: false, views: 0, saves: 0, source: "Yoga Darshanam"
+  },
+  {
+    id: 'remedy057',
+    name: 'Anorexia Remedy (Grapes & Myrobalan)',
+    type: 'digestion',
+    tags: ['anorexia', 'loss of appetite', 'grapes', 'myrobalan', 'haritaki', 'sugar'],
+    description: 'A chutney made from grapes, myrobalan (haritaki), and sugar to improve appetite.',
+    ingredients: ["Equal quantities of grapes", "Equal quantities of myrobalan (Haritaki)", "Equal quantities of sugar"],
+    preparation: "Make a chutney from equal quantities of grapes, myrobalan, and sugar.",
+    usage: "Lick one small spoon twice daily if you don’t feel hungry.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy058',
+    name: 'Camphor and Mustard Oil for Body Pain',
+    type: 'general',
+    tags: ['body pain', 'nerve pain', 'back pain', 'muscle pain', 'camphor', 'mustard oil'],
+    description: 'An oil made from camphor and mustard oil, exposed to sunlight, for treating various body pains.',
+    ingredients: ["10 grams of camphor", "200 grams mustard oil"],
+    preparation: "Fill a vial with camphor and mustard oil. Apply a strong compress to the vial and let it dry in the sunlight until camphor dissolves.",
+    usage: "The oil can be used to treat nerve pain, back pain, and muscle pain by massaging.",
+    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna to brother Rajiv Dixit"
+  },
+  {
+    id: 'remedy059',
+    name: 'Bathua Juice for Joint Pain',
+    type: 'herbal',
+    tags: ['joint pain', 'arthritis', 'bathua', 'chenopodium album'],
+    description: 'Fresh Bathua (Chenopodium album) leaves juice taken daily for arthritis and joint pain.',
+    ingredients: ["Fresh Bathua leaves (to yield 15 grams juice)"],
+    preparation: "Extract juice from fresh Bathua leaves.",
+    usage: "Take fifteen grams of juice daily. Do not add salt, sugar, etc. Take it every morning on an empty stomach or at four in the evening. Do not take anything two hours before or after. Take for two to three months.",
+    isFavorite: false, views: 0, saves: 0, source: "Bharat Ratna Rajiv Dixit"
+  },
+  {
+    id: 'remedy060',
+    name: 'Carom Seeds and Whey for Stomach Gas',
+    type: 'digestion',
+    tags: ['stomach gas', 'flatulence', 'carom seeds', 'ajwain', 'whey', 'curd'],
+    description: 'Curd whey mixed with carom seeds taken after meals to relieve stomach gas.',
+    ingredients: ["125g curd (for whey)", "2 grams carom seeds (Ajwain)"],
+    preparation: "Extract whey from curd. Mix with carom seeds.",
+    usage: "Take after meals as necessary for one to two weeks.",
+    isFavorite: false, views: 0, saves: 0, source: "Linguistics Mother Sanskrit Language"
+  },
+  {
+    id: 'remedy061',
+    name: 'Mustard Oil for Cracked Lips/Extremities',
+    type: 'general',
+    tags: ['cracked lips', 'chapped lips', 'dry eyes', 'mustard oil', 'navel application'],
+    description: 'Applying mustard oil to the navel daily to prevent chapped lips and soothe dry eyes.',
+    ingredients: ["Mustard oil"],
+    preparation: "Apply mustard oil to the navel.",
+    usage: "Apply every day to the navel. Ensures lips don’t crack and softens chapped lips. Itching and dryness in the eyes will disappear.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy062',
+    name: 'Basil for Cold, Fever, Bronchial Diseases',
+    type: 'herbal',
+    tags: ['cold', 'fever', 'bronchial diseases', 'basil', 'tulsi', 'curd', 'honey'],
+    description: 'A chutney of Tulsi leaves mixed with sweet curd or honey for various respiratory ailments.',
+    ingredients: ["21 Tulsi leaves", "Sweet curd (10-30 grams) or Honey"],
+    preparation: "Make a chutney with 21 Tulsi leaves (grind with silbatta or clean drywall). Add 10-30 grams of sweet curd. If curd isn’t suitable, honey can be added.",
+    usage: "Eat this mixture every morning on an empty stomach for three months. The curd shouldn’t be too sour. Small children can be given half a gram of basil chutney with honey. Do not give with milk. Breakfast can be taken after half an hour.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy063',
+    name: 'Gulkand and Amla Jam for Anger',
+    type: 'calming',
+    tags: ['anger management', 'gulkand', 'rose petal jam', 'amla jam', 'gooseberry jam'],
+    description: 'Gulkand and Amla jam taken daily to calm anger.',
+    ingredients: ["Gulkand (Rose petal jam)", "Amla jam (Gooseberry jam)"],
+    preparation: "Take one teaspoon of gulkand each morning and one spoon of gooseberry jam in the evening.",
+    usage: "Anger will be calmed.",
+    isFavorite: false, views: 0, saves: 0, source: "Traditional"
+  },
+  {
+    id: 'remedy064',
+    name: 'Walnuts for Knee Pain',
+    type: 'general',
+    tags: ['knee pain', 'walnuts'],
+    description: 'Eating walnut kernels on an empty stomach to relieve knee pain.',
+    ingredients: ["3-4 walnut kernels"],
+    preparation: "Eat three to four walnut kernels.",
+    usage: "Take in the morning on an empty stomach. This will relieve your knee pain.",
+    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous"
+  },
+  {
+    id: 'remedy065',
+    name: 'Coconut Oil and Lemon Juice for Dark Spots',
+    type: 'general',
+    tags: ['dark spots', 'elbows', 'face', 'coconut oil', 'lemon juice', 'skin lightening'],
+    description: 'A mixture of coconut oil and lemon juice to lighten dark spots on elbows and face.',
+    ingredients: ["Half a teaspoon coconut oil", "Juice of half a lemon"],
+    preparation: "Mix half a lemon juice with half a teaspoon coconut oil.",
+    usage: "Rub the mixture on the skin and then rinse it off with warm water.",
+    isFavorite: false, views: 0, saves: 0, source: "body indigenous mind indigenous"
+  },
+  {
+    id: 'remedy066',
+    name: 'Betel Nut for Cholesterol Control',
+    type: 'general',
+    tags: ['cholesterol', 'blood pressure', 'betel nut', 'supari', 'blood thinner'],
+    description: 'Chewing betel nuts after meals, as the juice mixed with saliva acts as a blood thinner, potentially helping with cholesterol and blood pressure.',
+    ingredients: ["Betel nuts (Supari)"],
+    preparation: "Chew betel nuts.",
+    usage: "After eating, chew the betel nuts for 20-40 minutes. Then, clean your mouth. When mixed with saliva, the juice of betel nuts acts as a blood thinner, causing a decrease in cholesterol and blood pressure.",
+    isFavorite: false, views: 0, saves: 0, source: "Chanakya Niti’s priceless thoughts"
+  },
+  {
+    id: 'remedy067',
+    name: 'Oregano (Ajwain) for Gingivitis',
+    type: 'herbal',
+    tags: ['gingivitis', 'swollen gums', 'oregano oil', 'ajwain oil', 'gargle'],
+    description: 'Gargling with water mixed with a few drops of ajwain oil (often referred to as oregano in some contexts for its similar properties) for swollen gums.',
+    ingredients: ["Ajwain oil (or Oregano oil)", "Water"],
+    preparation: "Add a few drops of ajwain oil to water.",
+    usage: "Gargle if you have swelling gums. It will provide relief.",
+    isFavorite: false, views: 0, saves: 0, source: "Vedic Sanskrit Vaidik sanskrit"
+  },
+  {
+    id: 'remedy068',
+    name: 'Amla for Heart Disease',
+    type: 'herbal',
+    tags: ['heart disease', 'abnormal heartbeats', 'heart weakness', 'amla', 'gooseberry', 'murabba'],
+    description: 'Consuming Amla murabba (sweet gooseberry preserve) to treat heart disease, abnormal heartbeats, and heart weakness.',
+    ingredients: ["Amla murabba"],
+    preparation: "Consume Amla murabba.",
+    usage: "Consuming Amla murabba three times a day is a great way to treat heart disease, abnormal heartbeats, and heart weakness.",
     isFavorite: false, views: 0, saves: 0, source: "Traditional"
   }
 ];
@@ -695,8 +793,8 @@ const mockRemedies: AyurvedicRemedy[] = [
 const remedyTypes: RemedyType[] = ["herbal", "digestion", "inflammation", "calming", "general"];
 const allRemedyTypesDisplay = ["All", ...remedyTypes.map(t => t.charAt(0).toUpperCase() + t.slice(1))];
 
-const mockDiseases = ["Cough", "Cold", "Congestion", "Sore Throat", "Indigestion", "Gas", "Bloating", "Acidity", "Constipation", "Stress", "Anxiety", "Sleep Issues", "Skin Rashes", "Acne", "Fungal Infection"];
-const mockIngredients = ["Tulsi", "Ginger", "Honey", "Pepper", "Mulethi", "Cinnamon", "Clove", "Ajwain", "Turmeric", "Onion", "Garlic", "Mustard Oil", "Camphor", "Lemon", "Jeera (Cumin)", "Hing (Asafoetida)", "Triphala", "Buttermilk", "Fennel", "Amla", "Brahmi", "Ashwagandha", "Shankhpushpi", "Lavender Oil", "Sesame Oil", "Nutmeg", "Tagar", "Ghee", "Neem", "Sandalwood", "Aloe Vera", "Curd", "Coconut Oil", "Khadirarishta", "Multani Mitti", "Besan", "Manjistha", "Apple Cider Vinegar", "Tea Tree Oil"];
+const mockDiseases = Array.from(new Set(mockRemedies.flatMap(r => r.tags.filter(tag => !mockIngredients.map(i => i.toLowerCase()).includes(tag.toLowerCase()))))).sort();
+const mockIngredients = Array.from(new Set(mockRemedies.flatMap(r => r.ingredients.map(ing => ing.split(' ')[0].replace(/[^\w\s]/gi, ''))))).filter(i => i.length > 2).sort();
 
 
 const aiRemedySchema = z.object({
@@ -798,8 +896,6 @@ export default function AyurvedicRemediesPage() {
         source: "AI Assistant",
         views: 0,
         saves: 0,
-        imageUrl: 'https://placehold.co/600x400.png',
-        dataAiHint: 'ai generated remedy'
       };
       setAiGeneratedRemedy(newRemedy);
       aiForm.reset();
@@ -840,8 +936,6 @@ export default function AyurvedicRemediesPage() {
 
   const handleCloseDetailModal = () => {
     setIsDetailModalOpen(false);
-    // Do not set setSelectedRemedyForModal(null) here, 
-    // it causes issues if the modal is closed by clicking outside while a save toggle happens inside
   };
 
 
@@ -915,7 +1009,7 @@ export default function AyurvedicRemediesPage() {
                 {mostSavedRemedies.length > 0 ? mostSavedRemedies.map(remedy => (
                     <div key={remedy.id} onClick={() => handleOpenDetailModal(remedy)} className="block hover:text-primary text-muted-foreground cursor-pointer p-1.5 rounded hover:bg-accent/50 transition-colors">
                          <div className="flex items-center space-x-2">
-                            <Image src={remedy.imageUrl || `https://placehold.co/40x40.png?text=${remedy.name.substring(0,1)}`} alt={remedy.name} className="w-8 h-8 rounded-full object-cover" width={40} height={40} data-ai-hint={remedy.dataAiHint || "remedy icon"}/>
+                            <Leaf className="w-6 h-6 text-green-500 mr-1 shrink-0"/>
                             <span className="truncate">{remedy.name}</span>
                         </div>
                     </div>
@@ -1038,7 +1132,7 @@ export default function AyurvedicRemediesPage() {
       {selectedRemedyForModal && (
         <Dialog open={isDetailModalOpen} onOpenChange={(isOpen) => {
           if (!isOpen) handleCloseDetailModal();
-          else { // If opening, ensure the latest state of the selected remedy is used
+          else { 
             const currentRemedyState = [...remedies, ...(aiGeneratedRemedy ? [aiGeneratedRemedy] : [])].find(r => r.id === selectedRemedyForModal.id);
             if (currentRemedyState) setSelectedRemedyForModal(currentRemedyState);
           }
@@ -1057,20 +1151,8 @@ export default function AyurvedicRemediesPage() {
                  )}
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="flex-grow pr-4 -mr-4"> {/* Added ScrollArea here */}
+            <ScrollArea className="flex-grow pr-4 -mr-4">
               <div className="space-y-4 py-4">
-                {selectedRemedyForModal.imageUrl && (
-                  <div className="relative w-full h-56 md:h-64 rounded-lg overflow-hidden shadow-md">
-                    <Image 
-                      src={selectedRemedyForModal.imageUrl} 
-                      alt={selectedRemedyForModal.name} 
-                      fill
-                      style={{objectFit: 'cover'}}
-                      data-ai-hint={selectedRemedyForModal.dataAiHint || "herbal remedy ingredients"}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
-                )}
                 
                 <div>
                   <h4 className="font-semibold text-lg mb-1 text-primary">Description</h4>
