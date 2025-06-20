@@ -163,8 +163,8 @@ export interface LabReport {
 }
 
 
-export type OriginalRemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
-export const remedyTypeZodEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<OriginalRemedyType>;
+export type RemedyType = 'herbal' | 'digestion' | 'inflammation' | 'calming' | 'general';
+export const remedyTypeZodEnum = z.enum(['herbal', 'digestion', 'inflammation', 'calming', 'general']) satisfies z.ZodType<RemedyType>;
 
 export const AiAyurvedicRemedyOutputSchema = z.object({
   remedyName: z.string().describe("The common name of the Ayurvedic remedy, or a title for the suggestion if it's general advice."),
@@ -182,7 +182,7 @@ export type AiAyurvedicRemedyOutput = z.infer<typeof AiAyurvedicRemedyOutputSche
 export interface AyurvedicRemedy {
   id: string;
   name: string;
-  type: OriginalRemedyType;
+  type: RemedyType;
   tags: string[];
   description: string;
   ingredients: string[];
@@ -192,6 +192,8 @@ export interface AyurvedicRemedy {
   source?: string;
   isFavorite?: boolean;
   dataAiHint?: string;
+  views?: number; // Added for recipe-style card
+  saves?: number; // Added for recipe-style card
 }
 
 export interface NewsArticle {

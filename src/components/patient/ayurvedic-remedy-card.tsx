@@ -1,9 +1,10 @@
+
 "use client";
 
 import type { AyurvedicRemedy, RemedyType } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Leaf, Sprout, Flame, Droplets, Zap, Info } from 'lucide-react';
+import { Heart, Eye, MessageSquare, ThumbsUp, Leaf } from 'lucide-react'; // Added Eye, MessageSquare, ThumbsUp
 import Image from 'next/image';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -11,25 +12,17 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 interface AyurvedicRemedyCardProps {
-  remedy: AyurvedicRemedy;
-  onSaveToggle?: (remedyId: string) => void; // Optional: if save state is managed externally
+  remedy: AyurvedicRemedy & { views?: number; saves?: number }; // Added views and saves
+  onSaveToggle?: (remedyId: string) => void;
+  onReadMore?: (remedy: AyurvedicRemedy) => void; // Placeholder for read more action
 }
 
-const remedyTypeStyles: Record<RemedyType, { bgClass: string; textClass: string; fgColorName: string; icon: React.ElementType }> = {
-  herbal: { bgClass: 'bg-remedy-herbal', textClass: 'text-remedy-herbal-foreground', fgColorName: 'remedy-herbal-foreground', icon: Leaf },
-  digestion: { bgClass: 'bg-remedy-digestion', textClass: 'text-remedy-digestion-foreground', fgColorName: 'remedy-digestion-foreground', icon: Sprout },
-  inflammation: { bgClass: 'bg-remedy-inflammation', textClass: 'text-remedy-inflammation-foreground', fgColorName: 'remedy-inflammation-foreground', icon: Flame },
-  calming: { bgClass: 'bg-remedy-calming', textClass: 'text-remedy-calming-foreground', fgColorName: 'remedy-calming-foreground', icon: Droplets },
-  general: { bgClass: 'bg-remedy-general', textClass: 'text-remedy-general-foreground', fgColorName: 'remedy-general-foreground', icon: Zap },
-};
-
-
-export function AyurvedicRemedyCard({ remedy, onSaveToggle }: AyurvedicRemedyCardProps) {
+export function AyurvedicRemedyCard({ remedy, onSaveToggle, onReadMore }: AyurvedicRemedyCardProps) {
   const [isFavorite, setIsFavorite] = useState(remedy.isFavorite || false);
   const { toast } = useToast();
 
   const handleSaveClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click if any
+    e.stopPropagation();
     const newFavoriteState = !isFavorite;
     setIsFavorite(newFavoriteState);
     if (onSaveToggle) {
@@ -42,75 +35,67 @@ export function AyurvedicRemedyCard({ remedy, onSaveToggle }: AyurvedicRemedyCar
     });
   };
 
-  const typeStyle = remedyTypeStyles[remedy.type] || remedyTypeStyles.general;
-  const IconComponent = typeStyle.icon;
+  const handleCardClick = () => {
+    if (onReadMore) {
+      onReadMore(remedy);
+    } else {
+      // Fallback or default action if onReadMore is not provided
+      console.log("Read more for:", remedy.name);
+       toast({ title: "Details Coming Soon", description: `Full details for ${remedy.name} will be available in a modal view.`});
+    }
+  };
 
   return (
-    <Card className={cn("shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full rounded-lg overflow-hidden transform hover:scale-102", typeStyle.bgClass)}>
+    <Card 
+        className="shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full rounded-lg overflow-hidden transform hover:scale-102 bg-card cursor-pointer"
+        onClick={handleCardClick}
+    >
       {remedy.imageUrl && (
-        <div className="relative w-full h-40">
+        <div className="relative w-full h-48"> {/* Increased height for image */}
           <Image 
             src={remedy.imageUrl} 
             alt={remedy.name} 
-            fill // Changed from layout="fill" objectFit="cover" to fill for Next 13+
-            style={{ objectFit: 'cover' }} // Added style for objectFit
-            data-ai-hint="remedy herb"
+            fill
+            style={{ objectFit: 'cover' }}
+            data-ai-hint={remedy.dataAiHint || "herbal remedy"}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Optimize image loading
           />
         </div>
       )}
-      <CardHeader className={cn("pb-3", typeStyle.textClass)}>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-xl font-bold mb-1">{remedy.name}</CardTitle>
-            <CardDescription className={cn("text-xs uppercase tracking-wider font-medium opacity-80", typeStyle.textClass)}>
-              <IconComponent className="inline-block w-3.5 h-3.5 mr-1.5 mb-0.5" />
-              {remedy.type} Remedy
-            </CardDescription>
-          </div>
-           <Button variant="ghost" size="icon" onClick={handleSaveClick} className={cn("ml-auto rounded-full hover:bg-white/20", typeStyle.textClass)}>
-            <Heart className={cn("w-5 h-5 transition-colors", isFavorite ? "fill-destructive text-destructive" : typeStyle.textClass)} />
-            <span className="sr-only">Save remedy</span>
-          </Button>
-        </div>
+      <CardHeader className="p-4 pb-2">
+        <CardTitle className="text-lg font-semibold mb-0.5 line-clamp-2">{remedy.name}</CardTitle>
+        <CardDescription className="text-xs text-muted-foreground line-clamp-1">
+          {remedy.type.charAt(0).toUpperCase() + remedy.type.slice(1)} Remedy
+          {remedy.tags && remedy.tags.length > 0 && ` • ${remedy.tags.slice(0,2).join(', ')}`}
+        </CardDescription>
       </CardHeader>
-      <CardContent className={cn("flex-grow space-y-3 text-sm leading-relaxed", typeStyle.textClass, remedy.imageUrl ? "pt-3" : "")}>
-        <p className="opacity-90">{remedy.description}</p>
-        
-        {remedy.ingredients && remedy.ingredients.length > 0 && (
-          <div>
-            <h4 className="font-semibold mb-1 text-base opacity-95">Ingredients:</h4>
-            <ul className="list-disc list-inside pl-1 space-y-0.5 text-xs opacity-80">
-              {remedy.ingredients.map((item, index) => <li key={index}>{item}</li>)}
-            </ul>
-          </div>
-        )}
-        {remedy.preparation && (
-          <div>
-            <h4 className="font-semibold mb-1 text-base opacity-95">Preparation:</h4>
-            <p className="text-xs opacity-80 whitespace-pre-line">{remedy.preparation}</p>
-          </div>
-        )}
-         {remedy.usage && (
-          <div>
-            <h4 className="font-semibold mb-1 text-base opacity-95">Usage:</h4>
-            <p className="text-xs opacity-80 whitespace-pre-line">{remedy.usage}</p>
-          </div>
-        )}
+      <CardContent className="p-4 pt-1 flex-grow">
+        <p className="text-sm text-muted-foreground line-clamp-3">{remedy.description}</p>
       </CardContent>
-      <CardFooter className={cn("pt-3 pb-3 border-t mt-auto", typeStyle.textClass, `border-${typeStyle.fgColorName}/20`)}>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex flex-wrap gap-1">
-            {remedy.tags.slice(0,3).map(tag => (
-              <Badge key={tag} variant="outline" className={cn("text-xs", typeStyle.textClass, `border-${typeStyle.fgColorName}/40`, 'bg-white/10')}>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-          {remedy.source && (
-            <a href={remedy.source} target="_blank" rel="noopener noreferrer" className={cn("text-xs hover:underline opacity-70 hover:opacity-100", typeStyle.textClass)}>
-              <Info className="inline w-3 h-3 mr-1" /> More Info
-            </a>
-          )}
+      <CardFooter className="p-3 border-t bg-muted/30">
+        <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
+            <div className="flex items-center space-x-3">
+                 <Button variant="ghost" size="icon" onClick={handleSaveClick} className="h-7 w-7 p-0 hover:bg-primary/10">
+                    <Heart className={cn("w-4 h-4", isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-primary")} />
+                    <span className="sr-only">Save</span>
+                </Button>
+                 <Button variant="ghost" size="icon" className="h-7 w-7 p-0 hover:bg-primary/10">
+                    <Eye className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                    <span className="sr-only">Read More</span>
+                </Button>
+                 {/* Mock counts for views/saves like recipe site */}
+                {remedy.views !== undefined && (
+                    <span className="flex items-center">
+                        <ThumbsUp className="w-3.5 h-3.5 mr-1"/> {remedy.views}
+                    </span>
+                )}
+                {remedy.saves !== undefined && (
+                    <span className="flex items-center">
+                        <Heart className="w-3.5 h-3.5 mr-1"/> {remedy.saves}
+                    </span>
+                )}
+            </div>
+            <Leaf className="w-4 h-4 text-green-600" /> 
         </div>
       </CardFooter>
     </Card>
