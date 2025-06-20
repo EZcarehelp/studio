@@ -2,14 +2,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from '@/components/ui/textarea';
 import { AyurvedicRemedyCard } from '@/components/patient/ayurvedic-remedy-card';
 import type { AyurvedicRemedy, RemedyType } from '@/types';
-import { Loader2, Search, Sparkles, AlertTriangle, Wand2, ChevronDown, ListFilter, HeartPulse, Apple, Utensils } from 'lucide-react';
+import { Loader2, Search, Sparkles, AlertTriangle, Wand2, ChevronDown, ListFilter, HeartPulse, Apple, Utensils, Heart, Eye, Leaf } from 'lucide-react';
 import { aiAyurvedicRemedy, type AiAyurvedicRemedyInput, type AiAyurvedicRemedyOutput } from '@/ai/flows/ai-ayurvedic-remedy-flow';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,20 +17,32 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from "@/components/ui/label"; // Added this import
+import { Label } from "@/components/ui/label";
+import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 
 const mockRemedies: AyurvedicRemedy[] = [
-  { id: 'remedy1', name: 'Ginger-Honey Tea for Cough', type: 'herbal', tags: ['cough', 'cold', 'throat'], description: 'A soothing tea effective for cough and sore throat.', ingredients: ['1 inch Ginger (grated)', '1 tsp Honey', '1 cup Hot Water', 'Few Tulsi leaves (optional)'], preparation: 'Steep grated ginger and tulsi leaves in hot water for 5-7 minutes. Strain, add honey, and drink warm.', usage: 'Drink 2-3 times a day.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "ginger tea", isFavorite: false, views: 120, saves: 25 },
-  { id: 'remedy2', name: 'Turmeric Milk (Golden Milk)', type: 'inflammation', tags: ['immunity', 'anti-inflammatory', 'sleep'], description: 'A traditional drink known for its anti-inflammatory and immune-boosting properties.', ingredients: ['1 cup Milk (dairy or non-dairy)', '1/2 tsp Turmeric powder', '1/4 tsp Black Pepper powder', '1/2 inch Ginger (grated, optional)', 'Sweetener to taste (honey, jaggery)'], preparation: 'Warm the milk, add turmeric, pepper, and ginger. Simmer for 5 minutes. Strain (if using fresh ginger), add sweetener, and drink warm.', usage: 'Drink once daily, preferably before bedtime.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "turmeric milk", isFavorite: true, views: 250, saves: 60 },
-  { id: 'remedy3', name: 'Ajwain Water for Digestion', type: 'digestion', tags: ['indigestion', 'gas', 'bloating'], description: 'Helps relieve indigestion, gas, and bloating.', ingredients: ['1 tsp Ajwain (Carom Seeds)', '1 cup Water'], preparation: 'Boil ajwain in water for 5-10 minutes until the water reduces slightly and changes color. Strain and drink warm.', usage: 'Drink after meals or when experiencing digestive discomfort.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "ajwain water", isFavorite: false, views: 90, saves: 15 },
-  { id: 'remedy4', name: 'Chamomile Tea for Calmness', type: 'calming', tags: ['stress', 'sleep', 'relax'], description: 'Promotes relaxation and helps improve sleep quality.', ingredients: ['1 Chamomile tea bag or 1 tbsp dried Chamomile flowers', '1 cup Hot Water', 'Honey (optional)'], preparation: 'Steep chamomile in hot water for 5-7 minutes. Add honey if desired.', usage: 'Drink before bedtime or during stressful times.', imageUrl: 'https://placehold.co/400x300.png', dataAiHint: "chamomile tea", isFavorite: false, views: 150, saves: 30 },
+  { id: 'remedy1', name: 'Ginger-Honey Tea for Cough', type: 'herbal', tags: ['cough', 'cold', 'throat'], description: 'A soothing tea effective for cough and sore throat. Made with fresh ginger, honey, and optionally tulsi leaves, this traditional concoction helps alleviate throat irritation and loosen mucus.', ingredients: ['1 inch Ginger (grated)', '1 tsp Honey', '1 cup Hot Water', 'Few Tulsi leaves (optional)'], preparation: 'Steep grated ginger and tulsi leaves in hot water for 5-7 minutes. Strain, add honey, and drink warm.', usage: 'Drink 2-3 times a day. Especially effective before bedtime.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: "ginger tea", isFavorite: false, views: 120, saves: 25, source: "Traditional Indian Home Remedies" },
+  { id: 'remedy2', name: 'Turmeric Milk (Golden Milk)', type: 'inflammation', tags: ['immunity', 'anti-inflammatory', 'sleep'], description: 'A traditional drink known for its anti-inflammatory and immune-boosting properties. Often consumed to promote overall wellness and aid in sleep.', ingredients: ['1 cup Milk (dairy or non-dairy)', '1/2 tsp Turmeric powder', '1/4 tsp Black Pepper powder', '1/2 inch Ginger (grated, optional)', 'Sweetener to taste (honey, jaggery)'], preparation: 'Warm the milk, add turmeric, pepper, and ginger. Simmer for 5 minutes. Strain (if using fresh ginger), add sweetener, and drink warm.', usage: 'Drink once daily, preferably before bedtime for best results.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: "turmeric milk", isFavorite: true, views: 250, saves: 60, source: "Ayurvedic Texts" },
+  { id: 'remedy3', name: 'Ajwain Water for Digestion', type: 'digestion', tags: ['indigestion', 'gas', 'bloating'], description: 'Helps relieve indigestion, gas, and bloating. Carom seeds (Ajwain) are known for their carminative properties.', ingredients: ['1 tsp Ajwain (Carom Seeds)', '1 cup Water'], preparation: 'Boil ajwain in water for 5-10 minutes until the water reduces slightly and changes color. Strain and drink warm.', usage: 'Drink after meals or when experiencing digestive discomfort. Not recommended in high doses during pregnancy.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: "ajwain water", isFavorite: false, views: 90, saves: 15, source: "Common Ayurvedic Practices" },
+  { id: 'remedy4', name: 'Chamomile Tea for Calmness', type: 'calming', tags: ['stress', 'sleep', 'relax'], description: 'Promotes relaxation and helps improve sleep quality. Chamomile is widely used for its mild sedative effects.', ingredients: ['1 Chamomile tea bag or 1 tbsp dried Chamomile flowers', '1 cup Hot Water', 'Honey (optional)'], preparation: 'Steep chamomile in hot water for 5-7 minutes. Add honey if desired.', usage: 'Drink before bedtime or during stressful times. Consult a doctor if you have ragweed allergies.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: "chamomile tea", isFavorite: false, views: 150, saves: 30, source: "Herbal Remedy Compendiums" },
 ];
 
 const remedyTypes: RemedyType[] = ["herbal", "digestion", "inflammation", "calming", "general"];
 const allRemedyTypesDisplay = ["All", ...remedyTypes.map(t => t.charAt(0).toUpperCase() + t.slice(1))];
 
-const mockDiseases = ["Cough", "Cold", "Indigestion", "Stress", "Sleep Issues", "Skin Rashes", "Acne"];
-const mockIngredients = ["Ginger", "Honey", "Turmeric", "Tulsi", "Ajwain", "Chamomile", "Neem"];
+const mockDiseases = ["Cough", "Cold", "Indigestion", "Stress", "Sleep Issues", "Skin Rashes", "Acne", "Immunity Boost", "Inflammation"];
+const mockIngredients = ["Ginger", "Honey", "Turmeric", "Tulsi", "Ajwain", "Chamomile", "Neem", "Pepper", "Milk"];
 
 
 const aiRemedySchema = z.object({
@@ -51,13 +63,16 @@ export default function AyurvedicRemediesPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
+  const [selectedRemedyForModal, setSelectedRemedyForModal] = useState<AyurvedicRemedy | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const aiForm = useForm<AiRemedyFormData>({
     resolver: zodResolver(aiRemedySchema),
     defaultValues: { aiQuery: '' },
   });
 
   useEffect(() => {
-    let results = [...remedies];
+    let results = [...remedies, ...(aiGeneratedRemedy ? [aiGeneratedRemedy] : [])]; // Include AI remedy if it exists
     const lowerSearchTerm = searchTerm.toLowerCase();
 
     if (lowerSearchTerm) {
@@ -92,17 +107,19 @@ export default function AyurvedicRemediesPage() {
     }
 
     setFilteredRemedies(results);
-  }, [searchTerm, remedies, activeTypeFilter, selectedDiseases, selectedIngredients]);
+  }, [searchTerm, remedies, activeTypeFilter, selectedDiseases, selectedIngredients, aiGeneratedRemedy]);
 
 
   const handleSaveToggle = (remedyId: string) => {
-    setRemedies(prevRemedies =>
-      prevRemedies.map(r =>
-        r.id === remedyId ? { ...r, isFavorite: !r.isFavorite } : r
-      )
-    );
+    const updateRemedy = (r: AyurvedicRemedy) => r.id === remedyId ? { ...r, isFavorite: !r.isFavorite } : r;
+    
+    setRemedies(prevRemedies => prevRemedies.map(updateRemedy));
+    
     if (aiGeneratedRemedy && aiGeneratedRemedy.id === remedyId) {
-        setAiGeneratedRemedy(prev => prev ? {...prev, isFavorite: !prev.isFavorite} : null);
+        setAiGeneratedRemedy(prev => prev ? updateRemedy(prev) : null);
+    }
+    if (selectedRemedyForModal && selectedRemedyForModal.id === remedyId) {
+        setSelectedRemedyForModal(prev => prev ? updateRemedy(prev) : null);
     }
   };
 
@@ -129,6 +146,7 @@ export default function AyurvedicRemediesPage() {
         saves: 0,
       };
       setAiGeneratedRemedy(newRemedy);
+      aiForm.reset();
     } catch (err) {
       console.error("AI remedy generation error:", err);
       setAiError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.");
@@ -149,7 +167,20 @@ export default function AyurvedicRemediesPage() {
     );
   };
   
-  const mostSavedRemedies = [...remedies].sort((a, b) => (b.saves || 0) - (a.saves || 0)).slice(0, 4);
+  const mostSavedRemedies = [...remedies, ...(aiGeneratedRemedy ? [aiGeneratedRemedy] : [])]
+                            .filter(r => r.isFavorite)
+                            .sort((a, b) => (b.saves || 0) - (a.saves || 0)) // Or sort by when it was favorited if timestamp available
+                            .slice(0, 4);
+
+  const handleOpenDetailModal = (remedy: AyurvedicRemedy) => {
+    setSelectedRemedyForModal(remedy);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    // setSelectedRemedyForModal(null); // Optional: clear selection on close
+  };
 
 
   return (
@@ -193,7 +224,12 @@ export default function AyurvedicRemediesPage() {
           {filteredRemedies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredRemedies.map((remedy) => (
-                <AyurvedicRemedyCard key={remedy.id} remedy={remedy} onSaveToggle={handleSaveToggle} />
+                <AyurvedicRemedyCard 
+                    key={remedy.id} 
+                    remedy={remedy} 
+                    onSaveToggle={handleSaveToggle}
+                    onOpenDetailModal={handleOpenDetailModal} 
+                />
               ))}
             </div>
           ) : (
@@ -215,12 +251,12 @@ export default function AyurvedicRemediesPage() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
                 {mostSavedRemedies.length > 0 ? mostSavedRemedies.map(remedy => (
-                    <Link key={remedy.id} href="#" className="block hover:text-primary text-muted-foreground">
+                    <div key={remedy.id} onClick={() => handleOpenDetailModal(remedy)} className="block hover:text-primary text-muted-foreground cursor-pointer">
                          <div className="flex items-center space-x-2">
-                            <img src={remedy.imageUrl || `https://placehold.co/40x40.png?text=${remedy.name.substring(0,1)}`} alt={remedy.name} className="w-8 h-8 rounded-full object-cover" data-ai-hint="remedy icon"/>
+                            <Image src={remedy.imageUrl || `https://placehold.co/40x40.png?text=${remedy.name.substring(0,1)}`} alt={remedy.name} className="w-8 h-8 rounded-full object-cover" width={40} height={40} data-ai-hint="remedy icon"/>
                             <span>{remedy.name}</span>
                         </div>
-                    </Link>
+                    </div>
                 )) : <p className="text-xs text-muted-foreground">No saved remedies yet.</p>}
             </CardContent>
           </Card>
@@ -319,19 +355,106 @@ export default function AyurvedicRemediesPage() {
             )}
             </CardContent>
         </Card>
-         {aiGeneratedRemedy && (
+         {aiGeneratedRemedy && !isAiLoading && ( // Only show if not loading and remedy exists
             <div className="my-8 max-w-xl mx-auto">
             <h2 className="text-2xl font-semibold mb-4 text-gradient flex items-center justify-center">
                 <Sparkles className="mr-2 h-6 w-6" /> AI Suggested Remedy
             </h2>
-            <AyurvedicRemedyCard remedy={aiGeneratedRemedy} onSaveToggle={handleSaveToggle} />
+            <AyurvedicRemedyCard 
+                remedy={aiGeneratedRemedy} 
+                onSaveToggle={handleSaveToggle}
+                onOpenDetailModal={handleOpenDetailModal}
+            />
             <p className="text-xs text-center text-muted-foreground mt-3">
                 {aiGeneratedRemedy.usage?.includes("Consult with a healthcare professional") ? "" : "AI suggestions are for informational purposes. Always consult a healthcare professional for medical advice."}
                 </p>
             </div>
         )}
       </div>
+
+      {/* Remedy Detail Modal */}
+      {selectedRemedyForModal && (
+        <Dialog open={isDetailModalOpen} onOpenChange={(isOpen) => {
+          if (!isOpen) handleCloseDetailModal();
+        }}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gradient">{selectedRemedyForModal.name}</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                 {selectedRemedyForModal.type.charAt(0).toUpperCase() + selectedRemedyForModal.type.slice(1)} Remedy
+                 {selectedRemedyForModal.tags && selectedRemedyForModal.tags.length > 0 && ` • Tags: ${selectedRemedyForModal.tags.join(', ')}`}
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="flex-grow pr-4 -mr-4"> {/* Added padding and negative margin for scrollbar */}
+              <div className="space-y-4 py-4">
+                {selectedRemedyForModal.imageUrl && (
+                  <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-md">
+                    <Image 
+                      src={selectedRemedyForModal.imageUrl} 
+                      alt={selectedRemedyForModal.name} 
+                      fill
+                      style={{objectFit: 'cover'}}
+                      data-ai-hint={selectedRemedyForModal.dataAiHint || "herbal remedy ingredients"}
+                    />
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="font-semibold text-lg mb-1 text-primary">Description</h4>
+                  <p className="text-sm text-foreground/90">{selectedRemedyForModal.description}</p>
+                </div>
+
+                {selectedRemedyForModal.ingredients && selectedRemedyForModal.ingredients.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-1 text-primary">Ingredients</h4>
+                    <ul className="list-disc list-inside text-sm text-foreground/90 space-y-0.5 pl-4">
+                      {selectedRemedyForModal.ingredients.map((ingredient, index) => (
+                        <li key={index}>{ingredient}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {selectedRemedyForModal.preparation && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-1 text-primary">Preparation</h4>
+                    <p className="text-sm text-foreground/90 whitespace-pre-line">{selectedRemedyForModal.preparation}</p>
+                  </div>
+                )}
+
+                {selectedRemedyForModal.usage && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-1 text-primary">Usage</h4>
+                    <p className="text-sm text-foreground/90 whitespace-pre-line">{selectedRemedyForModal.usage}</p>
+                  </div>
+                )}
+                
+                {selectedRemedyForModal.source && (
+                  <p className="text-xs text-muted-foreground mt-3 pt-2 border-t">Source: {selectedRemedyForModal.source}</p>
+                )}
+              </div>
+            </ScrollArea>
+            <DialogFooter className="sm:justify-between items-center pt-4 border-t">
+                <Button 
+                    variant="ghost" 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleSaveToggle(selectedRemedyForModal.id);
+                    }}
+                    className="flex items-center"
+                    aria-label={selectedRemedyForModal.isFavorite ? "Unsave remedy" : "Save remedy"}
+                >
+                    <Heart className={cn("w-5 h-5 mr-2", selectedRemedyForModal.isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-primary")} />
+                    {selectedRemedyForModal.isFavorite ? 'Unsave' : 'Save'}
+                </Button>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Close</Button>
+                </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div>
   );
 }
-
