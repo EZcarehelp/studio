@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from "next/link";
 import { DoctorCard } from '@/components/shared/doctor-card'; 
 import type { Doctor } from '@/types'; 
+import { getDoctors } from "@/lib/firebase/firestore";
 
 const popularSearches = [
   { name: "Dentist", icon: <Stethoscope className="w-5 h-5 mr-2" /> },
@@ -24,13 +25,11 @@ const services = [
   { title: "EzCare Chatbot", description: "Get AI-powered symptom analysis.", icon: <MessageSquare className="w-10 h-10 text-primary" />, href: "/ai-symptom-checker" },
 ];
 
-const featuredDoctors: Doctor[] = [
-  { id: "1", name: "Dr. Alice Smith", specialty: "Cardiologist", experience: 10, rating: 4.8, consultationFee: 1500, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "New York, NY", dataAiHint: "doctor portrait" },
-  { id: "2", name: "Dr. Bob Johnson", specialty: "Dermatologist", experience: 7, rating: 4.5, consultationFee: 1200, availability: "Next 3 days", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "London, UK", dataAiHint: "doctor portrait" },
-  { id: "3", name: "Dr. Carol Williams", specialty: "Pediatrician", experience: 12, rating: 4.9, consultationFee: 1000, availability: "Available Today", imageUrl: "https://placehold.co/400x250.png", isVerified: true, location: "Mumbai, MH", dataAiHint: "doctor portrait" },
-];
+export default async function HomePage() {
+  const allDoctors = await getDoctors();
+  // Filter for verified doctors and take the first 3 to feature
+  const featuredDoctors = allDoctors.filter(doctor => doctor.isVerified).slice(0, 3);
 
-export default function HomePage() {
   return (
     <div className="space-y-12 md:space-y-16">
       {/* Hero Section */}
@@ -87,9 +86,13 @@ export default function HomePage() {
         <h2 className="text-2xl font-semibold mb-2 text-center">Meet Our Doctors</h2>
         <p className="text-muted-foreground mb-6 text-center">Consult with experienced and verified healthcare professionals.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredDoctors.map((doctor) => (
-            <DoctorCard key={doctor.id} doctor={doctor} />
-          ))}
+          {featuredDoctors.length > 0 ? (
+            featuredDoctors.map((doctor) => (
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            ))
+          ) : (
+             <p className="text-muted-foreground text-center col-span-full">No verified doctors available at the moment. Please check back later.</p>
+          )}
         </div>
         <div className="text-center mt-8">
           <Button variant="outline" size="lg" asChild>
