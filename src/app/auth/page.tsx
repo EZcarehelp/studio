@@ -8,26 +8,36 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { UserPlus, LogIn, UploadCloud, Loader2, AlertTriangle, KeyRound } from "lucide-react"; 
+import { UserPlus, LogIn, UploadCloud, Loader2, KeyRound } from "lucide-react"; 
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useRef, type ChangeEvent, type FormEvent, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addPatient, addLabWorker, isUsernameUnique, getUserProfileByUID } from '@/lib/firebase/firestore'; 
+import { addDoctor, addPatient, addLabWorker, isUsernameUnique, getUserProfileByUID, checkAndCreateUserProfile } from '@/lib/firebase/firestore'; 
 import type { Doctor, UserProfile } from '@/types';
 import { uploadFileToStorage } from '@/lib/firebase/storage';
 import { auth } from '@/lib/firebase/config';
+import { signInWithGoogle, sendPasswordResetEmail } from '@/lib/firebase/auth';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  sendPasswordResetEmail, // Import for password reset
   type AuthError
 } from "firebase/auth";
-import { useAuthState } from '@/hooks/use-auth-state'; // To check if user is already logged in
+import { useAuthState } from '@/hooks/use-auth-state';
 
 const ADMIN_EMAIL = "ezcarehelp@gmail.com";
 const ADMIN_PASSWORD = "VARUNARUN"; 
+
+const GoogleIcon = () => (
+    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.3v2.84C4.01 20.48 7.72 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.3C1.42 8.84 1 10.42 1 12s.42 3.16 1.2 4.93l3.54-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.72 1 4.01 3.52 2.3 6.96l3.54 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+);
+
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -44,20 +54,17 @@ export default function AuthPage() {
   
   const { authUser, isLoading: authIsLoading, userProfile } = useAuthState();
 
+  const handleSuccessfulLogin = (role: UserProfile['role'] | 'doctor' | null) => {
+    if (role === 'admin') router.push('/admin/dashboard');
+    else if (role === 'doctor') router.push('/doctor/dashboard');
+    else if (role === 'lab_worker') router.push('/lab/dashboard');
+    else if (role === 'patient') router.push('/patient/dashboard');
+    else router.push('/'); // Fallback
+  };
+
   useEffect(() => {
-    // If auth state is resolved and user is authenticated, redirect them away from auth page
     if (!authIsLoading && authUser) {
-      if (userProfile?.roleActual === 'admin') {
-        router.push('/admin/dashboard');
-      } else if (userProfile?.roleActual === 'doctor') {
-        router.push('/doctor/dashboard');
-      } else if (userProfile?.roleActual === 'lab_worker') {
-        router.push('/lab/dashboard');
-      } else if (userProfile?.roleActual === 'patient') {
-        router.push('/patient/dashboard');
-      } else {
-        router.push('/'); // Fallback if role not determined but user is authUser
-      }
+      handleSuccessfulLogin(userProfile?.roleActual || null);
     }
   }, [authUser, authIsLoading, userProfile, router]);
 
@@ -70,39 +77,29 @@ export default function AuthPage() {
 
     if (emailValue === ADMIN_EMAIL && passwordValue === ADMIN_PASSWORD) {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('isAdminLoggedIn', 'true'); // Mock admin session
+        localStorage.setItem('isAdminLoggedIn', 'true');
       }
-      toast({ title: "Admin Login Successful", description: "Redirecting to Admin Dashboard...", variant: "success" });
-      router.push('/admin/dashboard');
+      toast({ title: "Admin Login Successful", description: "Redirecting...", variant: "success" });
+      handleSuccessfulLogin('admin');
       setIsLoading(false);
       return;
     }
     
     try {
       const userCredential = await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-      const firebaseUser = userCredential.user;
-      console.log("Firebase Auth Login Successful for UID: ", firebaseUser.uid);
-
-      const fetchedProfile = await getUserProfileByUID(firebaseUser.uid);
+      const fetchedProfile = await getUserProfileByUID(userCredential.user.uid);
       if (fetchedProfile) {
-        toast({ title: "Login Successful", description: "Redirecting to dashboard...", variant: "success" });
-        const role = fetchedProfile.roleActual || ('specialty' in fetchedProfile ? 'doctor' : 'patient'); // Determine role
-        if (role === 'doctor') router.push('/doctor/dashboard');
-        else if (role === 'lab_worker') router.push('/lab/dashboard');
-        else if (role === 'patient') router.push('/patient/dashboard');
-        else router.push('/'); // Fallback
+        toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
+        handleSuccessfulLogin(fetchedProfile.roleActual || null);
       } else {
-        toast({ variant: "destructive", title: "Login Error", description: "User profile not found. Please sign up or contact support." });
-        await auth.signOut(); // Sign out if profile is missing
+        toast({ variant: "destructive", title: "Login Error", description: "User profile not found." });
+        await auth.signOut();
       }
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Firebase Auth Login Error: ", authError);
       let errorMessage = "Failed to login. Please check your credentials.";
       if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password' || authError.code === 'auth/invalid-credential') {
         errorMessage = "Invalid email or password.";
-      } else if (authError.code === 'auth/invalid-email') {
-        errorMessage = "Please enter a valid email address.";
       }
       toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
     } finally {
@@ -110,26 +107,40 @@ export default function AuthPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const user = await signInWithGoogle();
+      if (user) {
+        // This function now checks if a profile exists, and if not, creates a patient profile.
+        const profile = await checkAndCreateUserProfile(user);
+        toast({ title: "Login Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
+        handleSuccessfulLogin(profile.roleActual || 'patient');
+      }
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Could not sign in with Google. Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   const handlePasswordReset = async () => {
     if (!resetEmail) {
-      toast({ variant: "destructive", title: "Email Required", description: "Please enter your email address to reset password." });
+      toast({ variant: "destructive", title: "Email Required", description: "Please enter your email address." });
       return;
     }
     setIsLoading(true);
     try {
-      await sendPasswordResetEmail(auth, resetEmail);
-      toast({ title: "Password Reset Email Sent", description: "Check your inbox (and spam folder) for a password reset link.", variant: "success" });
+      await sendPasswordResetEmail(resetEmail);
+      toast({ title: "Password Reset Email Sent", description: "Check your inbox for a password reset link.", variant: "success" });
       setShowForgotPassword(false);
       setResetEmail('');
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Password Reset Error:", authError);
-      let errorMessage = "Could not send password reset email. Please try again.";
-      if (authError.code === 'auth/user-not-found') {
-        errorMessage = "No user found with this email address.";
-      } else if (authError.code === 'auth/invalid-email') {
-        errorMessage = "Please enter a valid email address.";
-      }
+      let errorMessage = "Could not send password reset email.";
+      if (authError.code === 'auth/user-not-found') errorMessage = "No user found with this email.";
       toast({ variant: "destructive", title: "Password Reset Failed", description: errorMessage });
     } finally {
       setIsLoading(false);
@@ -142,17 +153,10 @@ export default function AuthPage() {
       if (file.size > 5 * 1024 * 1024) { 
         toast({ variant: "destructive", title: "File too large", description: "Profile picture must be smaller than 5MB." });
         if(fileInputRef.current) fileInputRef.current.value = "";
-        setProfilePictureFile(null);
-        setProfilePicturePreview(null);
         return;
       }
       setProfilePictureFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setProfilePicturePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setProfilePictureFile(null);
-      setProfilePicturePreview(null);
+      setProfilePicturePreview(URL.createObjectURL(file));
     }
   };
 
@@ -168,17 +172,13 @@ export default function AuthPage() {
     const username = formData.get('username') as string;
 
     if (email === ADMIN_EMAIL) {
-      toast({ variant: "destructive", title: "Registration Restricted", description: "This email is reserved. Please use a different email." });
+      toast({ variant: "destructive", title: "Registration Restricted", description: "This email is reserved." });
       setIsLoading(false);
       return;
     }
 
-    if (!username) {
-      toast({ variant: "destructive", title: "Username Required" });
-      setIsLoading(false); return;
-    }
     const usernameRegex = /^[a-zA-Z0-9._]{3,30}$/;
-    if (!usernameRegex.test(username)) {
+    if (!username || !usernameRegex.test(username)) {
       toast({ variant: "destructive", title: "Invalid Username", description: "3-30 chars, letters, numbers, '.', '_' only." });
       setIsLoading(false); return;
     }
@@ -190,52 +190,36 @@ export default function AuthPage() {
     }
     
     const finalUsername = username.toLowerCase(); 
-    let avatarUrlFromStorage: string | undefined = undefined;
-
-    if (profilePictureFile) {
-      try {
-        const fileName = `profile_${Date.now()}_${profilePictureFile.name}`;
-        avatarUrlFromStorage = await uploadFileToStorage(profilePictureFile, `profilePictures/${finalUsername}`, fileName);
-      } catch (uploadError) {
-        console.error("Error uploading profile picture:", uploadError);
-        toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload profile picture." });
-      }
-    }
     
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       const uid = firebaseUser.uid;
 
+      let avatarUrlFromStorage: string | undefined = undefined;
+      if (profilePictureFile) {
+        avatarUrlFromStorage = await uploadFileToStorage(profilePictureFile, `profilePictures/${uid}`, profilePictureFile.name);
+      }
+
       if (userType === 'doctor') {
         const specialty = formData.get('specialization') as string;
-        const experienceStr = formData.get('experience') as string;
+        const experience = parseInt(formData.get('experience') as string, 10);
         const licenseNumber = formData.get('licenseNumber') as string;
-        if (!experienceStr || isNaN(parseInt(experienceStr, 10)) || parseInt(experienceStr, 10) < 0) {
-            toast({ variant: "destructive", title: "Invalid Input", description: "Experience must be a number." });
-            setIsLoading(false); return;
-        }
-        const experience = parseInt(experienceStr, 10);
         await addDoctor({ uid, name, username: finalUsername, email, phone, specialty, experience, licenseNumber, location: locationInput, imageUrl: avatarUrlFromStorage });
-        toast({ title: "Doctor Sign Up Successful", description: "Approval pending by admin.", variant: "success" });
-        router.push('/doctor/dashboard'); 
       } else if (userType === 'lab_worker') {
         const labAffiliation = formData.get('labId') as string; 
         await addLabWorker({ uid, name, username: finalUsername, email, phone, location: locationInput, labAffiliation, avatarUrl: avatarUrlFromStorage });
-        toast({ title: "Lab Worker Sign Up Successful", description: "Approval pending.", variant: "success" });
-        router.push('/lab/dashboard');
       } else { 
         await addPatient({ uid, name, username: finalUsername, email, phone, location: locationInput, avatarUrl: avatarUrlFromStorage });
-        toast({ title: "Patient Sign Up Successful", variant: "success" });
-        router.push('/patient/dashboard');
       }
+      toast({ title: "Sign Up Successful", description: "Redirecting...", variant: "success" });
+      handleSuccessfulLogin(userType);
+
     } catch (error) {
         const authError = error as AuthError;
-        console.error(`Error during ${userType} signup:`, authError);
-        let errorMessage = `Could not create ${userType} account.`;
+        let errorMessage = "Could not create account.";
         if (authError.code === 'auth/email-already-in-use') errorMessage = "Email already registered. Please login.";
-        else if (authError.code === 'auth/weak-password') errorMessage = "Password too weak (min. 6 characters).";
-        else if (authError.code === 'auth/invalid-email') errorMessage = "Invalid email address.";
+        else if (authError.code === 'auth/weak-password') errorMessage = "Password is too weak (min. 6 characters).";
         toast({ variant: "destructive", title: "Signup Failed", description: errorMessage });
     } finally {
       setIsLoading(false);
@@ -249,7 +233,6 @@ export default function AuthPage() {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
@@ -272,29 +255,37 @@ export default function AuthPage() {
               </CardDescription>
             </CardHeader>
             {!showForgotPassword ? (
-              <form onSubmit={handleLogin}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email-login">Email Address</Label>
-                    <Input id="email-login" name="email-login" type="email" placeholder="Enter your email" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password-login">Password</Label>
-                    <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4">
-                  <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="animate-spin"/> : 'Login'}
-                  </Button>
-                  <Button variant="link" type="button" onClick={() => setShowForgotPassword(true)} className="text-sm text-primary hover:underline">
-                    Forgot Password?
-                  </Button>
-                  <Link href="/" className="text-sm text-muted-foreground hover:underline">
-                      Skip for now & browse
-                  </Link>
-                </CardFooter>
-              </form>
+              <>
+                <form onSubmit={handleLogin}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-login">Email Address</Label>
+                      <Input id="email-login" name="email-login" type="email" placeholder="Enter your email" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password-login">Password</Label>
+                      <Input id="password-login" name="password-login" type="password" placeholder="Enter your password" required />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex flex-col gap-4">
+                    <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
+                      {isLoading ? <Loader2 className="animate-spin"/> : 'Login'}
+                    </Button>
+                  </CardFooter>
+                </form>
+                 <div className="px-6 pb-6 text-center text-sm">
+                    <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t"/></div>
+                        <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or continue with</span></div>
+                    </div>
+                    <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
+                        {isLoading ? <Loader2 className="animate-spin"/> : <><GoogleIcon/> Google</>}
+                    </Button>
+                    <Button variant="link" type="button" onClick={() => setShowForgotPassword(true)} className="text-sm text-primary hover:underline mt-4">
+                        Forgot Password?
+                    </Button>
+                 </div>
+              </>
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); handlePasswordReset(); }}>
                 <CardContent className="space-y-4">
@@ -353,7 +344,7 @@ export default function AuthPage() {
                   <Input id="profile-picture-signup" name="profilePicture" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} className="text-sm"/>
                   {profilePicturePreview && <div className="mt-2"><Image src={profilePicturePreview} alt="Profile preview" width={80} height={80} className="rounded-full object-cover aspect-square" /></div>}
                 </div>
-                {(userType === 'doctor' || userType === 'lab_worker' || userType === 'patient') && (<div className="space-y-2"><Label htmlFor="location-common">Location (City, State or Full Address)</Label><Input id="location-common" name="location" placeholder="e.g., New York, NY" required /></div>)}
+                {(userType === 'doctor' || userType === 'lab_worker' || userType === 'patient') && (<div className="space-y-2"><Label htmlFor="location-common">Location (City, State)</Label><Input id="location-common" name="location" placeholder="e.g., New York, NY" required /></div>)}
                 {userType === 'doctor' && (<>
                   <div className="space-y-2"><Label htmlFor="licenseNumber-signup">License Number</Label><Input id="licenseNumber-signup" name="licenseNumber" placeholder="Medical license number" required /></div>
                   <div className="space-y-2"><Label htmlFor="specialization-signup">Specialization</Label><Input id="specialization-signup" name="specialization" placeholder="e.g., Cardiologist" required /></div>
@@ -370,9 +361,13 @@ export default function AuthPage() {
                 <Button type="submit" className="w-full btn-premium" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin"/> : 'Sign Up'}
                 </Button>
-                <Link href="/" className="text-sm text-muted-foreground hover:underline">
-                    Skip for now & browse
-                </Link>
+                <div className="relative w-full my-2">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t"/></div>
+                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or sign up with</span></div>
+                </div>
+                 <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="animate-spin"/> : <><GoogleIcon/> Google</>}
+                </Button>
               </CardFooter>
             </form>
           </Card>

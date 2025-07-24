@@ -1,6 +1,12 @@
 
 import { auth } from './config';
-import { sendPasswordResetEmail as firebaseSendPasswordResetEmail, signOut as firebaseSignOut } from 'firebase/auth';
+import { 
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail, 
+  signOut as firebaseSignOut,
+  signInWithPopup,
+  GoogleAuthProvider,
+  type User
+} from 'firebase/auth';
 
 /**
  * Sends a password reset email to the given email address.
@@ -25,8 +31,30 @@ export async function signOut(): Promise<void> {
   try {
     await firebaseSignOut(auth);
     console.log('User signed out successfully.');
+     if (typeof window !== 'undefined') {
+        localStorage.removeItem('isAdminLoggedIn');
+    }
   } catch (error) {
     console.error('Error signing out:', error);
+    throw error;
+  }
+}
+
+/**
+ * Initiates Google Sign-In process.
+ * @returns Promise<User | null> The signed-in Firebase user object or null on error.
+ */
+export async function signInWithGoogle(): Promise<User | null> {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    // The signed-in user info.
+    const user = result.user;
+    console.log('Successfully signed in with Google:', user.displayName);
+    return user;
+  } catch (error) {
+    console.error('Error during Google Sign-In:', error);
+    // Handle specific errors (e.g., popup closed, account exists with different credential)
     throw error;
   }
 }
