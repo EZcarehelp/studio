@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, startTransition } from 'react';
@@ -29,8 +30,8 @@ export function useAuthState(): AuthState {
 
   useEffect(() => {
     // Check for admin session on mount
-    if (typeof window !== 'undefined') {
-      if (localStorage.getItem('isAdminLoggedIn') === 'true') {
+    const checkAdminSession = () => {
+      if (typeof window !== 'undefined' && localStorage.getItem('isAdminLoggedIn') === 'true') {
         setAuthState({
           authUser: { uid: 'admin_uid_mock' } as FirebaseUser,
           userProfile: {
@@ -44,59 +45,51 @@ export function useAuthState(): AuthState {
           isLoading: false,
           isAdminSession: true,
         });
-        return; // Early return for admin
+        return true; // Admin session found
       }
+      return false; // No admin session
+    };
+
+    if (checkAdminSession()) {
+      return; // Early return if we are in an admin session
     }
     
-    // Standard Firebase auth listener
+    // Standard Firebase auth listener for non-admin users
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // User is signed in.
         try {
           const profile = await checkAndCreateUserProfile(user);
           if (profile) {
-             let roleActual = profile.role;
-             if (!roleActual && 'specialty' in profile) {
-                 roleActual = 'doctor';
-             }
-             let mockLat, mockLon;
-             if (roleActual === 'patient' && !(profile as UserProfile).latitude) {
-                 mockLat = 13.0827; // Chennai default
-                 mockLon = 80.2707;
-             }
-             
-            startTransition(() => {
-                setAuthState({
-                    authUser: user,
-                    userProfile: { 
-                        ...profile, 
-                        roleActual: roleActual as UserProfile['role'] | 'doctor',
-                        latitude: mockLat ?? (profile as UserProfile).latitude,
-                        longitude: mockLon ?? (profile as UserProfile).longitude
-                    },
-                    isLoading: false,
-                    isAdminSession: false,
-                });
-            });
+            let roleActual = profile.role;
+            if ('specialty' in profile) {
+                roleActual = 'doctor';
+            }
 
-          } else { // Profile might be pending verification
-             startTransition(() => {
-                setAuthState({ authUser: user, userProfile: null, isLoading: false, isAdminSession: false });
-             });
+            setAuthState({
+              authUser: user,
+              userProfile: { 
+                ...profile, 
+                roleActual: roleActual as UserProfile['role'] | 'doctor',
+              },
+              isLoading: false,
+              isAdminSession: false,
+            });
+          } else {
+            // Profile exists but might be pending verification, or there's an issue.
+            // For now, treat as authenticated but without a full profile.
+            setAuthState({ authUser: user, userProfile: null, isLoading: false, isAdminSession: false });
           }
         } catch (error) {
-          console.error("Error fetching/creating user profile:", error);
-          startTransition(() => {
-            setAuthState({ authUser: user, userProfile: null, isLoading: false, isAdminSession: false });
-          });
+          console.error("Error in onAuthStateChanged profile handling:", error);
+          setAuthState({ authUser: user, userProfile: null, isLoading: false, isAdminSession: false });
         }
       } else {
         // User is signed out
         if (typeof window !== 'undefined') {
           localStorage.removeItem('isAdminLoggedIn');
         }
-        startTransition(() => {
-            setAuthState({ authUser: null, userProfile: null, isLoading: false, isAdminSession: false });
-        });
+        setAuthState({ authUser: null, userProfile: null, isLoading: false, isAdminSession: false });
       }
     });
 

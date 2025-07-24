@@ -1,3 +1,4 @@
+
 import { db } from './config';
 import {
   doc,
@@ -19,13 +20,15 @@ import type { PatientProfile, DoctorProfile, UserProfile, Doctor } from '@/types
  * @param uid - User UID
  */
 export async function getUserProfileByUID(uid: string): Promise<UserProfile | DoctorProfile | null> {
+  if (!uid) return null;
   const userRef = doc(db, 'users', uid);
   const userSnap = await getDoc(userRef);
 
   if (!userSnap.exists()) {
+    console.log(`No profile found for UID: ${uid}`);
     return null;
   }
-  return userSnap.data() as UserProfile | DoctorProfile;
+  return { ...userSnap.data(), id: userSnap.id } as UserProfile | DoctorProfile;
 }
 
 
@@ -36,22 +39,31 @@ export async function getUserProfileByUID(uid: string): Promise<UserProfile | Do
  * @returns The existing or newly created user profile.
  */
 export async function checkAndCreateUserProfile(user: FirebaseUser): Promise<UserProfile | DoctorProfile | null> {
-  if (!user) return null;
+  if (!user || !user.uid) return null;
 
   const existingProfile = await getUserProfileByUID(user.uid);
   if (existingProfile) {
-    // If a doctor profile exists but isn't verified, you might want to handle that here
-    // For now, we return the existing profile as is.
     return existingProfile;
   }
 
   // If no profile exists, create a default 'patient' profile.
   console.log(`No profile found for UID ${user.uid}. Creating new patient profile.`);
+  
+  // Create a default username, ensuring it's likely to be unique.
+  const baseUsername = user.email?.split('@')[0] || `user${user.uid.substring(0, 5)}`;
+  let finalUsername = baseUsername.replace(/[^a-zA-Z0-9._]/g, '').toLowerCase();
+
+  // Simple check to avoid conflict, can be made more robust
+  const isTaken = !(await isUsernameUnique(finalUsername));
+  if (isTaken) {
+    finalUsername = `${finalUsername}${Math.floor(Math.random() * 1000)}`;
+  }
+
   const newPatientProfile: Omit<PatientProfile, 'createdAt' | 'role'> = {
     uid: user.uid,
     email: user.email || '',
     name: user.displayName || 'New User',
-    username: user.email?.split('@')[0] || `user${Date.now()}`,
+    username: finalUsername,
     phone: user.phoneNumber || '',
     avatarUrl: user.photoURL || undefined,
   };
@@ -59,7 +71,9 @@ export async function checkAndCreateUserProfile(user: FirebaseUser): Promise<Use
   await addPatient(newPatientProfile);
 
   // Fetch the just-created profile to return it with all fields.
-  return await getUserProfileByUID(user.uid);
+  const createdProfile = await getUserProfileByUID(user.uid);
+  console.log("Newly created profile:", createdProfile);
+  return createdProfile;
 }
 
 
@@ -181,10 +195,11 @@ export async function getUserByUsername(username: string): Promise<(UserProfile 
     const userDoc = querySnapshot.docs[0];
     const userData = userDoc.data();
 
-    // Add roleActual for consistency
-    let roleActual = userData.role;
+    let roleActual: UserProfile['role'] | 'doctor' = userData.role;
     if (userData.role === 'doctor' && 'specialty' in userData) {
         roleActual = 'doctor';
+    } else {
+        roleActual = userData.role as UserProfile['role'];
     }
 
     return {

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -53,13 +54,20 @@ export default function AuthPage() {
   const { authUser, userProfile, isLoading: authIsLoading, isAdminSession } = useAuthState();
 
   useEffect(() => {
+    // This effect handles redirection after auth state is confirmed to be loaded and a user is present.
     if (!authIsLoading && (authUser || isAdminSession)) {
-      const role = isAdminSession ? 'admin' : userProfile?.roleActual;
-      if (role === 'admin') router.push('/admin/dashboard');
-      else if (role === 'doctor') router.push('/doctor/dashboard');
-      else if (role === 'lab_worker') router.push('/lab/dashboard');
-      else if (role === 'patient') router.push('/patient/dashboard');
-      else if (authUser) router.push('/'); // Fallback for authenticated but role-less user
+      const role = userProfile?.roleActual;
+      if (isAdminSession || role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (role === 'doctor') {
+        router.push('/doctor/dashboard');
+      } else if (role === 'lab_worker') {
+        router.push('/lab/dashboard');
+      } else if (role === 'patient') {
+        router.push('/patient/dashboard');
+      }
+      // If user is authenticated but profile/role is still loading, we wait.
+      // The useAuthState hook is responsible for providing the profile.
     }
   }, [authUser, userProfile, authIsLoading, isAdminSession, router]);
 
@@ -73,17 +81,15 @@ export default function AuthPage() {
     if (emailValue === ADMIN_EMAIL && passwordValue === ADMIN_PASSWORD) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('isAdminLoggedIn', 'true');
+        window.location.href = '/admin/dashboard'; // Force full reload for admin session
       }
-      toast({ title: "Admin Login Successful", description: "Redirecting...", variant: "success" });
-      // The useEffect will handle redirection
-      window.location.reload(); // Force reload to re-trigger auth state hook
       return;
     }
     
     try {
       await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-      // The onAuthStateChanged listener in useAuthState will handle the rest.
-      toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
+      toast({ title: "Login Successful", description: "Redirecting to your dashboard...", variant: "success" });
+      // Redirection is now handled by the useEffect hook.
     } catch (error) {
       console.error("Login Failed:", error);
       const authError = error as AuthError;
@@ -103,8 +109,8 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      // The onAuthStateChanged listener will handle profile creation and redirection.
-      toast({ title: "Google Sign-In Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
+      toast({ title: "Google Sign-In Successful", description: "Welcome! Redirecting...", variant: "success" });
+      // Redirection is now handled by the useEffect hook.
     } catch (error) {
       console.error("Google Sign-In Error:", error);
       const authError = error as AuthError;
