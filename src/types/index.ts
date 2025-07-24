@@ -12,7 +12,7 @@ export interface Doctor {
   consultationFee: number; // INR
   availability: string; // e.g., "Available Today", "Next 3 days"
   imageUrl: string;
-  isVerified: boolean;
+  isVerified: boolean; // Added isVerified field
   location?: string;
   bio?: string;
   licenseNumber?: string;
@@ -230,4 +230,13 @@ export interface HealthPrediction {
   diseases: string[];
   suggestions: string[];
   message?: string; // For "No risks"
+}
+
+export interface PatientProfile {
+  uid: string;
+  email: string;
+  displayName?: string;
+  createdAt: string;
+  role: 'patient';
+  // Add other patient-specific fields here
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -92,14 +91,18 @@ export default function AuthPage() {
         toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
         handleSuccessfulLogin(fetchedProfile.roleActual || null);
       } else {
+         console.error("Login Error: User profile not found for UID", userCredential.user.uid);
         toast({ variant: "destructive", title: "Login Error", description: "User profile not found." });
-        await auth.signOut();
+        await auth.signOut(); // Sign out the user if profile is missing
       }
     } catch (error) {
+      console.error("Login Failed:", error);
       const authError = error as AuthError;
       let errorMessage = "Failed to login. Please check your credentials.";
       if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password' || authError.code === 'auth/invalid-credential') {
         errorMessage = "Invalid email or password.";
+      } else if (authError.code === 'auth/network-request-failed') {
+         errorMessage = "Network error. Please check your internet connection.";
       }
       toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
     } finally {
@@ -114,12 +117,29 @@ export default function AuthPage() {
       if (user) {
         // This function now checks if a profile exists, and if not, creates a patient profile.
         const profile = await checkAndCreateUserProfile(user);
-        toast({ title: "Login Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
-        handleSuccessfulLogin(profile.roleActual || 'patient');
+         if (profile) {
+            toast({ title: "Login Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
+            handleSuccessfulLogin(profile.roleActual || 'patient');
+         } else {
+            // This case might happen if a doctor signs in with Google but is not verified
+            console.log("Google Sign-In: User profile not returned (possibly unverified doctor).");
+            toast({ variant: "destructive", title: "Login Failed", description: "Account requires verification." });
+            await auth.signOut(); // Sign out unverified user
+         }
+      } else {
+         console.error("Google Sign-In Error: No user returned from signInWithGoogle.");
+         toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Could not sign in with Google. Please try again." });
       }
     } catch (error) {
       console.error("Google Sign-In Error:", error);
-      toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Could not sign in with Google. Please try again." });
+      const authError = error as AuthError;
+      let errorMessage = "Could not sign in with Google. Please try again.";
+      if (authError.code === 'auth/popup-closed-by-user') {
+         errorMessage = "Google Sign-In popup was closed.";
+      } else if (authError.code === 'auth/cancelled-popup-request') {
+         errorMessage = "Google Sign-In popup already open.";
+      }
+      toast({ variant: "destructive", title: "Google Sign-In Failed", description: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +158,11 @@ export default function AuthPage() {
       setShowForgotPassword(false);
       setResetEmail('');
     } catch (error) {
+      console.error("Password Reset Failed:", error);
       const authError = error as AuthError;
       let errorMessage = "Could not send password reset email.";
       if (authError.code === 'auth/user-not-found') errorMessage = "No user found with this email.";
+      else if (authError.code === 'auth/invalid-email') errorMessage = "Invalid email address format.";
       toast({ variant: "destructive", title: "Password Reset Failed", description: errorMessage });
     } finally {
       setIsLoading(false);
@@ -153,6 +175,8 @@ export default function AuthPage() {
       if (file.size > 5 * 1024 * 1024) { 
         toast({ variant: "destructive", title: "File too large", description: "Profile picture must be smaller than 5MB." });
         if(fileInputRef.current) fileInputRef.current.value = "";
+        setProfilePictureFile(null);
+        setProfilePicturePreview(null);
         return;
       }
       setProfilePictureFile(file);
@@ -183,12 +207,19 @@ export default function AuthPage() {
       setIsLoading(false); return;
     }
 
-    const isUnique = await isUsernameUnique(username.toLowerCase());
-    if (!isUnique) {
-      toast({ variant: "destructive", title: "Username Taken" });
-      setIsLoading(false); return;
+    // Check if username is unique before attempting Firebase auth
+    try {
+        const isUnique = await isUsernameUnique(username.toLowerCase());
+        if (!isUnique) {
+            toast({ variant: "destructive", title: "Username Taken" });
+            setIsLoading(false); return;
+        }
+    } catch (error) {
+        console.error("Username uniqueness check failed:", error);
+         toast({ variant: "destructive", title: "Signup Failed", description: "Could not check username availability." });
+         setIsLoading(false); return;
     }
-    
+
     const finalUsername = username.toLowerCase(); 
     
     try {
@@ -198,29 +229,60 @@ export default function AuthPage() {
 
       let avatarUrlFromStorage: string | undefined = undefined;
       if (profilePictureFile) {
-        avatarUrlFromStorage = await uploadFileToStorage(profilePictureFile, `profilePictures/${uid}`, profilePictureFile.name);
+         try {
+           avatarUrlFromStorage = await uploadFileToStorage(profilePictureFile, `profilePictures/${uid}`, profilePictureFile.name);
+         } catch (uploadError) {
+            console.error("Profile picture upload failed:", uploadError);
+            toast({ variant: "warning", title: "Upload Failed", description: "Could not upload profile picture." });
+            // Continue with signup even if upload fails
+         }
       }
 
       if (userType === 'doctor') {
         const specialty = formData.get('specialization') as string;
         const experience = parseInt(formData.get('experience') as string, 10);
         const licenseNumber = formData.get('licenseNumber') as string;
-        await addDoctor({ uid, name, username: finalUsername, email, phone, specialty, experience, licenseNumber, location: locationInput, imageUrl: avatarUrlFromStorage });
+         // Ensure required fields for doctor are present
+        if (!specialty || !experience || !licenseNumber) {
+             toast({ variant: "destructive", title: "Missing Information", description: "Please fill all required fields for doctor." });
+             await firebaseUser.delete(); // Clean up created auth user
+             setIsLoading(false); return;
+        }
+        await addDoctor({ uid, name, username: finalUsername, email, phone, specialty, experience, licenseNumber, location: locationInput, imageUrl: avatarUrlFromStorage, isVerified: false }); // Set isVerified to false initially
       } else if (userType === 'lab_worker') {
         const labAffiliation = formData.get('labId') as string; 
+         if (!labAffiliation) {
+             toast({ variant: "destructive", title: "Missing Information", description: "Please provide Lab ID / Affiliation." });
+             await firebaseUser.delete(); // Clean up created auth user
+             setIsLoading(false); return;
+         }
         await addLabWorker({ uid, name, username: finalUsername, email, phone, location: locationInput, labAffiliation, avatarUrl: avatarUrlFromStorage });
       } else { 
         await addPatient({ uid, name, username: finalUsername, email, phone, location: locationInput, avatarUrl: avatarUrlFromStorage });
       }
       toast({ title: "Sign Up Successful", description: "Redirecting...", variant: "success" });
-      handleSuccessfulLogin(userType);
+      // For doctors and lab workers, don't redirect immediately, wait for verification or show pending state
+      if (userType === 'patient') {
+         handleSuccessfulLogin(userType);
+      } else {
+         // Redirect to a pending verification page or show a message
+         router.push('/verification-pending'); // Assuming a pending page exists
+      }
 
     } catch (error) {
+        console.error("Signup Failed:", error);
         const authError = error as AuthError;
         let errorMessage = "Could not create account.";
         if (authError.code === 'auth/email-already-in-use') errorMessage = "Email already registered. Please login.";
         else if (authError.code === 'auth/weak-password') errorMessage = "Password is too weak (min. 6 characters).";
+        else if (authError.code === 'auth/operation-not-allowed') errorMessage = "Email/Password sign up is disabled."; // Handle if method is disabled
+        else if (authError.code === 'auth/network-request-failed') errorMessage = "Network error. Please check your internet connection.";
         toast({ variant: "destructive", title: "Signup Failed", description: errorMessage });
+
+        // Clean up auth user if profile creation failed after auth user was created
+        if (auth.currentUser) {
+            await auth.currentUser.delete().catch(console.error); // Use catch to prevent errors during cleanup
+        }
     } finally {
       setIsLoading(false);
     }
