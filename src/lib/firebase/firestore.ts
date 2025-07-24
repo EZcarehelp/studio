@@ -8,44 +8,60 @@ import {
   query,
   where,
   getDocs,
+  serverTimestamp,
 } from 'firebase/firestore';
-import type { User } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import type { PatientProfile, DoctorProfile, UserProfile, Doctor } from '@/types';
 
-/**
- * Checks for an existing user profile. If none exists, creates a default patient profile.
- * @param user - Firebase Auth user
- * @returns PatientProfile, DoctorProfile, or null
- */
-export async function checkAndCreateUserProfile(user: User): Promise<PatientProfile | DoctorProfile | null> {
-  if (!user) return null;
 
-  const userRef = doc(db, 'users', user.uid);
+/**
+ * Retrieves a user profile by UID. Returns null if not found.
+ * @param uid - User UID
+ */
+export async function getUserProfileByUID(uid: string): Promise<UserProfile | DoctorProfile | null> {
+  const userRef = doc(db, 'users', uid);
   const userSnap = await getDoc(userRef);
 
-  if (userSnap.exists()) {
-    const userData = userSnap.data() as UserProfile;
-
-    if (userData.role === 'doctor') {
-      return userData.isVerified ? (userData as DoctorProfile) : null;
-    }
-
-    return userData as PatientProfile;
-  } else {
-    // Default to creating a patient profile if user doesn't exist
-    const newPatientProfile: PatientProfile = {
-      uid: user.uid,
-      email: user.email ?? '',
-      displayName: user.displayName ?? '',
-      createdAt: new Date().toISOString(),
-      role: 'patient',
-      // Add any additional default fields here
-    };
-
-    await setDoc(userRef, newPatientProfile);
-    return newPatientProfile;
+  if (!userSnap.exists()) {
+    return null;
   }
+  return userSnap.data() as UserProfile | DoctorProfile;
 }
+
+
+/**
+ * Checks for an existing user profile by UID. If none exists, creates a default patient profile.
+ * This is crucial for Google Sign-In where users don't go through the detailed signup form.
+ * @param user - Firebase Auth user object
+ * @returns The existing or newly created user profile.
+ */
+export async function checkAndCreateUserProfile(user: FirebaseUser): Promise<UserProfile | DoctorProfile | null> {
+  if (!user) return null;
+
+  const existingProfile = await getUserProfileByUID(user.uid);
+  if (existingProfile) {
+    // If a doctor profile exists but isn't verified, you might want to handle that here
+    // For now, we return the existing profile as is.
+    return existingProfile;
+  }
+
+  // If no profile exists, create a default 'patient' profile.
+  console.log(`No profile found for UID ${user.uid}. Creating new patient profile.`);
+  const newPatientProfile: Omit<PatientProfile, 'createdAt' | 'role'> = {
+    uid: user.uid,
+    email: user.email || '',
+    name: user.displayName || 'New User',
+    username: user.email?.split('@')[0] || `user${Date.now()}`,
+    phone: user.phoneNumber || '',
+    avatarUrl: user.photoURL || undefined,
+  };
+
+  await addPatient(newPatientProfile);
+
+  // Fetch the just-created profile to return it with all fields.
+  return await getUserProfileByUID(user.uid);
+}
+
 
 /**
  * Updates the verification status of a doctor.
@@ -57,8 +73,9 @@ export async function updateDoctorVerificationStatus(uid: string, isVerified: bo
   await updateDoc(doctorRef, { isVerified });
 }
 
+
 /**
- * Adds a new patient profile.
+ * Adds a new patient profile to Firestore.
  * @param patientData - Patient data excluding role and createdAt
  */
 export async function addPatient(patientData: Omit<PatientProfile, 'createdAt' | 'role'>): Promise<void> {
@@ -66,70 +83,64 @@ export async function addPatient(patientData: Omit<PatientProfile, 'createdAt' |
   const newPatient: PatientProfile = {
     ...patientData,
     role: 'patient',
-    createdAt: new Date().toISOString(),
+    createdAt: serverTimestamp(),
   };
 
   await setDoc(patientRef, newPatient);
 }
 
+
 /**
- * Adds a new doctor profile.
+ * Adds a new doctor profile to Firestore.
  * @param doctorData - Doctor data excluding role and createdAt
  */
-export async function addDoctor(doctorData: Omit<DoctorProfile, 'createdAt' | 'role'>): Promise<void> {
+export async function addDoctor(doctorData: Omit<DoctorProfile, 'createdAt' | 'role' | 'id'>): Promise<void> {
+  if (!doctorData.uid) throw new Error("UID is required to add a doctor.");
   const doctorRef = doc(db, 'users', doctorData.uid);
-  const newDoctor: DoctorProfile = {
+  const newDoctor: Omit<DoctorProfile, 'id'> = {
     ...doctorData,
     role: 'doctor',
-    createdAt: new Date().toISOString(),
-    isVerified: doctorData.isVerified ?? false, // Optional: default if not provided
+    createdAt: serverTimestamp(),
+    isVerified: doctorData.isVerified ?? false,
   };
 
   await setDoc(doctorRef, newDoctor);
 }
 
+
 /**
- * Adds a new lab worker profile.
+ * Adds a new lab worker profile to Firestore.
  * @param labWorkerData - Lab worker data excluding role and createdAt
  */
-export async function addLabWorker(labWorkerData: Omit<UserProfile, 'createdAt' | 'role'>): Promise<void> {
-  const labWorkerRef = doc(db, 'users', labWorkerData.uid);
-  const newLabWorker: UserProfile = {
-    ...labWorkerData,
-    role: 'lab_worker',
-    createdAt: new Date().toISOString(),
-  };
-
-  await setDoc(labWorkerRef, newLabWorker);
+export async function addLabWorker(labWorkerData: Omit<UserProfile, 'createdAt' | 'role' | 'id'>): Promise<void> {
+    if (!labWorkerData.uid) throw new Error("UID is required to add a lab worker.");
+    const labWorkerRef = doc(db, 'users', labWorkerData.uid);
+    const newLabWorker: Omit<UserProfile, 'id'> = {
+        ...labWorkerData,
+        role: 'lab_worker',
+        createdAt: serverTimestamp(),
+    };
+    await setDoc(labWorkerRef, newLabWorker);
 }
 
+
 /**
- * Checks if a username is unique.
+ * Checks if a username is unique across the 'users' collection.
  * @param username - Username to check
  * @returns true if unique, false if taken
  */
 export async function isUsernameUnique(username: string): Promise<boolean> {
+  if (!username) return false;
   const usersRef = collection(db, 'users');
-  const q = query(usersRef, where('username', '==', username));
+  const q = query(usersRef, where('username', '==', username.toLowerCase()));
   const querySnapshot = await getDocs(q);
 
   return querySnapshot.empty;
 }
 
-/**
- * Retrieves a user profile by UID.
- * @param uid - User UID
- * @returns UserProfile or null if not found
- */
-export async function getUserProfileByUID(uid: string): Promise<UserProfile | null> {
-  const userRef = doc(db, 'users', uid);
-  const userSnap = await getDoc(userRef);
-
-  return userSnap.exists() ? (userSnap.data() as UserProfile) : null;
-}
 
 /**
- * Retrieves a list of all doctors.
+ * Retrieves a list of all doctors from Firestore.
  * @returns A promise that resolves to an array of Doctor objects.
  */
 export async function getDoctors(): Promise<Doctor[]> {
@@ -139,20 +150,46 @@ export async function getDoctors(): Promise<Doctor[]> {
 
     try {
         const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            // Here, we type cast the document data to Doctor.
-            // You might want to add more robust validation in a real-world scenario.
-            const doctorData = doc.data() as Doctor;
+        querySnapshot.forEach((docSnap) => {
+            const doctorData = docSnap.data() as Omit<Doctor, 'id'>;
             doctors.push({
                 ...doctorData,
-                id: doc.id, // Assign the document ID to the doctor's id property
+                id: docSnap.id,
             });
         });
     } catch (error) {
         console.error("Error fetching doctors: ", error);
-        // Depending on your error handling strategy, you might want to re-throw the error
-        // or return an empty array.
     }
     
     return doctors;
+}
+
+/**
+ * Retrieves a user profile by their username.
+ * @param username The user's username.
+ * @returns A promise that resolves to the user's profile or null if not found.
+ */
+export async function getUserByUsername(username: string): Promise<(UserProfile | Doctor) | null> {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return null;
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+
+    // Add roleActual for consistency
+    let roleActual = userData.role;
+    if (userData.role === 'doctor' && 'specialty' in userData) {
+        roleActual = 'doctor';
+    }
+
+    return {
+        ...userData,
+        id: userDoc.id,
+        roleActual,
+    } as UserProfile | Doctor;
 }

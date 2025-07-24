@@ -13,8 +13,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useRef, type ChangeEvent, type FormEvent, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { addDoctor, addPatient, addLabWorker, isUsernameUnique, getUserProfileByUID, checkAndCreateUserProfile } from '@/lib/firebase/firestore'; 
-import type { Doctor, UserProfile } from '@/types';
+import { addDoctor, addPatient, addLabWorker, isUsernameUnique } from '@/lib/firebase/firestore'; 
 import { uploadFileToStorage } from '@/lib/firebase/storage';
 import { auth } from '@/lib/firebase/config';
 import { signInWithGoogle, sendPasswordResetEmail } from '@/lib/firebase/auth';
@@ -51,21 +50,18 @@ export default function AuthPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   
-  const { authUser, isLoading: authIsLoading, userProfile } = useAuthState();
-
-  const handleSuccessfulLogin = (role: UserProfile['role'] | 'doctor' | null) => {
-    if (role === 'admin') router.push('/admin/dashboard');
-    else if (role === 'doctor') router.push('/doctor/dashboard');
-    else if (role === 'lab_worker') router.push('/lab/dashboard');
-    else if (role === 'patient') router.push('/patient/dashboard');
-    else router.push('/'); // Fallback
-  };
+  const { authUser, userProfile, isLoading: authIsLoading, isAdminSession } = useAuthState();
 
   useEffect(() => {
-    if (!authIsLoading && authUser) {
-      handleSuccessfulLogin(userProfile?.roleActual || null);
+    if (!authIsLoading && (authUser || isAdminSession)) {
+      const role = isAdminSession ? 'admin' : userProfile?.roleActual;
+      if (role === 'admin') router.push('/admin/dashboard');
+      else if (role === 'doctor') router.push('/doctor/dashboard');
+      else if (role === 'lab_worker') router.push('/lab/dashboard');
+      else if (role === 'patient') router.push('/patient/dashboard');
+      else if (authUser) router.push('/'); // Fallback for authenticated but role-less user
     }
-  }, [authUser, authIsLoading, userProfile, router]);
+  }, [authUser, userProfile, authIsLoading, isAdminSession, router]);
 
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -79,22 +75,15 @@ export default function AuthPage() {
         localStorage.setItem('isAdminLoggedIn', 'true');
       }
       toast({ title: "Admin Login Successful", description: "Redirecting...", variant: "success" });
-      handleSuccessfulLogin('admin');
-      setIsLoading(false);
+      // The useEffect will handle redirection
+      window.location.reload(); // Force reload to re-trigger auth state hook
       return;
     }
     
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-      const fetchedProfile = await getUserProfileByUID(userCredential.user.uid);
-      if (fetchedProfile) {
-        toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
-        handleSuccessfulLogin(fetchedProfile.roleActual || null);
-      } else {
-         console.error("Login Error: User profile not found for UID", userCredential.user.uid);
-        toast({ variant: "destructive", title: "Login Error", description: "User profile not found." });
-        await auth.signOut(); // Sign out the user if profile is missing
-      }
+      await signInWithEmailAndPassword(auth, emailValue, passwordValue);
+      // The onAuthStateChanged listener in useAuthState will handle the rest.
+      toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
     } catch (error) {
       console.error("Login Failed:", error);
       const authError = error as AuthError;
@@ -113,23 +102,9 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const user = await signInWithGoogle();
-      if (user) {
-        // This function now checks if a profile exists, and if not, creates a patient profile.
-        const profile = await checkAndCreateUserProfile(user);
-         if (profile) {
-            toast({ title: "Login Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
-            handleSuccessfulLogin(profile.roleActual || 'patient');
-         } else {
-            // This case might happen if a doctor signs in with Google but is not verified
-            console.log("Google Sign-In: User profile not returned (possibly unverified doctor).");
-            toast({ variant: "destructive", title: "Login Failed", description: "Account requires verification." });
-            await auth.signOut(); // Sign out unverified user
-         }
-      } else {
-         console.error("Google Sign-In Error: No user returned from signInWithGoogle.");
-         toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Could not sign in with Google. Please try again." });
-      }
+      await signInWithGoogle();
+      // The onAuthStateChanged listener will handle profile creation and redirection.
+      toast({ title: "Google Sign-In Successful", description: "Welcome to EzCare Simplified!", variant: "success" });
     } catch (error) {
       console.error("Google Sign-In Error:", error);
       const authError = error as AuthError;
@@ -207,7 +182,6 @@ export default function AuthPage() {
       setIsLoading(false); return;
     }
 
-    // Check if username is unique before attempting Firebase auth
     try {
         const isUnique = await isUsernameUnique(username.toLowerCase());
         if (!isUnique) {
@@ -234,7 +208,6 @@ export default function AuthPage() {
          } catch (uploadError) {
             console.error("Profile picture upload failed:", uploadError);
             toast({ variant: "warning", title: "Upload Failed", description: "Could not upload profile picture." });
-            // Continue with signup even if upload fails
          }
       }
 
@@ -242,31 +215,29 @@ export default function AuthPage() {
         const specialty = formData.get('specialization') as string;
         const experience = parseInt(formData.get('experience') as string, 10);
         const licenseNumber = formData.get('licenseNumber') as string;
-         // Ensure required fields for doctor are present
         if (!specialty || !experience || !licenseNumber) {
              toast({ variant: "destructive", title: "Missing Information", description: "Please fill all required fields for doctor." });
-             await firebaseUser.delete(); // Clean up created auth user
+             await firebaseUser.delete();
              setIsLoading(false); return;
         }
-        await addDoctor({ uid, name, username: finalUsername, email, phone, specialty, experience, licenseNumber, location: locationInput, imageUrl: avatarUrlFromStorage, isVerified: false }); // Set isVerified to false initially
+        await addDoctor({ uid, name, username: finalUsername, email, phone, specialty, experience, licenseNumber, location: locationInput, imageUrl: avatarUrlFromStorage, isVerified: false });
       } else if (userType === 'lab_worker') {
         const labAffiliation = formData.get('labId') as string; 
          if (!labAffiliation) {
              toast({ variant: "destructive", title: "Missing Information", description: "Please provide Lab ID / Affiliation." });
-             await firebaseUser.delete(); // Clean up created auth user
+             await firebaseUser.delete();
              setIsLoading(false); return;
          }
         await addLabWorker({ uid, name, username: finalUsername, email, phone, location: locationInput, labAffiliation, avatarUrl: avatarUrlFromStorage });
       } else { 
         await addPatient({ uid, name, username: finalUsername, email, phone, location: locationInput, avatarUrl: avatarUrlFromStorage });
       }
-      toast({ title: "Sign Up Successful", description: "Redirecting...", variant: "success" });
-      // For doctors and lab workers, don't redirect immediately, wait for verification or show pending state
+      
       if (userType === 'patient') {
-         handleSuccessfulLogin(userType);
+         toast({ title: "Sign Up Successful", description: "Redirecting...", variant: "success" });
       } else {
-         // Redirect to a pending verification page or show a message
-         router.push('/verification-pending'); // Assuming a pending page exists
+         toast({ title: "Registration Submitted", description: "Your account is pending verification by an admin.", variant: "success" });
+         router.push('/verification-pending');
       }
 
     } catch (error) {
@@ -275,13 +246,12 @@ export default function AuthPage() {
         let errorMessage = "Could not create account.";
         if (authError.code === 'auth/email-already-in-use') errorMessage = "Email already registered. Please login.";
         else if (authError.code === 'auth/weak-password') errorMessage = "Password is too weak (min. 6 characters).";
-        else if (authError.code === 'auth/operation-not-allowed') errorMessage = "Email/Password sign up is disabled."; // Handle if method is disabled
+        else if (authError.code === 'auth/operation-not-allowed') errorMessage = "Email/Password sign up is disabled.";
         else if (authError.code === 'auth/network-request-failed') errorMessage = "Network error. Please check your internet connection.";
         toast({ variant: "destructive", title: "Signup Failed", description: errorMessage });
 
-        // Clean up auth user if profile creation failed after auth user was created
         if (auth.currentUser) {
-            await auth.currentUser.delete().catch(console.error); // Use catch to prevent errors during cleanup
+            await auth.currentUser.delete().catch(console.error);
         }
     } finally {
       setIsLoading(false);
